@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { withTenant } from './db';
 import { MANAGER } from './data';
-import { HONESTY_LINE, LIGHTS } from '@/components/product';
+import { HONESTY_LINE, LIGHTS } from './domain';
 
 /**
  * Сборка и отправка карточки.

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { bayRecord, rollsFor } from '@/lib/bay';
-import { BayScreen } from './bay';
+import { BayScreen } from './BayScreen';
 
 export const dynamic = 'force-dynamic';
 

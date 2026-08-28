@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { sys } from '@/lib/db';
-import { Garage } from './garage';
+import { Garage } from './Garage';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,8 +28,5 @@ export default async function GaragePage({ params }: { params: { slug: string } 
        where pp.point_id = $1 and pp.zone_code = 'full_body' and ci.active
        order by ci.category, pp.price_kopecks desc`, [point.id]);
 
-  const models = await sys<{ id: string; make: string; model: string }>(
-    `select id, make, model from vehicle_models order by make, model`);
-
-  return <Garage pointName={point.name} slug={params.slug} items={items} models={models} />;
+  return <Garage pointName={point.name} items={items} plate="А 432 ОР 77" />;
 }

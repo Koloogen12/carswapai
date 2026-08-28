@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { bayRecord } from '@/lib/bay';
-import { Price } from '@/components/ui';
+import { rub } from '@/screens/cabinet';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,15 +15,15 @@ export default async function InvoiceDoc({ params }: { params: { id: string } })
       <div style={{ maxWidth: 794, margin: '0 auto', padding: 40, background: '#fff' }}>
         <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.03em' }}>
           Счёт к наряду {r.number}</div>
-        <div style={{ color: 'var(--ink-500)', fontSize: 13, marginTop: 4 }}>
+        <div style={{ color: '#6E6E6E', fontSize: 13, marginTop: 4 }}>
           JETCAR Мытищи · {r.client_name} · {r.plate ?? ''}</div>
         <table style={{ width: '100%', marginTop: 26, borderCollapse: 'collapse', fontSize: 14 }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--rule-strong)' }}>
+            <tr style={{ borderBottom: '1px solid #E2E2E2' }}>
               {['Позиция', 'Артикул', 'Метраж', 'Сумма'].map(h => (
                 <th key={h} style={{ textAlign: h === 'Сумма' ? 'right' : 'left',
                   padding: '0 0 10px', fontSize: 11, textTransform: 'uppercase',
-                  letterSpacing: '.07em', color: 'var(--ink-400)', fontWeight: 600 }}>{h}</th>
+                  letterSpacing: '.07em', color: '#9A9A9A', fontWeight: 600 }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -35,7 +35,7 @@ export default async function InvoiceDoc({ params }: { params: { id: string } })
               <td style={{ padding: '14px 0', fontVariantNumeric: 'tabular-nums' }}>
                 {r.meters_required ?? '—'} м</td>
               <td style={{ padding: '14px 0', textAlign: 'right' }}>
-                <Price kopecks={r.price_kopecks} size="15px" /></td>
+                <span style={{ fontSize: "15px", fontWeight: 500, letterSpacing: "-0.03em", fontVariantNumeric: "tabular-nums" }}>{rub(r.price_kopecks)} ₽</span></td>
             </tr>
           </tbody>
         </table>
@@ -43,10 +43,10 @@ export default async function InvoiceDoc({ params }: { params: { id: string } })
           {[['Предоплата 30%', prepay], ['Остаток при выдаче', r.price_kopecks - prepay],
             ['Итого', r.price_kopecks]].map(([k, v], i) => (
             <div key={k as string} style={{ display: 'flex', justifyContent: 'space-between',
-              padding: '10px 0', borderTop: i === 2 ? '2px solid var(--ink-900)' : '1px solid var(--rule)' }}>
-              <span style={{ color: i === 2 ? 'var(--ink-900)' : 'var(--ink-500)',
+              padding: '10px 0', borderTop: i === 2 ? '2px solid #111111' : '1px solid #F0F0F0' }}>
+              <span style={{ color: i === 2 ? '#111111' : '#6E6E6E',
                 fontWeight: i === 2 ? 500 : 400 }}>{k}</span>
-              <Price kopecks={v as number} size={i === 2 ? '20px' : '15px'} />
+              <span style={{ fontSize: i === 2 ? '20px' : '15px', fontWeight: 500, letterSpacing: "-0.03em", fontVariantNumeric: "tabular-nums" }}>{rub(v as number)} ₽</span>
             </div>
           ))}
         </div>

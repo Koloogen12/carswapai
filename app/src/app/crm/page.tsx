@@ -1,6 +1,7 @@
-import { Shell, NavLink } from '@/components/shell';
-import { Card, Divider, Eyebrow, H, NoData, Pill, Row, Stack } from '@/components/ui';
+import { AppBar, Frame } from '@/screens/chrome';
+import { Card, CardHead } from '@/screens/cabinet';
 import { crmClients } from '@/lib/reports';
+import { budget } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,52 +9,46 @@ const STATUS: Record<string, string> = {
   created: 'Наряд создан', in_work: 'В работе', done: 'Выдано',
 };
 
-/** Экраны 47–48 · учётный слой. Обслуживает примерку и точкой входа не является. */
+/**
+ * Экраны 47–48 · карточки клиентов.
+ * Учётный слой обслуживает примерку и точкой входа не является: сюда попадают
+ * из диалога, а не наоборот.
+ */
 export default async function CrmPage() {
-  const rows = await crmClients();
+  const [rows, b] = await Promise.all([crmClients(), budget()]);
   return (
-    <Shell user="Ирина Ковалёва" role="Менеджер · JETCAR Мытищи"
-      nav={<>
-        <NavLink href="/inbox">Инбокс</NavLink>
-        <NavLink href="/crm" active>Клиенты</NavLink>
-        <NavLink href="/price">Прайс</NavLink>
-        <NavLink href="/owner">Точка</NavLink>
-      </>}>
-      <Stack gap={20}>
-        <div>
-          <Eyebrow>Точка</Eyebrow>
-          <H level={1} style={{ marginTop: 4 }}>Клиенты</H>
-        </div>
-        <Card>
-          {rows.length === 0 ? <NoData label="Карточки заводятся сами из диалогов" /> : (
-            <Stack gap={0}>
-              {rows.map((r, i) => (
-                <div key={r.id}>
-                  {i > 0 && <Divider />}
-                  <Row style={{ justifyContent: 'space-between', padding: '14px 0' }}>
-                    <Stack gap={4}>
-                      <Row gap={8} wrap>
-                        <span style={{ fontWeight: 500 }}>{r.name}</span>
-                        {(r.vehicle as { plate?: string })?.plate &&
-                          <Pill>{(r.vehicle as { plate?: string }).plate}</Pill>}
-                      </Row>
-                      <span style={{ fontSize: 'var(--fs-body-s)', color: 'var(--ink-500)' }}>
-                        {r.phone} · {(r.vehicle as { make?: string }).make}{' '}
-                        {(r.vehicle as { model?: string }).model}
-                      </span>
-                    </Stack>
-                    <Row gap={10}>
-                      <Pill>{r.tryons} примерок</Pill>
-                      {r.confirmed_at && <Pill tone="acid">выбор подтверждён</Pill>}
-                      {r.order_status && <Pill tone="ink">{STATUS[r.order_status] ?? r.order_status}</Pill>}
-                    </Row>
-                  </Row>
+    <Frame pad="26px 28px 30px" gap="16px">
+      <AppBar pointName="JETCAR Мытищи" user="Ирина Ковалёва" role="Менеджер"
+        spent={b.spent_kopecks} cap={b.hard_limit} />
+      <Card gap="16px">
+        <CardHead title="Клиенты точки"
+          note="карточки заводятся сами из диалогов · ручного ввода нет" />
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {rows.map(r => {
+            const v = r.vehicle as { make?: string; model?: string; year?: number; plate?: string };
+            return (
+              <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "14px", background: "#F7F7F7", borderRadius: "18px", padding: "14px 16px" }}>
+                <div style={{ width: "38px", height: "38px", borderRadius: "999px", background: "#EFEFEF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "600", color: "#6E6E6E", flex: "none" }}>
+                  {r.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
                 </div>
-              ))}
-            </Stack>
-          )}
-        </Card>
-      </Stack>
-    </Shell>
+                <div style={{ flex: "1", minWidth: 0, display: "flex", flexDirection: "column", gap: "1px" }}>
+                  <span style={{ fontSize: "14px", fontWeight: "500" }}>{r.name}</span>
+                  <span style={{ fontSize: "11px", color: "#9A9A9A" }}>
+                    {r.phone} · {v.make} {v.model} {v.year} · {v.plate}</span>
+                </div>
+                <span style={{ fontSize: "11.5px", color: "#6E6E6E", flex: "none" }}>{r.tryons} примерок</span>
+                {r.confirmed_at && (
+                  <span style={{ fontSize: "11px", fontWeight: "500", background: "#DEF23B", borderRadius: "999px", padding: "5px 11px", flex: "none" }}>выбор подтверждён</span>
+                )}
+                {r.order_status && (
+                  <span style={{ fontSize: "11px", fontWeight: "500", background: "#111111", color: "#FFFFFF", borderRadius: "999px", padding: "5px 11px", flex: "none" }}>
+                    {STATUS[r.order_status] ?? r.order_status}</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    </Frame>
   );
 }

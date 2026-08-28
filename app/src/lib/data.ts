@@ -1,5 +1,5 @@
 import { withTenant, type Claims } from './db';
-import type { ChannelId, TryonStateId } from '@/components/product';
+import type { ChannelId, TryonStateId } from './domain';
 
 /** Претензии менеджера демо-точки. В проде приходят из сессии. */
 export const MANAGER: Claims = {

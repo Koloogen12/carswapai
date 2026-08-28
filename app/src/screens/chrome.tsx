@@ -66,10 +66,11 @@ function fmt(kopecks: number) {
  * и это работа на нашей стороне. Поэтому ширина тянется, высота — по вьюпорту;
  * всё остальное (фон, радиус 30, отбивка 18, gap 14) из макета без изменений.
  */
-export function Frame({ children }: { children: ReactNode }) {
+export function Frame({ children, pad = "18px", gap = "14px" }:
+  { children: ReactNode; pad?: string; gap?: string }) {
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
-      <div style={{ width: "100%", maxWidth: "1440px", minHeight: "calc(100vh - 44px)", margin: "0 auto", background: "#EFEFEF", borderRadius: "30px", padding: "18px", display: "flex", flexDirection: "column", gap: "14px", overflow: "hidden" }}>
+      <div style={{ width: "100%", maxWidth: "1440px", minHeight: "calc(100vh - 44px)", margin: "0 auto", background: "#EFEFEF", borderRadius: "30px", padding: pad, display: "flex", flexDirection: "column", gap, overflow: "hidden" }}>
         {children}
       </div>
     </div>
