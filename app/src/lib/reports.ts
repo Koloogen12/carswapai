@@ -61,3 +61,15 @@ export async function crmClients() {
                      tryons: number; confirmed_at: string | null; order_status: string | null }[];
   });
 }
+
+export async function staffList() {
+  return withTenant(OWNER, async c => {
+    const { rows } = await c.query(`
+      select id, name, phone, role::text, active, created_at
+        from users where point_id = $1
+       order by array_position(array['owner','manager','master'], role::text)`,
+      [OWNER.point_id]);
+    return rows as { id: string; name: string; phone: string; role: string;
+                     active: boolean; created_at: string }[];
+  });
+}

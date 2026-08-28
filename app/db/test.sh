@@ -16,5 +16,5 @@ psql -h "$S" -p "$PORT" -U postgres -q -c "create database carswap;"
 for m in migrations/*.sql; do
   psql -h "$S" -p "$PORT" -U postgres -d carswap -q -v ON_ERROR_STOP=1 -f "$m"
 done
-psql -h "$S" -p "$PORT" -U postgres -d carswap -v ON_ERROR_STOP=1 -f tests/invariants.sql -f tests/queue.sql -f tests/consent-rolls.sql 2>&1 \
+psql -h "$S" -p "$PORT" -U postgres -d carswap -v ON_ERROR_STOP=1 -f tests/invariants.sql -f tests/queue.sql -f tests/consent-rolls.sql -f tests/operations.sql 2>&1 \
   | grep -E 'ok  ·|ПРОВАЛ|ERROR'
