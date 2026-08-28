@@ -1,0 +1,10 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "app", "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"], "port": 3000 },
+    { "name": "proto", "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd /Users/danilkocnev/Documents/Claude/Projects/Carswap/design/design && exec npx --yes serve -l 4173 ."],
+      "port": 4173 }
+  ]
+}

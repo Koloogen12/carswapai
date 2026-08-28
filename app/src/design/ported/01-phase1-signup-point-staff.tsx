@@ -1,0 +1,456 @@
+/* СГЕНЕРИРОВАНО tools/port_dc.py из design/design/01-phase1-signup-point-staff.dc.html — не править руками.
+ * Разметка перенесена дословно: пиксели, порядок свойств и вложенность из хендоффа.
+ * Правки вносятся в источник и повторным прогоном конвертера.
+ */
+/* eslint-disable @next/next/no-img-element, react/no-unknown-property */
+import type { ReactElement } from 'react';
+import { ImageSlot } from '../ImageSlot';
+
+export function S01Phase1SignupPointStaffBlock0(): ReactElement {
+  return (
+    <><div style={{ maxWidth: "900px", display: "flex", flexDirection: "column", gap: "13px", color: "#FFFFFF" }}>
+  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <span style={{ fontSize: "11px", fontWeight: "600", background: "#DEF23B", color: "#111111", borderRadius: "5px", padding: "4px 9px", letterSpacing: "0.04em" }}>Фаза 1 · экраны 01–08</span>
+    <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#8A8A8A" }}>Начало продукта · до первого обращения</span>
+  </div>
+  <h1 style={{ margin: "0", fontSize: "44px", fontWeight: "500", letterSpacing: "-0.035em", lineHeight: "1.04" }}>Регистрация, точка, сотрудники и доступы</h1>
+  <p style={{ margin: "0", fontSize: "15px", lineHeight: "1.55", color: "#BFBFBF", maxWidth: "780px", textWrap: "pretty" }}>Первые восемь экранов приложения: как владелец попадает внутрь, создаёт точку, заводит людей и как менеджер получает доступ. Дальше — экран 09, инбокс, в файле «01 Менеджер».</p>
+</div></>
+  );
+}
+
+export function S01Phase1SignupPointStaffBlock1(): ReactElement {
+  return (
+    <><div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+  <div style={{ display: "flex", alignItems: "baseline", gap: "12px" }}>
+    <span style={{ fontSize: "12px", fontWeight: "600", background: "#111111", color: "#DEF23B", borderRadius: "7px", padding: "6px 11px" }}>01</span>
+    <span style={{ fontSize: "19px", fontWeight: "500", color: "#FFFFFF", letterSpacing: "-0.02em" }}>Вход в кабинет</span>
+    <span style={{ fontSize: "12.5px", color: "#8A8A8A" }}>регистрации «с улицы» нет — только по приглашению сети</span>
+  </div>
+
+  <div style={{ width: "1440px", height: "760px", background: "#EFEFEF", borderRadius: "30px", overflow: "hidden", display: "flex" }}>
+    <div style={{ width: "620px", flex: "none", background: "#FFFFFF", padding: "52px 56px", display: "flex", flexDirection: "column", gap: "26px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ width: "30px", height: "30px", borderRadius: "10px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2.2" strokeLinecap="round"><path d="M12 4v16M4 12h16" /></svg>
+        </div>
+        <span style={{ fontSize: "17px", fontWeight: "600", letterSpacing: "-0.02em" }}>CarSwap</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <span style={{ fontSize: "34px", fontWeight: "500", letterSpacing: "-0.032em", lineHeight: "1.1" }}>Вход для точки</span>
+        <span style={{ fontSize: "14px", lineHeight: "1.5", color: "#6E6E6E" }}>Введите телефон, на который управляющая компания выдала доступ. Пароль не нужен — придёт код.</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "11px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>Телефон</span>
+          <div style={{ background: "#F5F5F5", borderRadius: "16px", padding: "17px 20px", display: "flex", alignItems: "center", gap: "10px", boxShadow: "inset 0 0 0 1.5px #111111" }}>
+            <span style={{ fontSize: "16px", fontWeight: "500" }}>+7 926 418 55 02</span>
+            <span style={{ width: "1.5px", height: "19px", background: "#111111", marginLeft: "1px" }}></span>
+          </div>
+        </div>
+        <div style={{ background: "#111111", borderRadius: "999px", padding: "18px 0", textAlign: "center" }}><span style={{ fontSize: "15px", fontWeight: "500", color: "#FFFFFF" }}>Получить код</span></div>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "11px" }}>
+        <span style={{ fontSize: "12.5px", color: "#6E6E6E" }}>Есть код приглашения от сети?</span>
+        <div style={{ background: "#F5F5F5", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>Зарегистрировать точку по приглашению</span></div>
+      </div>
+      <span style={{ marginTop: "auto", fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.5" }}>Сотрудники здесь не регистрируются. Менеджера и мастера добавляет владелец точки — им приходит своя ссылка.</span>
+    </div>
+
+    <div style={{ flex: "1", position: "relative" }}>
+      <img src="/renders/render-01.png" alt="" />
+      <div style={{ position: "absolute", left: "44px", bottom: "44px", right: "44px", background: "rgba(255,255,255,.94)", borderRadius: "26px", padding: "24px 26px", display: "flex", flexDirection: "column", gap: "9px" }}>
+        <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Что это за продукт</span>
+        <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.022em", lineHeight: "1.25", textWrap: "pretty" }}>Клиент видит свою машину в вашей плёнке за минуту — и просит второй вариант вместо «спасибо, подумаю».</span>
+      </div>
+    </div>
+  </div>
+  <div style={{ width: "1440px", background: "rgba(255,255,255,.07)", borderRadius: "18px", padding: "16px 19px" }}>
+    <span style={{ fontSize: "12.5px", lineHeight: "1.5", color: "#C9C9C9", textWrap: "pretty" }}><span style={{ color: "#DEF23B", fontWeight: "500" }}>Почему так. </span>Функция недоступна точке в обход сети — это первый критерий плательщика. Поэтому регистрации без приглашения не существует, а вход по коду убирает восстановление пароля из списка причин звонить в УК.</span>
+  </div>
+</div></>
+  );
+}
+
+export function S01Phase1SignupPointStaffBlock2(): ReactElement {
+  return (
+    <><div style={{ display: "flex", alignItems: "center", gap: "12px", paddingLeft: "14px" }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="1.8" strokeLinecap="round"><path d="M12 4v16M6 14l6 6 6-6" /></svg>
+  <span style={{ fontSize: "13px", color: "#8A8A8A" }}>Владелец открыл ссылку-приглашение из письма УК</span>
+</div></>
+  );
+}
+
+export function S01Phase1SignupPointStaffBlock3(): ReactElement {
+  return (
+    <><div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+  <div style={{ display: "flex", alignItems: "baseline", gap: "12px" }}>
+    <span style={{ fontSize: "12px", fontWeight: "600", background: "#111111", color: "#DEF23B", borderRadius: "7px", padding: "6px 11px" }}>02 · 03 · 04</span>
+    <span style={{ fontSize: "19px", fontWeight: "500", color: "#FFFFFF", letterSpacing: "-0.02em" }}>Приглашение → код → точка создана</span>
+    <span style={{ fontSize: "12.5px", color: "#8A8A8A" }}>три экрана, ни одного шага с третьей стороной</span>
+  </div>
+
+  <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+
+    <div style={{ width: "466px", display: "flex", flexDirection: "column", gap: "11px" }}>
+      <span style={{ fontSize: "13px", color: "#8A8A8A" }}>02 · Регистрация по приглашению</span>
+      <div style={{ width: "466px", height: "620px", background: "#FFFFFF", borderRadius: "26px", padding: "32px 34px", display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "11px", background: "#F5FBCB", borderRadius: "16px", padding: "12px 14px" }}>
+          <div style={{ width: "28px", height: "28px", borderRadius: "9px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2.4" strokeLinecap="round"><path d="M5 13l4.5 4.5L19 7" /></svg>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+            <span style={{ fontSize: "12.5px", fontWeight: "500" }}>Приглашение от «Автостиль Франшиза»</span>
+            <span style={{ fontSize: "11px", color: "#6E6E6E" }}>код AS-KTZ-4417 · действует до 4 сентября</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <span style={{ fontSize: "26px", fontWeight: "500", letterSpacing: "-0.03em", lineHeight: "1.15" }}>Заведём вашу точку</span>
+          <span style={{ fontSize: "13px", lineHeight: "1.5", color: "#6E6E6E" }}>Четыре поля. Всё остальное — каталог, прайс, шаблоны документов — приедет из сети готовым.</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>Название точки</span>
+            <div style={{ background: "#F5F5F5", borderRadius: "14px", padding: "14px 16px" }}><span style={{ fontSize: "14.5px", fontWeight: "500" }}>Пост на Кутузовском</span></div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>Адрес</span>
+            <div style={{ background: "#F5F5F5", borderRadius: "14px", padding: "14px 16px" }}><span style={{ fontSize: "14.5px" }}>Кутузовский пр-т, 36, стр. 4</span></div>
+          </div>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "5px" }}>
+              <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>Ваш телефон</span>
+              <div style={{ background: "#F5F5F5", borderRadius: "14px", padding: "14px 16px" }}><span style={{ fontSize: "14.5px" }}>+7 926 418 55 02</span></div>
+            </div>
+            <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "5px" }}>
+              <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>Постов оклейки</span>
+              <div style={{ background: "#F5F5F5", borderRadius: "14px", padding: "14px 16px" }}><span style={{ fontSize: "14.5px" }}>2</span></div>
+            </div>
+          </div>
+        </div>
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "9px" }}>
+          <div style={{ background: "#111111", borderRadius: "999px", padding: "17px 0", textAlign: "center" }}><span style={{ fontSize: "14.5px", fontWeight: "500", color: "#FFFFFF" }}>Создать точку</span></div>
+          <span style={{ fontSize: "11px", color: "#9A9A9A", textAlign: "center", lineHeight: "1.45" }}>Продолжая, вы принимаете условия использования и согласие на обработку данных</span>
+        </div>
+      </div>
+    </div>
+
+    <div style={{ width: "466px", display: "flex", flexDirection: "column", gap: "11px" }}>
+      <span style={{ fontSize: "13px", color: "#8A8A8A" }}>03 · Подтверждение телефона</span>
+      <div style={{ width: "466px", height: "620px", background: "#FFFFFF", borderRadius: "26px", padding: "32px 34px", display: "flex", flexDirection: "column", gap: "22px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <span style={{ fontSize: "26px", fontWeight: "500", letterSpacing: "-0.03em", lineHeight: "1.15" }}>Код из SMS</span>
+          <span style={{ fontSize: "13px", lineHeight: "1.5", color: "#6E6E6E" }}>Отправили на +7 926 ··· 55 02. Это же станет вашим входом — пароля в продукте нет.</span>
+        </div>
+        <div style={{ display: "flex", gap: "9px" }}>
+          <div style={{ flex: "1", height: "66px", borderRadius: "16px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: "26px", fontWeight: "500" }}>4</span></div>
+          <div style={{ flex: "1", height: "66px", borderRadius: "16px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: "26px", fontWeight: "500" }}>1</span></div>
+          <div style={{ flex: "1", height: "66px", borderRadius: "16px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: "26px", fontWeight: "500" }}>8</span></div>
+          <div style={{ flex: "1", height: "66px", borderRadius: "16px", background: "#F5F5F5", boxShadow: "inset 0 0 0 1.5px #111111", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ width: "1.5px", height: "26px", background: "#111111" }}></span></div>
+          <div style={{ flex: "1", height: "66px", borderRadius: "16px", background: "#F5F5F5" }}></div>
+          <div style={{ flex: "1", height: "66px", borderRadius: "16px", background: "#F5F5F5" }}></div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{ fontSize: "12.5px", color: "#9A9A9A" }}>Отправить повторно через 0:38</span>
+        </div>
+        <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+        <div style={{ background: "#F7F7F7", borderRadius: "20px", padding: "18px 20px", display: "flex", flexDirection: "column", gap: "10px" }}>
+          <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Пока идёт код</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.2" strokeLinecap="round" style={{ flex: "none" }}><path d="M5 13l4.5 4.5L19 7" /></svg><span style={{ fontSize: "13px" }}>Каталог сети · 214 SKU подтянут</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.2" strokeLinecap="round" style={{ flex: "none" }}><path d="M5 13l4.5 4.5L19 7" /></svg><span style={{ fontSize: "13px" }}>Шаблоны заказ-наряда и счёта готовы</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.2" strokeLinecap="round" style={{ flex: "none" }}><path d="M5 13l4.5 4.5L19 7" /></svg><span style={{ fontSize: "13px" }}>Лимит генераций тарифа · 2 000 в месяц</span></div>
+        </div>
+        <span style={{ marginTop: "auto", fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.5" }}>Ни один шаг регистрации не требует звонка в управляющую компанию — это главный критерий того, кто платит.</span>
+      </div>
+    </div>
+
+    <div style={{ width: "466px", display: "flex", flexDirection: "column", gap: "11px" }}>
+      <span style={{ fontSize: "13px", color: "#8A8A8A" }}>04 · Точка создана · осталось три шага</span>
+      <div style={{ width: "466px", height: "620px", background: "#FFFFFF", borderRadius: "26px", padding: "32px 34px", display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ width: "44px", height: "44px", borderRadius: "999px", background: "#DEF23B", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4.5 4.5L19 7" /></svg>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <span style={{ fontSize: "22px", fontWeight: "500", letterSpacing: "-0.028em", lineHeight: "1.15" }}>Пост на Кутузовском</span>
+            <span style={{ fontSize: "12px", color: "#6E6E6E" }}>создан 28 августа, 09:12</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#F5FBCB", borderRadius: "18px", padding: "15px 17px" }}>
+            <span style={{ width: "26px", height: "26px", borderRadius: "999px", background: "#111111", color: "#DEF23B", fontSize: "12px", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>1</span>
+            <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "1px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>Подключить каналы</span><span style={{ fontSize: "11px", color: "#6E6E6E" }}>WhatsApp, Telegram, MAX, Avito · ~15 минут</span></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2" strokeLinecap="round" style={{ flex: "none" }}><path d="M9 6l6 6-6 6" /></svg>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#F7F7F7", borderRadius: "18px", padding: "15px 17px" }}>
+            <span style={{ width: "26px", height: "26px", borderRadius: "999px", background: "#EFEFEF", color: "#9A9A9A", fontSize: "12px", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>2</span>
+            <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "1px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>Подтвердить прайс</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>наценка одним коэффициентом · 5 минут</span></div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#F7F7F7", borderRadius: "18px", padding: "15px 17px" }}>
+            <span style={{ width: "26px", height: "26px", borderRadius: "999px", background: "#EFEFEF", color: "#9A9A9A", fontSize: "12px", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>3</span>
+            <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "1px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>Добавить сотрудников</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>менеджеры и мастера · 2 минуты</span></div>
+          </div>
+        </div>
+        <div style={{ background: "#F7F7F7", borderRadius: "20px", padding: "16px 18px", display: "flex", flexDirection: "column", gap: "6px" }}>
+          <span style={{ fontSize: "12px", color: "#9A9A9A" }}>Оценка запуска</span>
+          <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.02em" }}>22 минуты до первой отправки</span>
+          <span style={{ fontSize: "11.5px", color: "#6E6E6E", lineHeight: "1.45" }}>Без обучения и миграции данных. Обучающих туров в продукте нет: первый сценарий проходится без инструкции.</span>
+        </div>
+        <div style={{ marginTop: "auto", background: "#111111", borderRadius: "999px", padding: "17px 0", textAlign: "center" }}><span style={{ fontSize: "14.5px", fontWeight: "500", color: "#FFFFFF" }}>Начать с каналов</span></div>
+      </div>
+    </div>
+  </div>
+</div></>
+  );
+}
+
+export function S01Phase1SignupPointStaffBlock4(): ReactElement {
+  return (
+    <><div style={{ display: "flex", alignItems: "center", gap: "12px", paddingLeft: "14px" }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="1.8" strokeLinecap="round"><path d="M12 4v16M6 14l6 6 6-6" /></svg>
+  <span style={{ fontSize: "13px", color: "#8A8A8A" }}>Шаги 1 и 2 — каналы и прайс — в файле «04 Владелец и сеть», экраны 01 и 02. Здесь продолжаем с шага 3</span>
+</div></>
+  );
+}
+
+export function S01Phase1SignupPointStaffBlock5(): ReactElement {
+  return (
+    <><div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+  <div style={{ display: "flex", alignItems: "baseline", gap: "12px" }}>
+    <span style={{ fontSize: "12px", fontWeight: "600", background: "#111111", color: "#DEF23B", borderRadius: "7px", padding: "6px 11px" }}>05 · 06</span>
+    <span style={{ fontSize: "19px", fontWeight: "500", color: "#FFFFFF", letterSpacing: "-0.02em" }}>Сотрудники, роли и приглашение</span>
+    <span style={{ fontSize: "12.5px", color: "#8A8A8A" }}>доступ привязан к точке, а не к человеку</span>
+  </div>
+
+  <div style={{ width: "1440px", background: "#EFEFEF", borderRadius: "30px", padding: "26px 28px 30px", display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "16px", alignItems: "start" }}>
+    <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "18px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <span style={{ fontSize: "20px", fontWeight: "500", letterSpacing: "-0.025em" }}>Сотрудники точки</span>
+        <span style={{ fontSize: "12px", color: "#9A9A9A" }}>3 человека · 2 поста</span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", background: "#DEF23B", borderRadius: "20px", padding: "15px 17px" }}>
+          <div style={{ width: "38px", height: "38px", borderRadius: "999px", background: "#111111", color: "#DEF23B", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12.5px", fontWeight: "600", flex: "none" }}>ДК</div>
+          <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "1px" }}>
+            <span style={{ fontSize: "15px", fontWeight: "500" }}>Дмитрий Кораблёв · это вы</span>
+            <span style={{ fontSize: "11.5px", opacity: ".65" }}>+7 926 ··· 55 02 · владелец точки</span>
+          </div>
+          <div style={{ display: "flex", gap: "5px", flex: "none" }}>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", background: "rgba(255,255,255,.55)", borderRadius: "999px", padding: "5px 10px" }}>инбокс</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", background: "rgba(255,255,255,.55)", borderRadius: "999px", padding: "5px 10px" }}>CRM</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", background: "rgba(255,255,255,.55)", borderRadius: "999px", padding: "5px 10px" }}>прайс</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", background: "rgba(255,255,255,.55)", borderRadius: "999px", padding: "5px 10px" }}>деньги</span>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", background: "#F7F7F7", borderRadius: "20px", padding: "15px 17px" }}>
+          <div style={{ width: "38px", height: "38px", borderRadius: "999px", background: "#EFEFEF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12.5px", fontWeight: "600", color: "#6E6E6E", flex: "none" }}>ИК</div>
+          <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "1px" }}>
+            <span style={{ fontSize: "15px", fontWeight: "500" }}>Ирина Ковалёва</span>
+            <span style={{ fontSize: "11.5px", color: "#6E6E6E" }}>менеджер · доступ активен с 28 августа</span>
+          </div>
+          <div style={{ display: "flex", gap: "5px", flex: "none" }}>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", background: "#FFFFFF", borderRadius: "999px", padding: "5px 10px" }}>инбокс</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", background: "#FFFFFF", borderRadius: "999px", padding: "5px 10px" }}>CRM</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", color: "#C4C4C4", background: "#FFFFFF", borderRadius: "999px", padding: "5px 10px" }}>прайс</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", color: "#C4C4C4", background: "#FFFFFF", borderRadius: "999px", padding: "5px 10px" }}>деньги</span>
+          </div>
+          <span style={{ fontSize: "11.5px", color: "#9A9A9A", flex: "none" }}>Отозвать</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", background: "#F7F7F7", borderRadius: "20px", padding: "15px 17px" }}>
+          <div style={{ width: "38px", height: "38px", borderRadius: "999px", background: "#EFEFEF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12.5px", fontWeight: "600", color: "#6E6E6E", flex: "none" }}>ПС</div>
+          <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "1px" }}>
+            <span style={{ fontSize: "15px", fontWeight: "500" }}>Пётр Салимов</span>
+            <span style={{ fontSize: "11.5px", color: "#6E6E6E" }}>мастер, пост №2 · вход по ссылке, без пароля</span>
+          </div>
+          <div style={{ display: "flex", gap: "5px", flex: "none" }}>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", background: "#FFFFFF", borderRadius: "999px", padding: "5px 10px" }}>наряды</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", color: "#C4C4C4", background: "#FFFFFF", borderRadius: "999px", padding: "5px 10px" }}>инбокс</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", color: "#C4C4C4", background: "#FFFFFF", borderRadius: "999px", padding: "5px 10px" }}>CRM</span>
+            <span style={{ fontSize: "10.5px", fontWeight: "500", color: "#C4C4C4", background: "#FFFFFF", borderRadius: "999px", padding: "5px 10px" }}>деньги</span>
+          </div>
+          <span style={{ fontSize: "11.5px", color: "#9A9A9A", flex: "none" }}>Отозвать</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", background: "#FFFFFF", borderRadius: "20px", padding: "14px 16px", boxShadow: "inset 0 0 0 1px #EDEDED", backgroundImage: "repeating-linear-gradient(115deg,#F4F4F4 0 1px,transparent 1px 6px)" }}>
+          <div style={{ width: "38px", height: "38px", borderRadius: "11px", background: "#F7F7F7", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.9" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+          </div>
+          <span style={{ flex: "1", fontSize: "14.5px", color: "#6E6E6E" }}>Добавить сотрудника</span>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "11px", background: "#F5FBCB", borderRadius: "20px", padding: "15px 17px" }}>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.7" strokeLinecap="round" style={{ flex: "none", marginTop: "1px" }}><circle cx="12" cy="12" r="8.5" /><path d="M12 8v.5M12 11.5v4.5" /></svg>
+        <span style={{ fontSize: "12.5px", lineHeight: "1.5", color: "#2E2E2E" }}>Доступ привязан к точке, а не к человеку: уволившийся менеджер не уносит лиды и переписки. Отзыв — один клик, диалоги остаются в инбоксе точки.</span>
+      </div>
+    </div>
+
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Экран 06</span>
+          <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.025em" }}>Приглашение сотруднику</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>Имя</span>
+            <div style={{ background: "#F5F5F5", borderRadius: "14px", padding: "13px 15px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>Пётр Салимов</span></div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>Роль</span>
+            <div style={{ display: "flex", gap: "5px", background: "#F5F5F5", borderRadius: "999px", padding: "4px" }}>
+              <span style={{ flex: "1", textAlign: "center", fontSize: "12px", fontWeight: "500", color: "#6E6E6E", padding: "9px 0" }}>Менеджер</span>
+              <span style={{ flex: "1", textAlign: "center", fontSize: "12px", fontWeight: "500", color: "#FFFFFF", background: "#111111", borderRadius: "999px", padding: "9px 0" }}>Мастер</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ background: "#F7F7F7", borderRadius: "18px", padding: "15px 17px", display: "flex", alignItems: "center", gap: "14px" }}>
+          <div style={{ width: "66px", height: "66px", borderRadius: "14px", background: "#FFFFFF", flex: "none", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px" }}>
+            <svg width="100%" height="100%" viewBox="0 0 21 21" shapeRendering="crispEdges"><rect width="21" height="21" fill="#FFFFFF" /><g fill="#111111"><rect x="0" y="0" width="7" height="1" /><rect x="0" y="0" width="1" height="7" /><rect x="6" y="0" width="1" height="7" /><rect x="0" y="6" width="7" height="1" /><rect x="2" y="2" width="3" height="3" /><rect x="14" y="0" width="7" height="1" /><rect x="14" y="0" width="1" height="7" /><rect x="20" y="0" width="1" height="7" /><rect x="14" y="6" width="7" height="1" /><rect x="16" y="2" width="3" height="3" /><rect x="0" y="14" width="7" height="1" /><rect x="0" y="14" width="1" height="7" /><rect x="6" y="14" width="1" height="7" /><rect x="0" y="20" width="7" height="1" /><rect x="2" y="16" width="3" height="3" /><rect x="9" y="1" width="1" height="1" /><rect x="11" y="2" width="1" height="1" /><rect x="9" y="4" width="1" height="1" /><rect x="11" y="5" width="1" height="1" /><rect x="8" y="8" width="1" height="1" /><rect x="10" y="9" width="1" height="1" /><rect x="12" y="8" width="1" height="1" /><rect x="9" y="11" width="1" height="1" /><rect x="11" y="12" width="1" height="1" /><rect x="14" y="9" width="1" height="1" /><rect x="16" y="10" width="1" height="1" /><rect x="18" y="9" width="1" height="1" /><rect x="15" y="12" width="1" height="1" /><rect x="17" y="13" width="1" height="1" /><rect x="19" y="11" width="1" height="1" /><rect x="9" y="15" width="1" height="1" /><rect x="11" y="16" width="1" height="1" /><rect x="13" y="15" width="1" height="1" /><rect x="15" y="17" width="1" height="1" /><rect x="17" y="16" width="1" height="1" /><rect x="19" y="18" width="1" height="1" /><rect x="10" y="19" width="1" height="1" /><rect x="12" y="18" width="1" height="1" /><rect x="14" y="20" width="1" height="1" /><rect x="16" y="19" width="1" height="1" /></g></svg>
+          </div>
+          <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "5px" }}>
+            <span style={{ fontSize: "12.5px", fontWeight: "500" }}>Ссылка или QR</span>
+            <span style={{ fontSize: "11px", color: "#6E6E6E", lineHeight: "1.4" }}>Мастеру достаточно QR у поста: откроет камерой, пароль не нужен.</span>
+          </div>
+        </div>
+        <div style={{ background: "#111111", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}><span style={{ fontSize: "14px", fontWeight: "500", color: "#FFFFFF" }}>Отправить приглашение</span></div>
+      </div>
+
+      <div style={{ background: "#111111", borderRadius: "26px", padding: "24px 26px", display: "flex", flexDirection: "column", gap: "11px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#6E6E6E" }}>Права по ролям</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: "12.5px", color: "#DDDDDD" }}>Менеджер</span><span style={{ fontSize: "12px", color: "#9A9A9A" }}>инбокс, диалоги, CRM, замеры</span></div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: "12.5px", color: "#DDDDDD" }}>Мастер</span><span style={{ fontSize: "12px", color: "#9A9A9A" }}>только наряды своего поста</span></div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: "12.5px", color: "#DDDDDD" }}>Владелец</span><span style={{ fontSize: "12px", color: "#9A9A9A" }}>всё плюс прайс, счёта, отключение</span></div>
+        </div>
+        <span style={{ fontSize: "11.5px", color: "#8A8A8A", lineHeight: "1.5", marginTop: "2px" }}>Мастер не видит цен закупки и переписок. Менеджер не меняет прайс. Это единственное разграничение — больше ролей продукту не нужно.</span>
+      </div>
+    </div>
+  </div>
+</div></>
+  );
+}
+
+export function S01Phase1SignupPointStaffBlock6(): ReactElement {
+  return (
+    <><div style={{ display: "flex", alignItems: "center", gap: "12px", paddingLeft: "14px" }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="1.8" strokeLinecap="round"><path d="M12 4v16M6 14l6 6 6-6" /></svg>
+  <span style={{ fontSize: "13px", color: "#8A8A8A" }}>Ирина открыла ссылку из WhatsApp на своём телефоне</span>
+</div></>
+  );
+}
+
+export function S01Phase1SignupPointStaffBlock7(): ReactElement {
+  return (
+    <><div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+  <div style={{ display: "flex", alignItems: "baseline", gap: "12px" }}>
+    <span style={{ fontSize: "12px", fontWeight: "600", background: "#DEF23B", color: "#111111", borderRadius: "7px", padding: "6px 11px" }}>07 · 08</span>
+    <span style={{ fontSize: "19px", fontWeight: "500", color: "#FFFFFF", letterSpacing: "-0.02em" }}>Первый вход менеджера</span>
+    <span style={{ fontSize: "12.5px", color: "#8A8A8A" }}>регистрации нет — только код из SMS</span>
+  </div>
+
+  <div style={{ display: "flex", gap: "22px", alignItems: "flex-start" }}>
+    <div style={{ width: "390px", display: "flex", flexDirection: "column", gap: "11px" }}>
+      <span style={{ fontSize: "13px", color: "#8A8A8A" }}>07 · Вход по приглашению</span>
+      <div style={{ width: "390px", height: "790px", background: "#EFEFEF", borderRadius: "42px", overflow: "hidden", display: "flex", flexDirection: "column", padding: "30px 16px 18px", gap: "18px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "28px", height: "28px", borderRadius: "9px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2.4" strokeLinecap="round"><path d="M12 4v16M4 12h16" /></svg>
+          </div>
+          <span style={{ fontSize: "15px", fontWeight: "600", letterSpacing: "-0.02em" }}>CarSwap</span>
+        </div>
+        <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "22px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "11px", background: "#F5FBCB", borderRadius: "16px", padding: "12px 14px" }}>
+            <div style={{ width: "30px", height: "30px", borderRadius: "999px", background: "#111111", color: "#DEF23B", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: "600", flex: "none" }}>ДК</div>
+            <span style={{ flex: "1", fontSize: "12px", lineHeight: "1.4" }}>Дмитрий Кораблёв добавил вас менеджером в «Пост на Кутузовском»</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <span style={{ fontSize: "22px", fontWeight: "500", letterSpacing: "-0.028em", lineHeight: "1.2" }}>Здравствуйте, Ирина</span>
+            <span style={{ fontSize: "12.5px", lineHeight: "1.45", color: "#6E6E6E" }}>Подтвердите телефон — и попадёте в рабочий инбокс. Пароль придумывать не нужно.</span>
+          </div>
+          <div style={{ display: "flex", gap: "7px" }}>
+            <div style={{ flex: "1", height: "56px", borderRadius: "14px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: "22px", fontWeight: "500" }}>6</span></div>
+            <div style={{ flex: "1", height: "56px", borderRadius: "14px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: "22px", fontWeight: "500" }}>2</span></div>
+            <div style={{ flex: "1", height: "56px", borderRadius: "14px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: "22px", fontWeight: "500" }}>0</span></div>
+            <div style={{ flex: "1", height: "56px", borderRadius: "14px", background: "#F5F5F5", boxShadow: "inset 0 0 0 1.5px #111111", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ width: "1.5px", height: "22px", background: "#111111" }}></span></div>
+            <div style={{ flex: "1", height: "56px", borderRadius: "14px", background: "#F5F5F5" }}></div>
+            <div style={{ flex: "1", height: "56px", borderRadius: "14px", background: "#F5F5F5" }}></div>
+          </div>
+          <div style={{ background: "#DEF23B", borderRadius: "999px", padding: "16px 0", textAlign: "center" }}><span style={{ fontSize: "14.5px", fontWeight: "500" }}>Войти</span></div>
+        </div>
+        <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "18px 20px", display: "flex", flexDirection: "column", gap: "9px" }}>
+          <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Что вам будет доступно</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.2" strokeLinecap="round" style={{ flex: "none" }}><path d="M5 13l4.5 4.5L19 7" /></svg><span style={{ fontSize: "12.5px" }}>Все обращения точки из четырёх мессенджеров</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.2" strokeLinecap="round" style={{ flex: "none" }}><path d="M5 13l4.5 4.5L19 7" /></svg><span style={{ fontSize: "12.5px" }}>Примерка и запись на замер</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" strokeWidth="2" strokeLinecap="round" style={{ flex: "none" }}><path d="M6 6l12 12M18 6L6 18" /></svg><span style={{ fontSize: "12.5px", color: "#9A9A9A" }}>Прайс и деньги — только у владельца</span></div>
+        </div>
+        <span style={{ marginTop: "auto", fontSize: "11px", color: "#9A9A9A", lineHeight: "1.5", textAlign: "center" }}>Обучения нет. Первое обращение вы обработаете без инструкции.</span>
+      </div>
+    </div>
+
+    <div style={{ width: "390px", display: "flex", flexDirection: "column", gap: "11px" }}>
+      <span style={{ fontSize: "13px", color: "#8A8A8A" }}>08 · Инбокс менеджера пуст</span>
+      <div style={{ width: "390px", height: "790px", background: "#EFEFEF", borderRadius: "42px", overflow: "hidden", display: "flex", flexDirection: "column", padding: "26px 14px 0", gap: "14px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 6px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "9px" }}>
+            <span style={{ fontSize: "25px", fontWeight: "500", letterSpacing: "-0.03em" }}>Обращения</span>
+            <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#9A9A9A", background: "#FFFFFF", borderRadius: "999px", padding: "3px 8px" }}>0</span>
+          </div>
+          <div style={{ width: "36px", height: "36px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11.5px", fontWeight: "600", color: "#6E6E6E" }}>ИК</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "9px", background: "#FFFFFF", borderRadius: "999px", padding: "13px 16px", margin: "0 4px" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="1.7" strokeLinecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg>
+          <span style={{ fontSize: "14px", color: "#9A9A9A" }}>Клиент, номер или артикул</span>
+        </div>
+        <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", textAlign: "center", padding: "0 20px" }}>
+          <div style={{ width: "62px", height: "62px", borderRadius: "20px", background: "#F5FBCB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v11H8l-4 4z" /><path d="M9 10.5h6" /></svg>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+            <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.022em", lineHeight: "1.25" }}>WhatsApp подключён, пока тихо</span>
+            <span style={{ fontSize: "13px", lineHeight: "1.5", color: "#6E6E6E" }}>Обращения придут сюда сами — пересылать ничего не нужно. Пока можно отправить примерку себе и посмотреть, что увидит клиент.</span>
+          </div>
+          <div style={{ background: "#111111", borderRadius: "999px", padding: "15px 24px" }}><span style={{ fontSize: "13.5px", fontWeight: "500", color: "#FFFFFF" }}>Отправить примерку себе</span></div>
+        </div>
+        <div style={{ background: "#FFFFFF", borderRadius: "32px 32px 42px 42px", padding: "14px 22px 26px", display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 -14px" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v11H8l-4 4z" /></svg>
+            <span style={{ fontSize: "10.5px", fontWeight: "500" }}>Обращения</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", opacity: ".4" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-3.6 3.1-5.4 7-5.4s7 1.8 7 5.4" /></svg>
+            <span style={{ fontSize: "10.5px", fontWeight: "500" }}>Клиенты</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px", opacity: ".4" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.6" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M8 3v4M16 3v4M4 10h16" /></svg>
+            <span style={{ fontSize: "10.5px", fontWeight: "500" }}>Замеры</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style={{ width: "400px", display: "flex", flexDirection: "column", gap: "12px", paddingTop: "30px" }}>
+      <div style={{ background: "rgba(255,255,255,.07)", borderRadius: "20px", padding: "18px 20px", display: "flex", flexDirection: "column", gap: "7px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#DEF23B" }}>Фаза 1 закрыта</span>
+        <p style={{ margin: "0", fontSize: "12.5px", lineHeight: "1.55", color: "#C9C9C9", textWrap: "pretty" }}>Восемь экранов, ноль звонков в управляющую компанию, 22 минуты от письма-приглашения до готового рабочего места. Дальше начинается работа: экран 09 — первое обращение в инбоксе.</p>
+      </div>
+      <div style={{ background: "rgba(255,255,255,.07)", borderRadius: "20px", padding: "18px 20px", display: "flex", flexDirection: "column", gap: "7px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#DEF23B" }}>Чего здесь нет</span>
+        <p style={{ margin: "0", fontSize: "12.5px", lineHeight: "1.55", color: "#C9C9C9", textWrap: "pretty" }}>Паролей, восстановления пароля, регистрации сотрудника, обучающих туров и онбординг-карусели. Каждый из них — причина звонка в УК, а значит провал главного критерия плательщика.</p>
+      </div>
+      <div style={{ background: "rgba(255,255,255,.07)", borderRadius: "20px", padding: "18px 20px", display: "flex", flexDirection: "column", gap: "7px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#DEF23B" }}>Нижняя навигация</span>
+        <p style={{ margin: "0", fontSize: "12.5px", lineHeight: "1.55", color: "#C9C9C9", textWrap: "pretty" }}>У менеджера на мобильном три раздела: обращения, клиенты, замеры. Примерка — не раздел, она живёт внутри диалога.</p>
+      </div>
+    </div>
+  </div>
+</div></>
+  );
+}
+
+export const S01Phase1SignupPointStaffBlocks = [S01Phase1SignupPointStaffBlock0, S01Phase1SignupPointStaffBlock1, S01Phase1SignupPointStaffBlock2, S01Phase1SignupPointStaffBlock3, S01Phase1SignupPointStaffBlock4, S01Phase1SignupPointStaffBlock5, S01Phase1SignupPointStaffBlock6, S01Phase1SignupPointStaffBlock7];
+export const S01Phase1SignupPointStaffCanvas = { background: "#2A2A2A", padding: "52px 48px 120px", fontFamily: "Onest,system-ui,sans-serif", color: "#111111", display: "flex", flexDirection: "column", gap: "40px", width: "max-content" } as React.CSSProperties;

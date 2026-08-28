@@ -1,0 +1,597 @@
+/* СГЕНЕРИРОВАНО tools/port_dc.py из design/design/design-system.dc.html — не править руками.
+ * Разметка перенесена дословно: пиксели, порядок свойств и вложенность из хендоффа.
+ * Правки вносятся в источник и повторным прогоном конвертера.
+ */
+/* eslint-disable @next/next/no-img-element, react/no-unknown-property */
+import type { ReactElement } from 'react';
+import { ImageSlot } from '../ImageSlot';
+
+export function DesignSystemBlock0(): ReactElement {
+  return (
+    <><div style={{ maxWidth: "1360px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "22px" }}>
+
+
+<div style={{ background: "#FFFFFF", borderRadius: "32px", padding: "40px 44px", display: "flex", flexDirection: "column", gap: "30px" }}>
+  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "40px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "640px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div style={{ width: "34px", height: "34px", borderRadius: "11px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="1.8" strokeLinecap="round"><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="4.2" /></svg>
+        </div>
+        <span style={{ fontSize: "19px", fontWeight: "600", letterSpacing: "-0.02em" }}>CarSwap AI</span>
+      </div>
+      <h1 style={{ margin: "0", fontSize: "46px", lineHeight: "1.02", fontWeight: "500", letterSpacing: "-0.035em", textWrap: "pretty" }}>Дизайн-система</h1>
+      <p style={{ margin: "0", fontSize: "15px", lineHeight: "1.5", color: "#6E6E6E", textWrap: "pretty" }}>Воссоздана 1 в 1 с двух присланных референсов: светлая мягкая среда, крупные радиусы, один кислотный акцент, чёрный только как активное состояние. Ниже — основа, компоненты и продуктовые состояния, выведенные из хендоффа v2.</p>
+    </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px", flex: "none" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#F7F7F7", borderRadius: "999px", padding: "7px 16px 7px 8px" }}>
+        <div style={{ width: "34px", height: "34px", borderRadius: "999px", background: "#DEF23B", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "600" }}>v1</div>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: "13px", fontWeight: "500", lineHeight: "1.2" }}>Основа готова</span>
+          <span style={{ fontSize: "11px", color: "#9A9A9A", lineHeight: "1.3" }}>28 августа 2026</span>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+        <span style={{ fontSize: "11px", fontWeight: "500", color: "#6E6E6E", background: "#F7F7F7", borderRadius: "999px", padding: "6px 12px" }}>Onest</span>
+        <span style={{ fontSize: "11px", fontWeight: "500", color: "#6E6E6E", background: "#F7F7F7", borderRadius: "999px", padding: "6px 12px" }}>Свет · Кислота · Чёрный</span>
+      </div>
+    </div>
+  </div>
+
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "14px" }}>
+    <div style={{ background: "#F7F7F7", borderRadius: "20px", padding: "20px 22px", display: "flex", flexDirection: "column", gap: "7px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Допущение 1</span>
+      <p style={{ margin: "0", fontSize: "13.5px", lineHeight: "1.45", color: "#2E2E2E", textWrap: "pretty" }}>Кислотный акцент — не «бренд-цвет для украшения», а метка горячего. В инбоксе им помечается только диалог, где клиент попросил ещё вариант. Если акцентом залить всё, ядро продукта перестанет читаться взглядом.</p>
+    </div>
+    <div style={{ background: "#F7F7F7", borderRadius: "20px", padding: "20px 22px", display: "flex", flexDirection: "column", gap: "7px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Допущение 2</span>
+      <p style={{ margin: "0", fontSize: "13.5px", lineHeight: "1.45", color: "#2E2E2E", textWrap: "pretty" }}>Чёрный — только активное и подтверждённое. Активная вкладка навигации, выбранная модель, штамп «клиент подтвердил». Ни одной чёрной декоративной плашки.</p>
+    </div>
+    <div style={{ background: "#F7F7F7", borderRadius: "20px", padding: "20px 22px", display: "flex", flexDirection: "column", gap: "7px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Допущение 3</span>
+      <p style={{ margin: "0", fontSize: "13.5px", lineHeight: "1.45", color: "#2E2E2E", textWrap: "pretty" }}>Штриховка с референса — универсальный «остаток / нет данных». В нашем продукте она же закрывает непригодное фото и деградированное превью после лимита генераций, без нового визуального языка.</p>
+    </div>
+  </div>
+</div>
+
+
+<div style={{ background: "#EFEFEF", borderRadius: "32px", padding: "36px 36px 40px", display: "flex", flexDirection: "column", gap: "26px" }}>
+  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>01 · Основа</span>
+      <h2 style={{ margin: "0", fontSize: "26px", fontWeight: "500", letterSpacing: "-0.025em" }}>Цвет</h2>
+    </div>
+    <p style={{ margin: "0", maxWidth: "420px", fontSize: "13px", lineHeight: "1.45", color: "#6E6E6E", textAlign: "right", textWrap: "pretty" }}>Один акцент, шесть ступеней серого, чёрный. Красный — только отказ и несовпадение артикула.</p>
+  </div>
+
+  <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "14px" }}>
+      <div style={{ background: "#DEF23B", borderRadius: "24px", padding: "26px 28px", height: "170px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        <span style={{ fontSize: "13px", fontWeight: "600" }}>Acid 500 — акцент</span>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+          <span style={{ fontSize: "30px", fontWeight: "500", letterSpacing: "-0.03em" }}>#DEF23B</span>
+          <span style={{ fontSize: "11.5px", lineHeight: "1.35", textAlign: "right", opacity: ".65" }}>горячий диалог · выбранный SKU<br />заполненная часть шкалы</span>
+        </div>
+      </div>
+      <div style={{ background: "#EAF77E", borderRadius: "24px", padding: "26px 28px", height: "170px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        <span style={{ fontSize: "13px", fontWeight: "600" }}>Acid 300</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.02em" }}>#EAF77E</span>
+          <span style={{ fontSize: "11px", opacity: ".6" }}>вторая доля шкалы</span>
+        </div>
+      </div>
+      <div style={{ background: "#F5FBCB", borderRadius: "24px", padding: "26px 28px", height: "170px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        <span style={{ fontSize: "13px", fontWeight: "600" }}>Acid 100</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.02em" }}>#F5FBCB</span>
+          <span style={{ fontSize: "11px", opacity: ".6" }}>фон оговорки о свете</span>
+        </div>
+      </div>
+    </div>
+
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: "14px" }}>
+      <div style={{ background: "#111111", borderRadius: "20px", padding: "20px 20px 18px", height: "126px", display: "flex", flexDirection: "column", justifyContent: "space-between", color: "#FFFFFF" }}>
+        <span style={{ fontSize: "12px", fontWeight: "500" }}>Ink 900</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>#111111</span><span style={{ fontSize: "10.5px", color: "#9A9A9A" }}>активное</span></div>
+      </div>
+      <div style={{ background: "#2E2E2E", borderRadius: "20px", padding: "20px 20px 18px", height: "126px", display: "flex", flexDirection: "column", justifyContent: "space-between", color: "#FFFFFF" }}>
+        <span style={{ fontSize: "12px", fontWeight: "500" }}>Ink 700</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>#2E2E2E</span><span style={{ fontSize: "10.5px", color: "#9A9A9A" }}>основной текст</span></div>
+      </div>
+      <div style={{ background: "#6E6E6E", borderRadius: "20px", padding: "20px 20px 18px", height: "126px", display: "flex", flexDirection: "column", justifyContent: "space-between", color: "#FFFFFF" }}>
+        <span style={{ fontSize: "12px", fontWeight: "500" }}>Ink 500</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>#6E6E6E</span><span style={{ fontSize: "10.5px", color: "#DDDDDD" }}>подписи</span></div>
+      </div>
+      <div style={{ background: "#9A9A9A", borderRadius: "20px", padding: "20px 20px 18px", height: "126px", display: "flex", flexDirection: "column", justifyContent: "space-between", color: "#FFFFFF" }}>
+        <span style={{ fontSize: "12px", fontWeight: "500" }}>Ink 400</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>#9A9A9A</span><span style={{ fontSize: "10.5px", color: "#F0F0F0" }}>метки, копейки</span></div>
+      </div>
+      <div style={{ background: "#EFEFEF", borderRadius: "20px", padding: "20px 20px 18px", height: "126px", display: "flex", flexDirection: "column", justifyContent: "space-between", boxShadow: "inset 0 0 0 1px #E2E2E2" }}>
+        <span style={{ fontSize: "12px", fontWeight: "500" }}>Surface 100</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>#EFEFEF</span><span style={{ fontSize: "10.5px", color: "#9A9A9A" }}>фон кабинета</span></div>
+      </div>
+      <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "20px 20px 18px", height: "126px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        <span style={{ fontSize: "12px", fontWeight: "500" }}>White</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "14px", fontWeight: "500" }}>#FFFFFF</span><span style={{ fontSize: "10.5px", color: "#9A9A9A" }}>карточка</span></div>
+      </div>
+    </div>
+
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "14px" }}>
+      <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "18px 20px", display: "flex", alignItems: "center", gap: "14px" }}>
+        <div style={{ width: "40px", height: "40px", borderRadius: "13px", background: "#D93F45", flex: "none" }}></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "12.5px", fontWeight: "500" }}>Alert 500 · #D93F45</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>не доставлено, артикул не сошёлся</span></div>
+      </div>
+      <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "18px 20px", display: "flex", alignItems: "center", gap: "14px" }}>
+        <div style={{ width: "40px", height: "40px", borderRadius: "13px", background: "#F0C9CB", flex: "none" }}></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "12.5px", fontWeight: "500" }}>Alert 100 · #F0C9CB</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>доля повреждений на шкале</span></div>
+      </div>
+      <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "18px 20px", display: "flex", alignItems: "center", gap: "14px" }}>
+        <div style={{ width: "40px", height: "40px", borderRadius: "13px", flex: "none", background: "#FFFFFF", boxShadow: "inset 0 0 0 1px #E2E2E2", backgroundImage: "repeating-linear-gradient(115deg,#C9C9C9 0 1px,transparent 1px 5px)" }}></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "12.5px", fontWeight: "500" }}>Hatch · остаток</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>нет данных, лимит, деградация</span></div>
+      </div>
+      <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "18px 20px", display: "flex", alignItems: "center", gap: "14px" }}>
+        <div style={{ width: "40px", height: "40px", borderRadius: "13px", background: "#3A3A3A", flex: "none" }}></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "12.5px", fontWeight: "500" }}>Desk · #3A3A3A</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>только подложка макета</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div style={{ background: "#EFEFEF", borderRadius: "32px", padding: "36px 36px 40px", display: "flex", flexDirection: "column", gap: "26px" }}>
+  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>02 · Основа</span>
+      <h2 style={{ margin: "0", fontSize: "26px", fontWeight: "500", letterSpacing: "-0.025em" }}>Типографика</h2>
+    </div>
+    <p style={{ margin: "0", maxWidth: "420px", fontSize: "13px", lineHeight: "1.45", color: "#6E6E6E", textAlign: "right", textWrap: "pretty" }}>Onest — геометрический гротеск с полной кириллицей, ближайший к гарнитуре референса. Один шрифт на всё, вес максимум 600.</p>
+  </div>
+
+  <div style={{ display: "grid", gridTemplateColumns: "1.45fr 1fr", gap: "14px", alignItems: "start" }}>
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "32px 34px", display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "20px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", color: "#C4C4C4", width: "118px", flex: "none" }}>Display 46 / 500</span>
+        <span style={{ fontSize: "46px", fontWeight: "500", letterSpacing: "-0.035em", lineHeight: "1" }}>Приёмка на посту</span>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "20px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", color: "#C4C4C4", width: "118px", flex: "none" }}>H1 32 / 500</span>
+        <span style={{ fontSize: "32px", fontWeight: "500", letterSpacing: "-0.028em", lineHeight: "1.08" }}>Диалог с клиентом</span>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "20px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", color: "#C4C4C4", width: "118px", flex: "none" }}>H2 24 / 500</span>
+        <span style={{ fontSize: "24px", fontWeight: "500", letterSpacing: "-0.022em", lineHeight: "1.15" }}>Панель примерки</span>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "20px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", color: "#C4C4C4", width: "118px", flex: "none" }}>H3 18 / 500</span>
+        <span style={{ fontSize: "18px", fontWeight: "500", letterSpacing: "-0.015em", lineHeight: "1.25" }}>Три световых условия</span>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "20px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", color: "#C4C4C4", width: "118px", flex: "none" }}>Body 15 / 400</span>
+        <span style={{ fontSize: "15px", fontWeight: "400", lineHeight: "1.45", color: "#2E2E2E", maxWidth: "420px", textWrap: "pretty" }}>Оттенок партии сверяется на замере, образец приложим — строка уходит с каждой карточкой и не отключается ни у одной роли.</span>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "20px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", color: "#C4C4C4", width: "118px", flex: "none" }}>Body S 13 / 400</span>
+        <span style={{ fontSize: "13px", fontWeight: "400", lineHeight: "1.45", color: "#6E6E6E" }}>Типовой кузов вашей модели · обновим на реальном авто</span>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "20px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", color: "#C4C4C4", width: "118px", flex: "none" }}>Label 12 / 500</span>
+        <span style={{ fontSize: "12px", fontWeight: "500", lineHeight: "1.2" }}>Артикул из прайса точки</span>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "20px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", color: "#C4C4C4", width: "118px", flex: "none" }}>Caption 11 / 600</span>
+        <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Ждём реакции клиента</span>
+      
+  </div>
+    </div>
+
+    <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+      <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "28px 30px", display: "flex", flexDirection: "column", gap: "22px" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Цифры и цена</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+          <span style={{ fontSize: "12px", color: "#9A9A9A" }}>Цена оклейки</span>
+          <div style={{ display: "flex", alignItems: "baseline", fontSize: "42px", fontWeight: "500", letterSpacing: "-0.04em", fontVariantNumeric: "tabular-nums" }}>
+            <span>248</span><span style={{ color: "#9A9A9A" }}> 400</span><span style={{ fontSize: "24px", marginLeft: "6px", color: "#9A9A9A" }}>₽</span>
+          </div>
+          <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>Разряд после первой группы — Ink 400. Приём с референса, читается как цена, а не как счёт.</span>
+        </div>
+        <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+          <span style={{ fontSize: "12px", color: "#9A9A9A" }}>Артикул</span>
+          <span style={{ fontSize: "20px", fontWeight: "500", letterSpacing: "0.01em", fontVariantNumeric: "tabular-nums" }}>KPMF K75407</span>
+          <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>Артикулы — только tabular-nums, чтобы колонка не гуляла.</span>
+        </div>
+        <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+        <div style={{ display: "flex", gap: "22px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "26px", fontWeight: "500", letterSpacing: "-0.03em" }}>18 сек</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>типовой кузов</span></div>
+          <div style={{ width: "1px", background: "#F0F0F0" }}></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}><span style={{ fontSize: "26px", fontWeight: "500", letterSpacing: "-0.03em" }}>2 мин 40</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>полная карточка</span></div>
+        </div>
+      </div>
+      <div style={{ background: "#111111", borderRadius: "24px", padding: "26px 30px", display: "flex", flexDirection: "column", gap: "12px", color: "#FFFFFF" }}>
+        <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#6E6E6E" }}>Правило</span>
+        <p style={{ margin: "0", fontSize: "14px", lineHeight: "1.5", textWrap: "pretty" }}>Заголовки и цифры — вес 500 с отрицательным трекингом. Вес 600 живёт только в микро-капсах 10–11px. Веса 700 в системе нет: он ломает дорогую сдержанность референса.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div style={{ background: "#EFEFEF", borderRadius: "32px", padding: "36px 36px 40px", display: "flex", flexDirection: "column", gap: "26px" }}>
+  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>03 · Основа</span>
+      <h2 style={{ margin: "0", fontSize: "26px", fontWeight: "500", letterSpacing: "-0.025em" }}>Радиусы, тени, ритм</h2>
+    </div>
+    <p style={{ margin: "0", maxWidth: "430px", fontSize: "13px", lineHeight: "1.45", color: "#6E6E6E", textAlign: "right", textWrap: "pretty" }}>Референс держится не на тенях, а на разнице белого и серого. Тень — только у всплывающего слоя.</p>
+  </div>
+
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "30px 32px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Радиус</span>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: "16px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}><div style={{ width: "78px", height: "78px", background: "#EFEFEF", borderRadius: "32px" }}></div><span style={{ fontSize: "11px", color: "#6E6E6E" }}>32 · оболочка</span></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}><div style={{ width: "70px", height: "70px", background: "#EFEFEF", borderRadius: "24px" }}></div><span style={{ fontSize: "11px", color: "#6E6E6E" }}>24 · карточка</span></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}><div style={{ width: "62px", height: "62px", background: "#EFEFEF", borderRadius: "20px" }}></div><span style={{ fontSize: "11px", color: "#6E6E6E" }}>20 · вложенная</span></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}><div style={{ width: "52px", height: "52px", background: "#EFEFEF", borderRadius: "14px" }}></div><span style={{ fontSize: "11px", color: "#6E6E6E" }}>14 · кнопка</span></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}><div style={{ width: "52px", height: "52px", background: "#EFEFEF", borderRadius: "999px" }}></div><span style={{ fontSize: "11px", color: "#6E6E6E" }}>999 · пилюля</span></div>
+      </div>
+    </div>
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "30px 32px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Слои</span>
+      <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}><div style={{ width: "150px", height: "78px", background: "#FFFFFF", borderRadius: "20px", boxShadow: "inset 0 0 0 1px #EDEDED" }}></div><span style={{ fontSize: "11px", color: "#6E6E6E" }}>Flat — карточка в потоке</span></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}><div style={{ width: "150px", height: "78px", background: "#FFFFFF", borderRadius: "20px", boxShadow: "0 2px 6px rgba(17,17,17,.05)" }}></div><span style={{ fontSize: "11px", color: "#6E6E6E" }}>Raised — интерактив</span></div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}><div style={{ width: "150px", height: "78px", background: "#FFFFFF", borderRadius: "20px", boxShadow: "0 24px 44px -22px rgba(17,17,17,.28)" }}></div><span style={{ fontSize: "11px", color: "#6E6E6E" }}>Float — поверх авто</span></div>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <div style={{ position: "relative", width: "150px", height: "60px" }}>
+          <div style={{ position: "absolute", left: "14px", right: "14px", top: "0", height: "16px", background: "#FFFFFF", borderRadius: "16px", opacity: ".5" }}></div>
+          <div style={{ position: "absolute", left: "7px", right: "7px", top: "7px", height: "20px", background: "#FFFFFF", borderRadius: "18px", opacity: ".75" }}></div>
+          <div style={{ position: "absolute", left: "0", right: "0", top: "14px", bottom: "0", background: "#FFFFFF", borderRadius: "20px", boxShadow: "0 8px 20px -12px rgba(17,17,17,.2)" }}></div>
+        </div>
+        <span style={{ fontSize: "11.5px", color: "#6E6E6E", lineHeight: "1.4", maxWidth: "220px" }}>Стопка листов с референса. У нас — «в диалоге ещё N примерок» и «сохранённые конфигурации» в гараже.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div style={{ background: "#EFEFEF", borderRadius: "32px", padding: "36px 36px 40px", display: "flex", flexDirection: "column", gap: "22px" }}>
+  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>04 · Библиотека</span>
+      <h2 style={{ margin: "0", fontSize: "26px", fontWeight: "500", letterSpacing: "-0.025em" }}>Компоненты с референса</h2>
+    </div>
+    <p style={{ margin: "0", maxWidth: "430px", fontSize: "13px", lineHeight: "1.45", color: "#6E6E6E", textAlign: "right", textWrap: "pretty" }}>Снято один в один и переведено на русский контекст. Ничего не придумано сверху.</p>
+  </div>
+
+  <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "22px" }}>
+    <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Оболочка кабинета · шапка</span>
+    <div style={{ background: "#EFEFEF", borderRadius: "24px", padding: "18px 22px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "20px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ width: "28px", height: "28px", borderRadius: "9px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2" strokeLinecap="round"><path d="M12 4v16M4 12h16" /></svg>
+        </div>
+        <span style={{ fontSize: "16px", fontWeight: "600", letterSpacing: "-0.02em" }}>CarSwap</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ width: "46px", height: "46px", borderRadius: "15px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20l7.5-7.5M14 4l6 6-8.5 8.5H8v-3.5z" /></svg>
+        </div>
+        <div style={{ width: "46px", height: "46px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v11H8l-4 4z" /></svg>
+        </div>
+        <div style={{ width: "46px", height: "46px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="4" width="6.5" height="6.5" rx="2" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="2" /><rect x="4" y="13.5" width="6.5" height="6.5" rx="2" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2" /></svg>
+        </div>
+        <div style={{ width: "46px", height: "46px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M8 3v4M16 3v4M4 10h16" /></svg>
+          <span style={{ position: "absolute", top: "6px", right: "6px", width: "8px", height: "8px", borderRadius: "999px", background: "#DEF23B", boxShadow: "0 0 0 2px #FFFFFF" }}></span>
+        </div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#FFFFFF", borderRadius: "999px", padding: "6px 14px 6px 6px" }}>
+        <div style={{ width: "36px", height: "36px", borderRadius: "999px", overflow: "hidden", flex: "none" }}><ImageSlot id="ds-avatar" shape="circle" placeholder="Фото" /></div>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: "13px", fontWeight: "500", lineHeight: "1.2" }}>Ирина Ковалёва</span>
+          <span style={{ fontSize: "11px", color: "#9A9A9A", lineHeight: "1.3" }}>Менеджер · Пост №2</span>
+        </div>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="1.8" strokeLinecap="round"><path d="M7 10l5 5 5-5" /></svg>
+      </div>
+    </div>
+    <p style={{ margin: "0", fontSize: "12px", color: "#9A9A9A", lineHeight: "1.45" }}>Активная вкладка — чёрный квадрат с радиусом 15, остальные — белые круги. Точка акцента на иконке = непрочитанное.</p>
+  </div>
+
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Кнопки</span>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
+        <div style={{ background: "#111111", color: "#FFFFFF", borderRadius: "999px", padding: "14px 26px", fontSize: "14px", fontWeight: "500" }}>Отправить клиенту</div>
+        <div style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "14px 26px", fontSize: "14px", fontWeight: "500" }}>Записать на замер</div>
+        <div style={{ background: "#FFFFFF", color: "#111111", borderRadius: "999px", padding: "13px 25px", fontSize: "14px", fontWeight: "500", boxShadow: "inset 0 0 0 1px #E2E2E2" }}>Ещё вариант</div>
+        <div style={{ background: "#F5F5F5", color: "#C4C4C4", borderRadius: "999px", padding: "14px 26px", fontSize: "14px", fontWeight: "500" }}>Недоступно</div>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
+        <div style={{ background: "#111111", borderRadius: "999px", width: "52px", height: "52px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l16-8-6 16-2.5-6z" /></svg>
+        </div>
+        <div style={{ background: "#DEF23B", borderRadius: "999px", width: "52px", height: "52px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.7" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+        </div>
+        <div style={{ background: "#F5F5F5", borderRadius: "999px", width: "52px", height: "52px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15V5a2 2 0 012-2h9l5 5v7a2 2 0 01-2 2H6a2 2 0 01-2-2z" /><path d="M8 19h10" /></svg>
+        </div>
+        <div style={{ background: "#F5F5F5", borderRadius: "14px", width: "52px", height: "52px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.7" strokeLinecap="round"><path d="M7 17L17 7M17 7h-7M17 7v7" /></svg>
+        </div>
+        <span style={{ fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.4", maxWidth: "150px" }}>52px — минимальная цель. У поста мастера — 64px.</span>
+      </div>
+    </div>
+
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Пилюли и вкладки</span>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+        <span style={{ fontSize: "12px", color: "#6E6E6E", background: "#F5F5F5", borderRadius: "999px", padding: "8px 14px" }}>BMW X5 · 2021</span>
+        <span style={{ fontSize: "12px", color: "#6E6E6E", background: "#F5F5F5", borderRadius: "999px", padding: "8px 14px" }}>А 432 ОР 77</span>
+        <span style={{ fontSize: "12px", color: "#6E6E6E", background: "#F5F5F5", borderRadius: "999px", padding: "8px 14px" }}>Сатин-хром</span>
+        <span style={{ fontSize: "12px", color: "#6E6E6E", background: "#F5F5F5", borderRadius: "999px", padding: "8px 14px" }}>18,2 м плёнки</span>
+        <span style={{ fontSize: "12px", color: "#111111", background: "#DEF23B", borderRadius: "999px", padding: "8px 14px" }}>Выбран клиентом</span>
+      </div>
+      <div style={{ display: "flex", gap: "6px", background: "#F5F5F5", borderRadius: "999px", padding: "5px", width: "max-content" }}>
+        <span style={{ fontSize: "13px", fontWeight: "500", color: "#FFFFFF", background: "#111111", borderRadius: "999px", padding: "9px 18px" }}>Все</span>
+        <span style={{ fontSize: "13px", fontWeight: "500", color: "#6E6E6E", padding: "9px 18px" }}>Горячие</span>
+        <span style={{ fontSize: "13px", fontWeight: "500", color: "#6E6E6E", padding: "9px 18px" }}>Без примерки</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: "4px" }}>
+        <div style={{ background: "#FFFFFF", borderRadius: "14px 14px 0 0", padding: "11px 16px", display: "flex", alignItems: "center", gap: "10px", boxShadow: "0 -1px 0 #EDEDED inset" }}><span style={{ fontSize: "13px", fontWeight: "500" }}>BMW X5</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg></div>
+        <div style={{ background: "#F5F5F5", borderRadius: "14px 14px 0 0", padding: "11px 16px", display: "flex", alignItems: "center", gap: "10px" }}><span style={{ fontSize: "13px", fontWeight: "500", color: "#6E6E6E" }}>Kia K5</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg></div>
+        <div style={{ background: "#F5F5F5", borderRadius: "14px 14px 0 0", padding: "11px 16px", display: "flex", alignItems: "center", gap: "10px" }}><span style={{ fontSize: "13px", fontWeight: "500", color: "#6E6E6E" }}>Прайс</span></div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#F5F5F5", borderRadius: "999px", padding: "12px 18px" }}>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="1.7" strokeLinecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg>
+        <span style={{ fontSize: "14px", color: "#9A9A9A", flex: "1" }}>Клиент, номер или артикул</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.9" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </div>
+    </div>
+  </div>
+
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px" }}>
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "18px" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ width: "42px", height: "42px", borderRadius: "14px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="4" width="16" height="16" rx="4" /><path d="M8 12h8M8 16h5M8 8h8" /></svg>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: "15px", fontWeight: "500", letterSpacing: "-0.01em" }}>Покрытие входящих</span>
+            <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>неделя 34</span>
+          </div>
+        </div>
+        <div style={{ width: "34px", height: "34px", borderRadius: "11px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.9" strokeLinecap="round"><path d="M7 17L17 7M17 7h-7M17 7v7" /></svg>
+        </div>
+      </div>
+      <div style={{ height: "42px", borderRadius: "999px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1px #EDEDED", backgroundImage: "repeating-linear-gradient(115deg,#D6D6D6 0 1px,transparent 1px 5px)", display: "flex", alignItems: "center", overflow: "hidden" }}>
+        <div style={{ width: "68%", height: "42px", borderRadius: "999px", background: "#DEF23B", display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: "16px" }}>
+          <span style={{ fontSize: "13px", fontWeight: "500" }}>68%</span>
+        </div>
+      </div>
+      <p style={{ margin: "0", fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.45" }}>Штриховка = остаток. Тот же приём закрывает «нет данных» и деградированное превью.</p>
+    </div>
+
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "16px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Микро-шкала списка</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <span style={{ fontSize: "10.5px", color: "#C4C4C4", width: "10px" }}>1</span>
+          <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
+            <span style={{ fontSize: "13.5px", fontWeight: "500" }}>Сатин-хром тёмный</span>
+            <span style={{ fontSize: "11px", color: "#9A9A9A" }}>KPMF K75407</span>
+          </div>
+          <div style={{ width: "88px", display: "flex", flexDirection: "column", gap: "5px", alignItems: "flex-end" }}>
+            <div style={{ width: "88px", height: "3px", backgroundImage: "repeating-linear-gradient(90deg,#D6D6D6 0 2px,transparent 2px 4px)" }}><div style={{ width: "62%", height: "3px", background: "#DEF23B" }}></div></div>
+            <span style={{ fontSize: "12px", fontWeight: "500" }}>62%<span style={{ fontSize: "10px", color: "#9A9A9A", marginLeft: "4px" }}>выбор</span></span>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <span style={{ fontSize: "10.5px", color: "#C4C4C4", width: "10px" }}>2</span>
+          <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
+            <span style={{ fontSize: "13.5px", fontWeight: "500" }}>Матовый графит</span>
+            <span style={{ fontSize: "11px", color: "#9A9A9A" }}>Oracal 970-070</span>
+          </div>
+          <div style={{ width: "88px", display: "flex", flexDirection: "column", gap: "5px", alignItems: "flex-end" }}>
+            <div style={{ width: "88px", height: "3px", backgroundImage: "repeating-linear-gradient(90deg,#D6D6D6 0 2px,transparent 2px 4px)" }}><div style={{ width: "24%", height: "3px", background: "#F0C9CB" }}></div></div>
+            <span style={{ fontSize: "12px", fontWeight: "500" }}>24%<span style={{ fontSize: "10px", color: "#9A9A9A", marginLeft: "4px" }}>выбор</span></span>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <span style={{ fontSize: "10.5px", color: "#C4C4C4", width: "10px" }}>3</span>
+          <div style={{ flex: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
+            <span style={{ fontSize: "13.5px", fontWeight: "500" }}>Глянец «зелёный британский»</span>
+            <span style={{ fontSize: "11px", color: "#9A9A9A" }}>нет на складе</span>
+          </div>
+          <div style={{ width: "88px", display: "flex", flexDirection: "column", gap: "5px", alignItems: "flex-end" }}>
+            <div style={{ width: "88px", height: "3px", backgroundImage: "repeating-linear-gradient(90deg,#D6D6D6 0 2px,transparent 2px 4px)" }}></div>
+            <span style={{ fontSize: "12px", fontWeight: "500", color: "#C4C4C4" }}>—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "18px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>Расход генераций</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        <div style={{ width: "112px", height: "112px", borderRadius: "999px", flex: "none", background: "conic-gradient(#DEF23B 0 62%, #EFEFEF 62% 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: "80px", height: "80px", borderRadius: "999px", background: "#FFFFFF", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: "20px", fontWeight: "500", letterSpacing: "-0.03em" }}>1 240</span>
+            <span style={{ fontSize: "10px", color: "#9A9A9A" }}>из 2 000</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "9px", height: "9px", borderRadius: "999px", background: "#DEF23B" }}></span><span style={{ fontSize: "12px", color: "#2E2E2E" }}>Израсходовано</span></div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "9px", height: "9px", borderRadius: "999px", background: "#EFEFEF" }}></span><span style={{ fontSize: "12px", color: "#2E2E2E" }}>Остаток</span></div>
+          <span style={{ fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.4" }}>7 440 ₽<br />до конца месяца</span>
+        </div>
+      </div>
+      <div style={{ background: "#F5FBCB", borderRadius: "16px", padding: "12px 14px", fontSize: "11.5px", lineHeight: "1.45", color: "#2E2E2E" }}>Порог 80% — тон меняется на Acid 300, не на красный. Лимит не должен выглядеть поломкой.</div>
+    </div>
+  </div>
+</div>
+
+
+<div style={{ background: "#EFEFEF", borderRadius: "32px", padding: "36px 36px 40px", display: "flex", flexDirection: "column", gap: "22px" }}>
+  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "24px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.08em", textTransform: "uppercase", color: "#9A9A9A" }}>05 · Ядро продукта</span>
+      <h2 style={{ margin: "0", fontSize: "26px", fontWeight: "500", letterSpacing: "-0.025em" }}>Компоненты, которых нет в референсе</h2>
+    </div>
+    <p style={{ margin: "0", maxWidth: "430px", fontSize: "13px", lineHeight: "1.45", color: "#6E6E6E", textAlign: "right", textWrap: "pretty" }}>Выведены из К-1, К-4, К-7 хендоффа и собраны из тех же примитивов. Это несущие детали, а не украшение.</p>
+  </div>
+
+  <div style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: "14px" }}>
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "18px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontSize: "15px", fontWeight: "500" }}>Переключатель трёх световых условий</span>
+        <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>К-1 · порядок фиксирован, тумблера отключения нет</span>
+      </div>
+      <div style={{ display: "flex", gap: "6px", background: "#F5F5F5", borderRadius: "999px", padding: "5px" }}>
+        <div style={{ flex: "1", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", background: "#111111", borderRadius: "999px", padding: "12px 14px" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="1.7" strokeLinecap="round"><circle cx="12" cy="12" r="4.2" /><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7" /></svg>
+          <span style={{ fontSize: "13px", fontWeight: "500", color: "#FFFFFF" }}>День</span>
+        </div>
+        <div style={{ flex: "1", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px 14px" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M6.5 18h11a4 4 0 000-8 6 6 0 00-11.6 1.6A3.2 3.2 0 006.5 18z" /></svg>
+          <span style={{ fontSize: "13px", fontWeight: "500", color: "#6E6E6E" }}>Пасмурно</span>
+        </div>
+        <div style={{ flex: "1", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px 14px" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9l8-5 8 5" /><path d="M12 11v9" /><path d="M8 20h8" /></svg>
+          <span style={{ fontSize: "13px", fontWeight: "500", color: "#6E6E6E" }}>Паркинг</span>
+        </div>
+      </div>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "11px", background: "#F5FBCB", borderRadius: "18px", padding: "14px 16px" }}>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.7" strokeLinecap="round" style={{ flex: "none", marginTop: "1px" }}><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z" /><path d="M9.2 12.2l2 2 3.6-3.9" /></svg>
+        <span style={{ fontSize: "12.5px", lineHeight: "1.45", color: "#2E2E2E" }}>Оттенок партии сверим с рулоном при вас на замере — образец приложим к записи.</span>
+      </div>
+      <p style={{ margin: "0", fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.45" }}>Формулировка снимает тревогу, а не страхует нас. Дисклеймер здесь усилил бы страх, ради которого строка и стоит.</p>
+    </div>
+
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "18px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontSize: "15px", fontWeight: "500" }}>Канал как свойство сообщения</span>
+        <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>К-7 · иконкой в строке, никогда вкладкой</span>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#F5F5F5", borderRadius: "999px", padding: "7px 14px 7px 7px" }}><span style={{ width: "24px", height: "24px", borderRadius: "999px", background: "#25455B", color: "#FFFFFF", fontSize: "9.5px", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "center" }}>WA</span><span style={{ fontSize: "12px", color: "#2E2E2E" }}>WhatsApp</span></div>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#F5F5F5", borderRadius: "999px", padding: "7px 14px 7px 7px" }}><span style={{ width: "24px", height: "24px", borderRadius: "999px", background: "#3A6B8F", color: "#FFFFFF", fontSize: "9.5px", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "center" }}>TG</span><span style={{ fontSize: "12px", color: "#2E2E2E" }}>Telegram</span></div>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#F5F5F5", borderRadius: "999px", padding: "7px 14px 7px 7px" }}><span style={{ width: "24px", height: "24px", borderRadius: "999px", background: "#5B4B8A", color: "#FFFFFF", fontSize: "8.5px", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "center" }}>MAX</span><span style={{ fontSize: "12px", color: "#2E2E2E" }}>MAX</span></div>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#F5F5F5", borderRadius: "999px", padding: "7px 14px 7px 7px" }}><span style={{ width: "24px", height: "24px", borderRadius: "999px", background: "#7A6A3F", color: "#FFFFFF", fontSize: "9.5px", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "center" }}>AV</span><span style={{ fontSize: "12px", color: "#2E2E2E" }}>Avito</span></div>
+      </div>
+      <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontSize: "15px", fontWeight: "500" }}>Штамп подтверждения</span>
+        <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>МС-1 · его выбор, его дата — не наша запись</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#111111", borderRadius: "18px", padding: "14px 18px" }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "none" }}><path d="M5 13l4.5 4.5L19 7" /></svg>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: "13.5px", fontWeight: "500", color: "#FFFFFF" }}>Клиент подтвердил выбор</span>
+          <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>26 августа, 14:32 · KPMF K75407</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "20px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontSize: "15px", fontWeight: "500" }}>Состояние примерки в строке инбокса</span>
+        <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>§3.1 · отвечает на «где я его бросил» без открытия диалога</span>
+      </div>
+      <span style={{ fontSize: "11.5px", color: "#9A9A9A", maxWidth: "330px", textAlign: "right", lineHeight: "1.4" }}>Акцент — только у «попросил ещё вариант». Это единственное состояние, где деньги уходят за минуты.</span>
+    </div>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "9px" }}>
+      <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#9A9A9A", background: "#F5F5F5", borderRadius: "999px", padding: "9px 16px" }}>Без примерки</span>
+      <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#2E2E2E", background: "#F5F5F5", borderRadius: "999px", padding: "9px 16px", display: "flex", alignItems: "center", gap: "8px" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" strokeWidth="2" strokeLinecap="round"><path d="M4 12l16-8-6 16-2.5-6z" /></svg>Отправлена · ждём</span>
+      <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#111111", background: "#DEF23B", borderRadius: "999px", padding: "9px 16px", display: "flex", alignItems: "center", gap: "8px" }}><span style={{ width: "7px", height: "7px", borderRadius: "999px", background: "#111111" }}></span>Просит ещё вариант</span>
+      <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#FFFFFF", background: "#111111", borderRadius: "999px", padding: "9px 16px", display: "flex", alignItems: "center", gap: "8px" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2.2" strokeLinecap="round"><path d="M5 13l4.5 4.5L19 7" /></svg>Выбор подтверждён</span>
+      <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#2E2E2E", background: "#FFFFFF", borderRadius: "999px", padding: "8px 15px", boxShadow: "inset 0 0 0 1px #E2E2E2", display: "flex", alignItems: "center", gap: "8px" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.8" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M8 3v4M16 3v4M4 10h16" /></svg>Замер 29 авг, 11:00</span>
+      <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#D93F45", background: "#FBEEEF", borderRadius: "999px", padding: "9px 16px", display: "flex", alignItems: "center", gap: "8px" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D93F45" strokeWidth="2" strokeLinecap="round"><path d="M12 8v5M12 16.5v.5" /><circle cx="12" cy="12" r="8.5" /></svg>Не доставлено</span>
+      <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#6E6E6E", background: "#FFFFFF", borderRadius: "999px", padding: "8px 15px", boxShadow: "inset 0 0 0 1px #E2E2E2", backgroundImage: "repeating-linear-gradient(115deg,#EDEDED 0 1px,transparent 1px 5px)" }}>Канал отвалился</span>
+    </div>
+  </div>
+
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: "14px" }}>
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "18px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontSize: "15px", fontWeight: "500" }}>Плитка артикула</span>
+        <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>К-2 · артикул и цена только из прайса точки</span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+        <div style={{ background: "#DEF23B", borderRadius: "20px", padding: "12px", display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ height: "78px", borderRadius: "14px", overflow: "hidden", background: "rgba(255,255,255,.45)" }}><ImageSlot id="ds-sku-1" shape="rounded" radius="14" placeholder="рендер" /></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <span style={{ fontSize: "12.5px", fontWeight: "500", lineHeight: "1.25" }}>Сатин-хром тёмный</span>
+            <span style={{ fontSize: "11px", opacity: ".6" }}>K75407</span>
+            <span style={{ fontSize: "15px", fontWeight: "500", letterSpacing: "-0.02em", marginTop: "3px" }}>248<span style={{ opacity: ".55" }}> 400 ₽</span></span>
+          </div>
+        </div>
+        <div style={{ background: "#F5F5F5", borderRadius: "20px", padding: "12px", display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ height: "78px", borderRadius: "14px", overflow: "hidden", background: "#FFFFFF" }}><ImageSlot id="ds-sku-2" shape="rounded" radius="14" placeholder="рендер" /></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <span style={{ fontSize: "12.5px", fontWeight: "500", lineHeight: "1.25" }}>Матовый графит</span>
+            <span style={{ fontSize: "11px", color: "#9A9A9A" }}>970-070</span>
+            <span style={{ fontSize: "15px", fontWeight: "500", letterSpacing: "-0.02em", marginTop: "3px" }}>214<span style={{ color: "#9A9A9A" }}> 900 ₽</span></span>
+          </div>
+        </div>
+      </div>
+      <p style={{ margin: "0", fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.45" }}>Выбранная плитка — Acid, не рамка. Рамки в этой системе не выделяют.</p>
+    </div>
+
+    <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "18px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+        <span style={{ fontSize: "15px", fontWeight: "500" }}>Слот рендера и его отказные виды</span>
+        <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>Заливаете свои рендеры перетаскиванием — крайние два состояния нарисованы</span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ height: "104px", borderRadius: "18px", overflow: "hidden", background: "#F5F5F5" }}><ImageSlot id="ds-render-ok" shape="rounded" radius="18" placeholder="Перетащите рендер" /></div>
+          <span style={{ fontSize: "11px", color: "#6E6E6E" }}>Готов</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ height: "104px", borderRadius: "18px", background: "#F5F5F5", backgroundImage: "repeating-linear-gradient(115deg,#E2E2E2 0 1px,transparent 1px 6px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "7px", padding: "10px", textAlign: "center" }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="12" r="8.5" /><path d="M12 8v4.5l3 2" /></svg>
+            <span style={{ fontSize: "10.5px", color: "#6E6E6E", lineHeight: "1.35" }}>Готовим<br />~40 сек</span>
+          </div>
+          <span style={{ fontSize: "11px", color: "#6E6E6E" }}>Частичная выдача</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ height: "104px", borderRadius: "18px", background: "#FBEEEF", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "7px", padding: "10px", textAlign: "center" }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#D93F45" strokeWidth="1.7" strokeLinecap="round"><path d="M4 20l16-16" /><rect x="4" y="6" width="16" height="12" rx="3" /></svg>
+            <span style={{ fontSize: "10.5px", color: "#8A4448", lineHeight: "1.35" }}>Фото не подошло<br />дадим типовой кузов</span>
+          </div>
+          <span style={{ fontSize: "11px", color: "#6E6E6E" }}>Отбраковка</span>
+        </div>
+      </div>
+      <p style={{ margin: "0", fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.45" }}>Отказ всегда с фолбэком в той же плитке. Пустого отказа в системе нет.</p>
+    </div>
+  </div>
+</div>
+
+<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "20px", padding: "4px 12px" }}>
+  <span style={{ fontSize: "12px", color: "#8A8A8A" }}>CarSwap AI · дизайн-система v1 · основа для экранов инбокса и диалога</span>
+  <span style={{ fontSize: "12px", color: "#8A8A8A" }}>Дальше: инбокс, диалог, варианты карточки 3×3, полный набор состояний §9</span>
+</div>
+
+</div></>
+  );
+}
+
+export const DesignSystemBlocks = [DesignSystemBlock0];
+export const DesignSystemCanvas = { background: "#3A3A3A", minHeight: "100vh", padding: "56px 40px 110px", fontFamily: "Onest,Manrope,system-ui,sans-serif", color: "#111111" } as React.CSSProperties;
