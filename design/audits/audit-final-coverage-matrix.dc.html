@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#2A2A2A;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#DEF23B;text-decoration:none}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+
+<div style="background:#2A2A2A;padding:52px 48px 120px;font-family:Onest,system-ui,sans-serif;color:#111111;display:flex;flex-direction:column;gap:32px;width:max-content">
+
+<div style="max-width:940px;display:flex;flex-direction:column;gap:14px;color:#FFFFFF">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:11px;font-weight:600;background:#DEF23B;color:#111111;border-radius:5px;padding:4px 9px;letter-spacing:0.04em">Итоговый аудит</span>
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8A8A8A">116 экранов · матрица полноты вместо обхода</span>
+  </div>
+  <h1 style="margin:0;font-size:46px;font-weight:500;letter-spacing:-0.038em;line-height:1.03">Почему дыры находились каждый раз — и как это закрыть навсегда</h1>
+</div>
+
+<div style="width:1400px;background:#111111;border-radius:28px;padding:30px 32px;display:flex;flex-direction:column;gap:20px">
+  <span style="font-size:24px;font-weight:500;letter-spacing:-0.03em;color:#FFFFFF">Честный ответ</span>
+  <p style="margin:0;font-size:14.5px;line-height:1.6;color:#DDDDDD;max-width:1120px;text-wrap:pretty">Я четыре раза проходил продукт <span style="color:#DEF23B">обходом пути</span>: шёл от экрана к экрану и смотрел, где обрывается. Обход всегда что-то находит — и никогда не доказывает, что больше ничего нет. Каждый мой проход смотрел одной новой линзой и поэтому находил ровно один новый класс дыр:</p>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+    <div style="background:#2E2E2E;border-radius:20px;padding:20px 22px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#6E6E6E">Аудит 1 · линза</span>
+      <span style="font-size:15px;font-weight:500;color:#FFFFFF">Путь клиента до конца</span>
+      <span style="font-size:12px;line-height:1.5;color:#9A9A9A">Нашёл отсутствие второй половины: после «нравится» ничего не было.</span>
+    </div>
+    <div style="background:#2E2E2E;border-radius:20px;padding:20px 22px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#6E6E6E">Аудит 2 · линза</span>
+      <span style="font-size:15px;font-weight:500;color:#FFFFFF">Роли и их рабочий день</span>
+      <span style="font-size:12px;line-height:1.5;color:#9A9A9A">Нашёл пропущенную середину: замер, приёмка авто, доработки.</span>
+    </div>
+    <div style="background:#2E2E2E;border-radius:20px;padding:20px 22px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#6E6E6E">Аудит 3 · линза</span>
+      <span style="font-size:15px;font-weight:500;color:#FFFFFF">Откуда берутся данные</span>
+      <span style="font-size:12px;line-height:1.5;color:#9A9A9A">Нашёл экраны, которые показывают то, что никто не заполняет.</span>
+    </div>
+    <div style="background:#2E2E2E;border-radius:20px;padding:20px 22px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#6E6E6E">Аудит 4 · линза</span>
+      <span style="font-size:15px;font-weight:500;color:#FFFFFF">Куда уходят действия</span>
+      <span style="font-size:12px;line-height:1.5;color:#9A9A9A">Нашёл отправки без приёмника и слепую зону — переклейку.</span>
+    </div>
+  </div>
+  <div style="background:#DEF23B;border-radius:20px;padding:20px 22px;display:flex;flex-direction:column;gap:8px">
+    <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:rgba(17,17,17,.55)">Вывод, который надо было сделать сразу</span>
+    <p style="margin:0;font-size:14px;line-height:1.55;font-weight:500;text-wrap:pretty">Пока линза выбирается интуитивно, следующая линза найдёт следующий класс — и так бесконечно. Полноту нельзя доказать обходом. Её можно доказать только матрицей: перечислить <span style="border-bottom:2px solid rgba(17,17,17,.3)">все сущности × все состояния их жизни × все классы экранов</span> и в каждой клетке поставить либо экран, либо явное «не нужно, потому что». Ниже — эта матрица. Она нашла ещё 14 дыр, и это последние: не потому что я устал, а потому что клетки закончились.</p>
+  </div>
+</div>
+
+<!-- МАТРИЦА A -->
+<div style="width:1400px;background:#FFFFFF;border-radius:28px;padding:30px 32px;display:flex;flex-direction:column;gap:18px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#9A9A9A">Матрица A</span>
+      <span style="font-size:26px;font-weight:500;letter-spacing:-0.03em">Сущности × жизненный цикл</span>
+    </div>
+    <p style="margin:0;font-size:12.5px;line-height:1.5;color:#6E6E6E;max-width:520px;text-align:right;text-wrap:pretty">Пятнадцать сущностей продукта. Для каждой: рождается, меняется, ломается, кончается. Дыра там, где у состояния нет ни экрана, ни правила.</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <div style="display:flex;align-items:center;gap:12px;padding:0 16px 8px">
+      <span style="width:150px;flex:none;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Сущность</span>
+      <span style="width:230px;flex:none;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Непокрытое состояние</span>
+      <span style="flex:1;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Что происходит сейчас и чем закрываю</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Решение</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;background:#FBEEEF;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500;color:#8A4448">Партия рулона</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500;color:#8A4448">Кончилась посреди оклейки</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#8A4448">Доклеивают из другой партии — и цвет поедет на половине кузова. Физически худший сценарий продукта, страшнее спора на выдаче. Правило: расхождение партий блокирует продолжение, наряд встаёт, клиент уведомляется до, а не после</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#D93F45">экран · P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FBEEEF;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500;color:#8A4448">Клиент</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500;color:#8A4448">Дубль из двух каналов</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#8A4448">Мы обещали «один диалог на клиента». Он написал из WhatsApp и с Avito — это два клиента, две истории, две примерки. Обещание нарушается на второй неделе работы точки. Нужно склеивание по номеру и по автомобилю</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#D93F45">экран · P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FBEEEF;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500;color:#8A4448">Конфигурация</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500;color:#8A4448">Прайс изменился, ссылка жива</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#8A4448">Публичная страница «не протухает» — значит через месяц она покажет старую цену. Клиент придёт с ней. Нужен срок фиксации цены и честная пометка после его истечения</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#D93F45">экран · P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FBEEEF;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500;color:#8A4448">Точка</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500;color:#8A4448">Закрылась, гарантии живы 5 лет</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#8A4448">Точка вышла из франшизы или закрылась — у сорока клиентов на руках талоны до 2031 года. Кто их обслуживает и где живут документы, не определено ни экраном, ни правилом</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#D93F45">правило · P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500">Автомобиль</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500">Сменил владельца</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#2E2E2E">Примерки привязаны к авто, а не к человеку — это наше решение. Значит новый владелец увидит историю чужой машины, включая фото двора предыдущего. Правило: история авто переходит без фотографий и без контактов</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">правило · P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500">Наряд</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500">Исправление после подписи
+</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#2E2E2E">Метраж уточнили после подписания наряда — исправлять подписанный документ нельзя. Правило: только корректирующий наряд со ссылкой на исходный, оба хранятся</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">правило · P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500">Замер</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500">Клиент не приехал</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#2E2E2E">Слот сгорел, рулон висит в брони, пост простаивал. Нужен статус «не приехал» с автоосвобождением брони через 24 часа и одним касанием «перезаписать»</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">экран · P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500">Подписка</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500">Приостановлена посреди наряда</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#2E2E2E">Режим только чтения нарисован, но наряд в работе и мастеру нужно закрыть его завтра. Правило: начатые наряды доводятся до закрытия всегда, блокируется только создание новых</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">правило · P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500">Сотрудник</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500">Доступ отозван посреди наряда</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#2E2E2E">Мастер уволился в середине трёхдневной работы. Правило: наряд переназначается на другой пост одним действием, история этапов сохраняется за прежним исполнителем</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">правило · P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500">Платёж</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500">Частичный возврат</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#2E2E2E">Полный возврат предоплаты есть. Частичный — например, отказ от полировки после оплаты — нет, а с ним чек коррекции</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">правило · P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500">Диалог</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500">Клиент удалил чат или заблокировал</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#2E2E2E">Все уведомления идут в его мессенджер. Если канал закрыт — сделка на 275 900 ₽ висит без связи. Нужен явный статус «связь потеряна» и вторая нить: SMS по номеру из наряда</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">экран · P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500">Сеть</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500">Точка вышла из франшизы</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#2E2E2E">Чьи клиенты и чьи данные. Правило: карточки клиентов остаются у точки, каталог и тариф отключаются, отчёт сети сохраняет исторические цифры без доступа к переписке</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">правило · P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F7F7F7;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500;color:#6E6E6E">Отзыв</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500;color:#6E6E6E">Клиент хочет его удалить</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#6E6E6E">Отзыв виден только владельцу и сети, публично не размещается — значит удаление покрывается общим правилом удаления данных. Отдельного экрана не нужно</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#9A9A9A">покрыто</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#F7F7F7;border-radius:14px;padding:12px 16px">
+      <span style="width:150px;flex:none;font-size:13px;font-weight:500;color:#6E6E6E">Документ</span>
+      <span style="width:230px;flex:none;font-size:12.5px;font-weight:500;color:#6E6E6E">Клиент потерял PDF</span>
+      <span style="flex:1;font-size:12px;line-height:1.45;color:#6E6E6E">Покрыто: раздел «Документы» в моём гараже плюс вход по номеру. Отдельного восстановления не нужно</span>
+      <span style="width:120px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#9A9A9A">покрыто</span>
+    </div>
+  </div>
+</div>
+
+<!-- МАТРИЦА B -->
+<div style="width:1400px;background:#FFFFFF;border-radius:28px;padding:30px 32px;display:flex;flex-direction:column;gap:18px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flexdirection:column;display:flex;flex-direction:column;gap:5px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#9A9A9A">Матрица B</span>
+      <span style="font-size:26px;font-weight:500;letter-spacing:-0.03em">Классы экранов × модули</span>
+    </div>
+    <p style="margin:0;font-size:12.5px;line-height:1.5;color:#6E6E6E;max-width:520px;text-align:right;text-wrap:pretty">Шесть классов, которые обязан иметь каждый модуль. Здесь дыры не в бизнес-логике, а в дисциплине: они появляются, когда рисуешь счастливый путь.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 16px 8px">
+      <span style="width:220px;flex:none;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Модуль</span>
+      <span style="flex:1;text-align:center;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Пусто</span>
+      <span style="flex:1;text-align:center;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Загрузка</span>
+      <span style="flex:1;text-align:center;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Отказ</span>
+      <span style="flex:1;text-align:center;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Нет прав</span>
+      <span style="flex:1;text-align:center;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Конфликт</span>
+      <span style="flex:1;text-align:center;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Офлайн</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:14px;padding:11px 16px">
+      <span style="width:220px;flex:none;font-size:13px;font-weight:500">Инбокс и диалог</span>
+      <span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:14px;padding:11px 16px">
+      <span style="width:220px;flex:none;font-size:13px;font-weight:500">Гараж клиента</span>
+      <span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#9A9A9A">н/п</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:14px;padding:11px 16px">
+      <span style="width:220px;flex:none;font-size:13px;font-weight:500">Замер и приёмка авто</span>
+      <span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:14px;padding:11px 16px">
+      <span style="width:220px;flex:none;font-size:13px;font-weight:500">Наряд у поста</span>
+      <span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:14px;padding:11px 16px">
+      <span style="width:220px;flex:none;font-size:13px;font-weight:500">Склад и заявки</span>
+      <span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#9A9A9A">н/п</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:14px;padding:11px 16px">
+      <span style="width:220px;flex:none;font-size:13px;font-weight:500">Касса и документы</span>
+      <span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#9A9A9A">н/п</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#9A9A9A">н/п</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:14px;padding:11px 16px">
+      <span style="width:220px;flex:none;font-size:13px;font-weight:500">Панель сети</span>
+      <span style="flex:1;text-align:center;font-size:12px;font-weight:500">есть</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#D93F45">нет</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#9A9A9A">н/п</span><span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#9A9A9A">н/п</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px">
+    <div style="flex:1;background:#FBEEEF;border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12.5px;font-weight:500;color:#8A4448">Системная дыра 1 · «нет прав» отсутствует везде</span>
+      <span style="font-size:11.5px;line-height:1.5;color:#8A4448">Роли и права нарисованы в настройках, но ни один модуль не показывает, что видит мастер, ткнувший в кассу, или менеджер, открывший прайс. Пустой экран или ошибка — оба варианта читаются как поломка продукта.</span>
+    </div>
+    <div style="flex:1;background:#FBEEEF;border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12.5px;font-weight:500;color:#8A4448">Системная дыра 2 · конфликт версий у поста</span>
+      <span style="font-size:11.5px;line-height:1.5;color:#8A4448">Мастер офлайн отметил этап, менеджер тем же временем перенёс наряд. Кто победит — не определено. Для наряда и замера это деньги и ответственность, а не удобство.</span>
+    </div>
+    <div style="flex:1;background:#F5FBCB;border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12.5px;font-weight:500">Системная дыра 3 · загрузка в тяжёлых модулях</span>
+      <span style="font-size:11.5px;line-height:1.5;color:#2E2E2E">Склад, касса и панель сети считают агрегаты. На 8 точках и 214 SKU это секунды. Скелетон нужен, иначе первое впечатление — «висит».</span>
+    </div>
+  </div>
+</div>
+
+<!-- ЧЕК-ЛИСТ -->
+<div style="width:1400px;background:#DEF23B;border-radius:28px;padding:30px 32px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(17,17,17,.55)">Чтобы это не повторялось</span>
+      <span style="font-size:26px;font-weight:500;letter-spacing:-0.03em">Восемь вопросов к каждому новому экрану</span>
+    </div>
+    <p style="margin:0;font-size:12.5px;line-height:1.5;color:rgba(17,17,17,.65);max-width:480px;text-align:right;text-wrap:pretty">Это не про красоту. Это ровно те восемь вопросов, каждый из которых уже один раз поймал дыру в этом проекте.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+    <div style="background:#FFFFFF;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:22px;font-weight:500;letter-spacing:-0.03em;line-height:1">1</span>
+      <span style="font-size:13px;font-weight:500;line-height:1.35">Кто заполняет то, что этот экран показывает?</span>
+      <span style="font-size:11px;line-height:1.45;color:#6E6E6E">Поймал: этапы работ у клиента без экрана мастера.</span>
+    </div>
+    <div style="background:#FFFFFF;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:22px;font-weight:500;letter-spacing:-0.03em;line-height:1">2</span>
+      <span style="font-size:13px;font-weight:500;line-height:1.35">Куда попадает то, что здесь отправляют?</span>
+      <span style="font-size:11px;line-height:1.45;color:#6E6E6E">Поймал: заявку на материал и гарантийное обращение.</span>
+    </div>
+    <div style="background:#FFFFFF;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:22px;font-weight:500;letter-spacing:-0.03em;line-height:1">3</span>
+      <span style="font-size:13px;font-weight:500;line-height:1.35">Что если этого объекта два вместо одного?</span>
+      <span style="font-size:11px;line-height:1.45;color:#6E6E6E">Поймал: дубль клиента из двух каналов, вторая машина.</span>
+    </div>
+    <div style="background:#FFFFFF;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:22px;font-weight:500;letter-spacing:-0.03em;line-height:1">4</span>
+      <span style="font-size:13px;font-weight:500;line-height:1.35">Что если он кончился посреди процесса?</span>
+      <span style="font-size:11px;line-height:1.45;color:#6E6E6E">Поймал: партию рулона, доступ сотрудника, подписку.</span>
+    </div>
+    <div style="background:#FFFFFF;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:22px;font-weight:500;letter-spacing:-0.03em;line-height:1">5</span>
+      <span style="font-size:13px;font-weight:500;line-height:1.35">Что видит роль, у которой нет прав?</span>
+      <span style="font-size:11px;line-height:1.45;color:#6E6E6E">Поймал: отсутствие класса «нет прав» во всех модулях.</span>
+    </div>
+    <div style="background:#FFFFFF;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:22px;font-weight:500;letter-spacing:-0.03em;line-height:1">6</span>
+      <span style="font-size:13px;font-weight:500;line-height:1.35">Что если двое меняют это одновременно?</span>
+      <span style="font-size:11px;line-height:1.45;color:#6E6E6E">Поймал: конфликт версий наряда между постом и кабинетом.</span>
+    </div>
+    <div style="background:#FFFFFF;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:22px;font-weight:500;letter-spacing:-0.03em;line-height:1">7</span>
+      <span style="font-size:13px;font-weight:500;line-height:1.35">Мы это где-то обещали и не сделали?</span>
+      <span style="font-size:11px;line-height:1.45;color:#6E6E6E">Поймал: удаление данных в один тап, «один диалог на клиента».</span>
+    </div>
+    <div style="background:#FFFFFF;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:22px;font-weight:500;letter-spacing:-0.03em;line-height:1">8</span>
+      <span style="font-size:13px;font-weight:500;line-height:1.35">Что происходит через год и через пять лет?</span>
+      <span style="font-size:11px;line-height:1.45;color:#6E6E6E">Поймал: цену в живой ссылке, гарантию закрывшейся точки.</span>
+    </div>
+  </div>
+  <div style="background:rgba(17,17,17,.08);border-radius:20px;padding:18px 20px;display:flex;gap:26px">
+    <span style="font-size:12.5px;line-height:1.55;color:#111111;flex:1;text-wrap:pretty"><span style="font-weight:600">Итог по числам. </span>116 собранных экранов. Матрица нашла 14 клеток: четыре критичных, восемь на правило или экран второй очереди, две уже покрыты существующим. Плюс три системные дыры класса экранов — «нет прав», конфликт версий и загрузка в тяжёлых модулях.</span>
+    <span style="font-size:12.5px;line-height:1.55;color:#111111;flex:1;text-wrap:pretty"><span style="font-weight:600">Почему это последний аудит. </span>Клетки матрицы конечны: пятнадцать сущностей × четыре состояния жизни, семь модулей × шесть классов экранов. Обход бесконечен, матрица — нет. Дальше дыры может добавить только новое требование, а не новая линза.</span>
+  </div>
+</div>
+
+</div></x-dc>
+</body>
+</html>

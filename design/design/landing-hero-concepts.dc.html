@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#0B0B0C;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+*{box-sizing:border-box}
+a{color:#DEF23B;text-decoration:none}
+a:hover{color:#EAF77E}
+img{display:block}
+@keyframes nudge{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(7px);opacity:1}}
+@keyframes csRise{from{opacity:0}to{opacity:1}}
+@keyframes csFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes csFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes csGrow{from{width:0%}to{width:100%}}
+@keyframes csHold{0%{opacity:0}16%{opacity:1}84%{opacity:1}100%{opacity:0}}
+@keyframes csHoldFirst{0%{opacity:1}84%{opacity:1}100%{opacity:0}}
+@keyframes csHoldLast{0%{opacity:0}16%{opacity:1}100%{opacity:1}}
+@keyframes csChip{0%{box-shadow:0 0 0 1px rgba(255,255,255,.22);transform:scale(1)}16%{box-shadow:0 0 0 2px #DEF23B,0 0 22px rgba(222,242,59,.5);transform:scale(1.22)}84%{box-shadow:0 0 0 2px #DEF23B,0 0 22px rgba(222,242,59,.5);transform:scale(1.22)}100%{box-shadow:0 0 0 1px rgba(255,255,255,.22);transform:scale(1)}}
+@keyframes csChipFirst{0%{box-shadow:0 0 0 2px #DEF23B,0 0 22px rgba(222,242,59,.5);transform:scale(1.22)}84%{box-shadow:0 0 0 2px #DEF23B,0 0 22px rgba(222,242,59,.5);transform:scale(1.22)}100%{box-shadow:0 0 0 1px rgba(255,255,255,.22);transform:scale(1)}}
+@keyframes csChipLast{0%{box-shadow:0 0 0 1px rgba(255,255,255,.22);transform:scale(1)}16%{box-shadow:0 0 0 2px #DEF23B,0 0 22px rgba(222,242,59,.5);transform:scale(1.22)}100%{box-shadow:0 0 0 2px #DEF23B,0 0 22px rgba(222,242,59,.5);transform:scale(1.22)}}
+@keyframes csRowOn{0%{background:transparent;opacity:.45}16%{background:#F7F7F7;opacity:1}84%{background:#F7F7F7;opacity:1}100%{background:transparent;opacity:.45}}
+@keyframes csRowOnFirst{0%{background:#F7F7F7;opacity:1}84%{background:#F7F7F7;opacity:1}100%{background:transparent;opacity:.45}}
+@keyframes csRowOnLast{0%{background:transparent;opacity:.45}16%{background:#F7F7F7;opacity:1}100%{background:#F7F7F7;opacity:1}}
+@keyframes csRowSlide{from{transform:translateY(0)}to{transform:translateY(-528px)}}
+@keyframes csHeroOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.06)}}
+@keyframes csCardScale{from{transform:scale(1.2)}to{transform:scale(1)}}
+@keyframes csCellIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes csBubbleUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes csBubbleDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</helmet>
+
+<div style="font-family:Onest,system-ui,sans-serif;color:#FFFFFF;background:#0B0B0C">
+
+<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:0;background:rgba(17,17,17,.74);backdrop-filter:blur(14px);border-radius:999px;padding:4px;box-shadow:0 18px 40px -20px rgba(0,0,0,.8)">
+  <div style="position:absolute;top:4px;left:4px;width:128px;height:calc(100% - 8px);border-radius:999px;background:rgba(222,242,59,.14);box-shadow:inset 0 0 0 1px #DEF23B;transition:transform .34s cubic-bezier(.4,0,.2,1);transform:translateX({{ indicatorX }})"></div>
+  <div onClick="{{ pickA }}" style="position:relative;width:128px;text-align:center;padding:10px 0;font-size:12.5px;font-weight:500;color:#F2F2F2;cursor:pointer;letter-spacing:-0.01em"><span style="color:#DEF23B;margin-right:6px">A</span>Тёмный зал</div>
+  <div onClick="{{ pickB }}" style="position:relative;width:128px;text-align:center;padding:10px 0;font-size:12.5px;font-weight:500;color:#F2F2F2;cursor:pointer;letter-spacing:-0.01em"><span style="color:#DEF23B;margin-right:6px">B</span>Прайс</div>
+  <div onClick="{{ pickC }}" style="position:relative;width:128px;text-align:center;padding:10px 0;font-size:12.5px;font-weight:500;color:#F2F2F2;cursor:pointer;letter-spacing:-0.01em"><span style="color:#DEF23B;margin-right:6px">C</span>Девять кадров</div>
+</div>
+
+<!-- ═══ A · ТЁМНЫЙ ЗАЛ ═══ -->
+<sc-if value="{{ isA }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="A · Тёмный зал" style="background:#0B0B0C">
+
+  <div data-scene="a" style="position:relative;height:{{ paceA }};view-timeline-name:--heroA;view-timeline-axis:block">
+    <div style="position:sticky;top:0;height:100vh;overflow:hidden;background:#0B0B0C">
+
+      <div data-stack="a" style="position:absolute;inset:0">
+        <div style="position:absolute;inset:0;background-image:url(assets/wrap-01-silver.jpg);background-size:cover;background-position:center"></div>
+        <sc-for list="{{ filmsRest }}" as="f" hint-placeholder-count="0">
+          <div data-lyr="1" style="position:absolute;inset:0;background-image:url({{ f.img }});background-size:cover;background-position:center;opacity:0;will-change:opacity;animation:csRise 1s linear both;animation-timeline:--heroA;animation-range:{{ f.rise }}"></div>
+        </sc-for>
+      </div>
+
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,11,12,.95) 0%,rgba(11,11,12,.86) 26%,rgba(11,11,12,.35) 58%,rgba(11,11,12,0) 78%)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,11,12,.7) 0%,rgba(11,11,12,0) 22%,rgba(11,11,12,0) 62%,rgba(11,11,12,.72) 100%)"></div>
+
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:26px 40px 116px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex:none">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:30px;height:30px;border-radius:10px;background:#DEF23B;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.9" stroke-linecap="round"><path d="M12 4v16M4 12h16"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          <span style="font-size:17px;font-weight:600;letter-spacing:-0.025em">CarSwap AI</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:34px">
+          <span style="font-size:13.5px;color:#9A9A9A">Как это работает</span>
+          <span style="font-size:13.5px;color:#9A9A9A">Для сети</span>
+          <span style="font-size:13.5px;color:#9A9A9A">Тарифы</span>
+          <div style="background:#DEF23B;color:#111111;border-radius:999px;padding:12px 24px;font-size:13.5px;font-weight:500;cursor:pointer">Подключить точку</div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:flex;align-items:center;min-height:0">
+      <div style="max-width:min(46vw,620px);display:flex;flex-direction:column;gap:clamp(11px,2.1vh,24px)">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#DEF23B">Одно фото клиента · девять вариантов из вашего прайса</span>
+        <h1 style="margin:0;font-size:clamp(32px,calc(2.4vw + 2.3vh),78px);line-height:.98;font-weight:500;letter-spacing:-0.045em;text-wrap:balance">Пока вы печатаете ответ, он уже выбрал цвет</h1>
+        <p style="margin:0;max-width:440px;font-size:clamp(13px,1.75vh,16px);line-height:1.5;color:#B4B4B4;text-wrap:pretty">Обращение из WhatsApp, Telegram, MAX и Avito приходит в кабинет точки. Через двадцать секунд клиент видит свою машину в плёнках, которые лежат у вас на складе — с вашим артикулом и вашей ценой.</p>
+
+        <div style="position:relative;height:clamp(76px,13.5vh,112px)">
+          <sc-for list="{{ films }}" as="f" hint-placeholder-count="1">
+            <div data-ro="1" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;opacity:0;animation:{{ f.holdName }} 1s linear both;animation-timeline:--heroA;animation-range:{{ f.hold }}">
+              <span style="font-size:clamp(18px,2.7vh,26px);font-weight:500;letter-spacing:-0.03em;line-height:1.1">{{ f.name }}</span>
+              <div style="display:flex;align-items:baseline;gap:16px">
+                <span style="font-size:13px;color:#7E7E7E;font-variant-numeric:tabular-nums;letter-spacing:0.02em">{{ f.sku }}</span>
+                <span style="font-size:12px;color:#7E7E7E">{{ f.finish }}</span>
+              </div>
+              <div style="display:flex;align-items:baseline;font-size:clamp(21px,3.1vh,30px);font-weight:500;letter-spacing:-0.035em;font-variant-numeric:tabular-nums">
+                <span>{{ f.price }}</span><span style="font-size:19px;margin-left:7px;color:#7E7E7E">{{ f.cur }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </div>
+      </div>
+
+      <div style="position:absolute;right:40px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:clamp(6px,1.4vh,14px);align-items:flex-end">
+        <sc-for list="{{ films }}" as="f" hint-placeholder-count="3">
+          <div data-chip="1" style="display:flex;align-items:center;gap:14px;justify-content:flex-end">
+            <span style="font-size:12.5px;font-weight:500;color:#FFFFFF;opacity:0;white-space:nowrap;animation:{{ f.holdName }} 1s linear both;animation-timeline:--heroA;animation-range:{{ f.hold }}">{{ f.short }}</span>
+            <div style="width:clamp(22px,3.3vh,34px);height:clamp(22px,3.3vh,34px);border-radius:999px;flex:none;background:{{ f.hex }};box-shadow:0 0 0 1px rgba(255,255,255,.22);animation:{{ f.chipName }} 1s linear both;animation-timeline:--heroA;animation-range:{{ f.hold }}"></div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="position:absolute;left:40px;bottom:36px;right:150px;display:flex;align-items:flex-end;justify-content:space-between;gap:30px">
+        <div style="display:flex;flex-direction:column;gap:12px;flex:1;max-width:560px">
+          <div style="display:flex;align-items:baseline;gap:8px;font-variant-numeric:tabular-nums">
+            <span style="position:relative;width:20px;height:18px;flex:none">
+              <sc-for list="{{ films }}" as="f" hint-placeholder-count="1">
+                <span data-num="1" style="position:absolute;left:0;top:0;font-size:15px;font-weight:500;opacity:0;animation:{{ f.holdName }} 1s linear both;animation-timeline:--heroA;animation-range:{{ f.hold }}">{{ f.num }}</span>
+              </sc-for>
+            </span>
+            <span style="font-size:13px;color:#6E6E6E;white-space:nowrap">/ 09 плёнок прайса</span>
+          </div>
+          <div style="height:2px;background:rgba(255,255,255,.14);border-radius:2px;overflow:hidden">
+            <div data-role="a-bar" style="height:2px;width:0%;background:#DEF23B;animation:csGrow 1s linear both;animation-timeline:--heroA;animation-range:contain 0% contain 100%"></div>
+          </div>
+        </div>
+        <div data-role="a-hint" style="display:flex;align-items:center;gap:10px;color:#8E8E8E;font-size:12.5px;animation:csFadeOut 1s linear both;animation-timeline:--heroA;animation-range:contain 0% contain 3%">
+          <span>Крутите</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="1.8" stroke-linecap="round" style="animation:nudge 1.9s ease-in-out infinite"><path d="M12 4v14M6 13l6 6 6-6"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="padding:120px 40px 130px;background:#0B0B0C">
+    <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:52px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:18px;max-width:640px">
+          <span style="font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#DEF23B">Механика честности</span>
+          <h2 style="margin:0;font-size:clamp(30px,3.6vw,54px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Один артикул. Три света. Всегда все три.</h2>
+        </div>
+        <p style="margin:0;max-width:430px;font-size:15px;line-height:1.55;color:#9A9A9A;text-wrap:pretty">Клиент видит лагуну на солнце, в пасмурный день и в крытом паркинге — до того, как вы отрежете первый метр. Тумблера, который это отключает, в продукте нет.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="border-radius:24px;overflow:hidden;background:#141416"><img src="assets/light-lagoon-sun.jpg" alt="" style="width:100%;height:340px;object-fit:cover" /></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7"/></svg>
+            <span style="font-size:14px;font-weight:500">Прямое солнце</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="border-radius:24px;overflow:hidden;background:#141416"><img src="assets/light-lagoon-cloud.jpg" alt="" style="width:100%;height:340px;object-fit:cover" /></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 18h11a4 4 0 000-8 6 6 0 00-11.6 1.6A3.2 3.2 0 006.5 18z"/></svg>
+            <span style="font-size:14px;font-weight:500">Пасмурно</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="border-radius:24px;overflow:hidden;background:#141416"><img src="assets/light-lagoon-park.jpg" alt="" style="width:100%;height:340px;object-fit:cover" /></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l8-5 8 5"/><path d="M12 11v9"/><path d="M8 20h8"/></svg>
+            <span style="font-size:14px;font-weight:500">Крытый паркинг</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:14px;background:rgba(222,242,59,.09);border-radius:20px;padding:20px 24px;max-width:820px">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.7" stroke-linecap="round" style="flex:none"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+        <span style="font-size:14.5px;line-height:1.5;color:#E8E8E8">Оттенок партии сверим с рулоном при вас на замере — образец приложим к записи.</span>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ notes }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:0 40px 90px;background:#0B0B0C">
+    <div style="max-width:1360px;margin:0 auto;display:flex;align-items:flex-start;gap:16px;border-top:1px solid rgba(255,255,255,.1);padding-top:26px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#DEF23B;flex:none;margin-top:3px">Ставка A</span>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:#8E8E8E;max-width:760px;text-wrap:pretty">Кино. Первые две секунды продают перевоплощение, прайс приходит вторым слоем. Сильнее всего работает на владельце, который сам приехал с личной машиной — но дальше страницу придётся вытягивать цифрами, потому что герой ничего не обещает про деньги.</p>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+<!-- ═══ B · ПРАЙС ═══ -->
+<sc-if value="{{ isB }}">
+<div data-screen-label="B · Прайс" style="background:#EFEFEF;color:#111111">
+
+  <div data-scene="b" style="position:relative;height:{{ paceB }};view-timeline-name:--heroB;view-timeline-axis:block">
+    <div style="position:sticky;top:0;height:100vh;padding:22px;display:flex;flex-direction:column;gap:16px">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;background:#FFFFFF;border-radius:999px;padding:12px 14px 12px 22px;flex:none">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:30px;height:30px;border-radius:10px;background:#111111;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.9" stroke-linecap="round"><path d="M12 4v16M4 12h16"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          <span style="font-size:16.5px;font-weight:600;letter-spacing:-0.025em">CarSwap AI</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:30px">
+          <span style="font-size:13.5px;color:#6E6E6E">Как это работает</span>
+          <span style="font-size:13.5px;color:#6E6E6E">Для сети</span>
+          <span style="font-size:13.5px;color:#6E6E6E">Тарифы</span>
+          <div style="background:#111111;color:#FFFFFF;border-radius:999px;padding:12px 24px;font-size:13.5px;font-weight:500;cursor:pointer">Подключить точку</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(340px,.62fr) 1.38fr;gap:16px;flex:1;min-height:0">
+
+        <div style="background:#FFFFFF;border-radius:32px;padding:30px 30px 24px;display:flex;flex-direction:column;gap:22px;min-height:0">
+          <div style="display:flex;flex-direction:column;gap:16px;flex:none">
+            <h1 style="margin:0;font-size:clamp(26px,2.5vw,38px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Витрина — примерка. Цена и артикул — ваши.</h1>
+            <p style="margin:0;font-size:14.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Клиент собирает вариант из прайса точки. Того, чего нет на складе, для него не существует — ни в кабинете, ни в гараже.</p>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none">
+            <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Прайс точки · Автозаводская</span>
+            <span style="font-size:11.5px;color:#9A9A9A;font-variant-numeric:tabular-nums">9 из 214 SKU</span>
+          </div>
+
+          <div style="position:relative;flex:1;min-height:0;overflow:hidden;mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 74%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 74%,transparent 100%)">
+            <div data-role="b-rows" style="position:absolute;left:0;right:0;top:38%;will-change:transform;animation:csRowSlide 1s linear both;animation-timeline:--heroB;animation-range:contain 0% contain 100%">
+              <sc-for list="{{ films }}" as="f" hint-placeholder-count="4">
+                <div data-row="1" style="height:66px;display:flex;align-items:center;gap:14px;padding:0 16px;border-radius:18px;opacity:.45;animation:{{ f.rowName }} 1s linear both;animation-timeline:--heroB;animation-range:{{ f.hold }}">
+                  <div style="width:30px;height:30px;border-radius:10px;flex:none;background:{{ f.hex }};box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)"></div>
+                  <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+                    <span style="font-size:14px;font-weight:500;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.name }}</span>
+                    <span style="font-size:11.5px;color:#9A9A9A;font-variant-numeric:tabular-nums">{{ f.sku }} · {{ f.finish }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none">
+                    <span style="font-size:14.5px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-0.02em">{{ f.price }}</span>
+                    <span style="font-size:11px;color:#9A9A9A">{{ f.stock }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="position:absolute;left:0;right:0;top:38%;height:66px;border-radius:18px;box-shadow:inset 0 0 0 1.5px #111111;pointer-events:none"></div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:11px;background:#F5FBCB;border-radius:18px;padding:14px 16px;flex:none">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round" style="flex:none"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+            <span style="font-size:12.5px;line-height:1.45;color:#2E2E2E">Оттенок партии сверим с рулоном при вас на замере — образец приложим.</span>
+          </div>
+        </div>
+
+        <div style="position:relative;border-radius:32px;overflow:hidden;background:#111111;min-height:0">
+          <div data-stack="b" style="position:absolute;inset:0">
+            <div style="position:absolute;inset:0;background-image:url(assets/wrap-01-silver.jpg);background-size:cover;background-position:center"></div>
+            <sc-for list="{{ filmsRest }}" as="f" hint-placeholder-count="0">
+              <div data-lyr="1" style="position:absolute;inset:0;background-image:url({{ f.img }});background-size:cover;background-position:center;opacity:0;will-change:opacity;animation:csRise 1s linear both;animation-timeline:--heroB;animation-range:{{ f.rise }}"></div>
+            </sc-for>
+          </div>
+
+          <div style="position:absolute;top:22px;left:22px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px 8px 10px">
+            <span style="width:22px;height:22px;border-radius:999px;background:#111111;color:#DEF23B;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">АЗ</span>
+            <span style="font-size:12px;font-weight:500;color:#111111">Ателье на Автозаводской</span>
+          </div>
+
+          <div style="position:absolute;right:22px;top:22px;display:flex;gap:6px;background:rgba(17,17,17,.72);backdrop-filter:blur(8px);border-radius:999px;padding:5px">
+            <span style="font-size:12px;font-weight:500;color:#111111;background:#DEF23B;border-radius:999px;padding:8px 15px">День</span>
+            <span style="font-size:12px;font-weight:500;color:#C4C4C4;padding:8px 15px">Пасмурно</span>
+            <span style="font-size:12px;font-weight:500;color:#C4C4C4;padding:8px 15px">Паркинг</span>
+          </div>
+
+          <div style="position:absolute;left:22px;bottom:22px;max-width:340px;background:#FFFFFF;border-radius:24px;padding:18px 20px;box-shadow:0 24px 44px -22px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="width:26px;height:26px;border-radius:999px;background:#25455B;color:#FFFFFF;font-size:9.5px;font-weight:600;display:flex;align-items:center;justify-content:center">WA</span>
+              <span style="font-size:12px;color:#9A9A9A">Артём, 14:32 · WhatsApp</span>
+            </div>
+            <div style="background:#DEF23B;border-radius:16px 16px 16px 5px;padding:13px 16px;font-size:14.5px;font-weight:500;color:#111111;align-self:flex-start">а можно ещё в этом?</div>
+            <span style="font-size:11.5px;color:#9A9A9A;line-height:1.4">Диалог поднимается наверх инбокса. Домер варианта — в той же переписке, без новой примерки.</span>
+          </div>
+
+          <div style="position:absolute;right:22px;bottom:22px;display:flex;align-items:center;gap:12px;background:rgba(17,17,17,.72);backdrop-filter:blur(8px);border-radius:999px;padding:10px 18px">
+            <span style="position:relative;width:18px;height:16px;flex:none;font-variant-numeric:tabular-nums">
+              <sc-for list="{{ films }}" as="f" hint-placeholder-count="1">
+                <span data-num="1" style="position:absolute;left:0;top:0;font-size:13px;font-weight:500;color:#FFFFFF;opacity:0;animation:{{ f.holdName }} 1s linear both;animation-timeline:--heroB;animation-range:{{ f.hold }}">{{ f.num }}</span>
+              </sc-for>
+            </span>
+            <span style="font-size:12px;color:#9A9A9A">/ 09</span>
+            <div style="width:74px;height:2px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden"><div data-role="b-bar" style="height:2px;width:0%;background:#DEF23B;animation:csGrow 1s linear both;animation-timeline:--heroB;animation-range:contain 0% contain 100%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:110px 22px 120px;background:#EFEFEF">
+    <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:44px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+        <h2 style="margin:0;max-width:640px;font-size:clamp(28px,3.4vw,50px);line-height:1.03;font-weight:500;letter-spacing:-0.04em">След от каждой примерки остаётся в трёх местах</h2>
+        <p style="margin:0;max-width:400px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Одна конфигурация проходит все контуры без перенабора полей: диалог менеджера, пост мастера, сводка владельца.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div style="background:#FFFFFF;border-radius:28px;padding:28px 30px;display:flex;flex-direction:column;gap:20px">
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Пост мастера</span>
+          <div style="display:flex;align-items:center;gap:12px;background:#111111;border-radius:18px;padding:14px 18px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+            <div style="display:flex;flex-direction:column">
+              <span style="font-size:13.5px;font-weight:500;color:#FFFFFF">Клиент подтвердил выбор</span>
+              <span style="font-size:11.5px;color:#9A9A9A;font-variant-numeric:tabular-nums">26 августа, 14:32 · KPMF K75427</span>
+            </div>
+          </div>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">На выдаче клиент говорит «на картинке было ярче» — мастер разворачивает телефон. Его выбор, его дата, те же три света. Спор закрывается за 15 секунд.</p>
+        </div>
+
+        <div style="background:#FFFFFF;border-radius:28px;padding:28px 30px;display:flex;flex-direction:column;gap:20px">
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Сводка на 7-й день</span>
+          <div style="height:42px;border-radius:999px;background:#FFFFFF;box-shadow:inset 0 0 0 1px #EDEDED;background-image:repeating-linear-gradient(115deg,#D6D6D6 0 1px,transparent 1px 5px);display:flex;align-items:center;overflow:hidden">
+            <div style="width:68%;height:42px;border-radius:999px;background:#DEF23B;display:flex;align-items:center;justify-content:flex-end;padding-right:16px"><span style="font-size:13px;font-weight:500">68%</span></div>
+          </div>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Покрытие входящих примерками и поимённо сделки, где клиент выбрал цвет по картинке. Это список с суммами, а не дашборд с графиками.</p>
+        </div>
+
+        <div style="background:#FFFFFF;border-radius:28px;padding:28px 30px;display:flex;flex-direction:column;gap:20px">
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Расход генераций</span>
+          <div style="display:flex;align-items:center;gap:18px">
+            <div style="width:88px;height:88px;border-radius:999px;flex:none;background:conic-gradient(#DEF23B 0 62%,#EFEFEF 62% 100%);display:flex;align-items:center;justify-content:center">
+              <div style="width:64px;height:64px;border-radius:999px;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <span style="font-size:16px;font-weight:500;letter-spacing:-0.03em;font-variant-numeric:tabular-nums">1 240</span>
+                <span style="font-size:9.5px;color:#9A9A9A">из 2 000</span>
+              </div>
+            </div>
+            <span style="font-size:13px;line-height:1.5;color:#6E6E6E">7 440 &#8381; до конца месяца, поимённо по клиентам</span>
+          </div>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Клиент крутит 5–15 примерок за визит. Порог 80% меняет тон на Acid 300, а не на красный: лимит не должен выглядеть поломкой.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ notes }}">
+  <div style="padding:0 22px 90px;background:#EFEFEF">
+    <div style="max-width:1360px;margin:0 auto;display:flex;align-items:flex-start;gap:16px;border-top:1px solid #DCDCDC;padding-top:26px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#111111;flex:none;margin-top:3px">Ставка B</span>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:#6E6E6E;max-width:760px;text-wrap:pretty">Плательщик. ВАУ здесь не в машине, а в том, что машина прибита к прайсу и складу точки: владелец видит свою экономику в первом экране. Слабее как зрелище, сильнее как аргумент — и ближе всего к самому продукту.</p>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+<!-- ═══ C · ДЕВЯТЬ КАДРОВ ═══ -->
+<sc-if value="{{ isC }}">
+<div data-screen-label="C · Девять кадров" style="background:#0B0B0C">
+
+  <div data-scene="c" style="position:relative;height:{{ paceC }};view-timeline-name:--heroC;view-timeline-axis:block">
+    <div style="position:sticky;top:0;height:100vh;overflow:hidden;background:#0B0B0C">
+
+      <div data-role="c-hero" style="position:absolute;inset:0;animation:csHeroOut 1s linear both;animation-timeline:--heroC;animation-range:contain 3% contain 29%">
+        <img src="assets/wrap-04-lagoon.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,11,12,.82) 0%,rgba(11,11,12,.25) 34%,rgba(11,11,12,.1) 60%,rgba(11,11,12,.86) 100%)"></div>
+        <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:24px;padding:0 40px;text-align:center">
+          <span style="font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#DEF23B">Три артикула · три света · одно сообщение</span>
+          <h1 style="margin:0;max-width:900px;font-size:clamp(38px,5.2vw,82px);line-height:.98;font-weight:500;letter-spacing:-0.045em;text-wrap:balance">Девять кадров, которые переживут сжатие мессенджера</h1>
+          <p style="margin:0;max-width:560px;font-size:16px;line-height:1.5;color:#B4B4B4;text-wrap:pretty">Карточка уходит в WhatsApp клиента с логотипом точки внутри изображения. Читается с телефона одним взглядом.</p>
+        </div>
+      </div>
+
+      <div data-role="c-chat" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:70px 20px 24px;opacity:0;animation:csFadeIn 1s linear both;animation-timeline:--heroC;animation-range:contain 4% contain 30%">
+        <div style="width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px">
+
+          <div data-role="c-in" style="align-self:flex-start;max-width:78%;background:#1C1C1F;border-radius:18px 18px 18px 5px;padding:13px 17px;opacity:0;animation:csBubbleUp 1s linear both;animation-timeline:--heroC;animation-range:contain 72% contain 92%">
+            <p style="margin:0;font-size:14.5px;line-height:1.4;color:#F2F2F2">Здравствуйте! Porsche 911, хочу что-то тёмное матовое. Сколько выйдет?</p>
+            <span style="font-size:11px;color:#7E7E7E">Артём · 14:26</span>
+          </div>
+
+          <div data-role="c-card" style="background:#FFFFFF;border-radius:26px;padding:20px;color:#111111;box-shadow:0 40px 80px -30px rgba(0,0,0,.85);will-change:transform;transform:scale(1.2);animation:csCardScale 1s linear both;animation-timeline:--heroC;animation-range:contain 72% contain 96%">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="width:26px;height:26px;border-radius:8px;background:#111111;color:#DEF23B;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">АЗ</span>
+                <div style="display:flex;flex-direction:column">
+                  <span style="font-size:13px;font-weight:500;letter-spacing:-0.01em">Porsche 911 Carrera · А 432 ОР 77</span>
+                  <span style="font-size:10.5px;color:#9A9A9A">Ателье на Автозаводской · по вашему фото</span>
+                </div>
+              </div>
+              <span style="font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">3 из 214 SKU</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:104px 1fr 1fr 1fr;gap:7px;align-items:center;margin-bottom:8px">
+              <span></span>
+              <span style="font-size:9.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A;text-align:center">День</span>
+              <span style="font-size:9.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A;text-align:center">Пасмурно</span>
+              <span style="font-size:9.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A;text-align:center">Паркинг</span>
+            </div>
+
+            <div data-role="c-grid" style="display:flex;flex-direction:column;gap:7px">
+              <div style="display:grid;grid-template-columns:104px 1fr 1fr 1fr;gap:7px;align-items:center">
+                <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                  <span style="font-size:11.5px;font-weight:500;line-height:1.2">Сатин чёрный</span>
+                  <span style="font-size:10px;color:#9A9A9A;font-variant-numeric:tabular-nums">K75403</span>
+                  <span style="font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:2px">286&#8201;400 &#8381;</span>
+                </div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 30% contain 58%"><img src="assets/light-black-sun.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 33% contain 61%"><img src="assets/light-black-cloud.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 36% contain 64%"><img src="assets/light-black-park.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+              </div>
+              <div style="display:grid;grid-template-columns:104px 1fr 1fr 1fr;gap:7px;align-items:center">
+                <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                  <span style="font-size:11.5px;font-weight:500;line-height:1.2">Матовый хаки</span>
+                  <span style="font-size:10px;color:#9A9A9A;font-variant-numeric:tabular-nums">SW-900 682</span>
+                  <span style="font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:2px">254&#8201;700 &#8381;</span>
+                </div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 39% contain 67%"><img src="assets/light-olive-sun.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 42% contain 70%"><img src="assets/light-olive-cloud.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 45% contain 73%"><img src="assets/light-olive-park.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+              </div>
+              <div style="display:grid;grid-template-columns:104px 1fr 1fr 1fr;gap:7px;align-items:center">
+                <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                  <span style="font-size:11.5px;font-weight:500;line-height:1.2">Сатин лагуна</span>
+                  <span style="font-size:10px;color:#9A9A9A;font-variant-numeric:tabular-nums">K75427</span>
+                  <span style="font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:2px">268&#8201;300 &#8381;</span>
+                </div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 48% contain 76%"><img src="assets/light-lagoon-sun.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 51% contain 79%"><img src="assets/light-lagoon-cloud.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+                <div data-cell="1" style="border-radius:10px;overflow:hidden;background:#F0F0F0;opacity:0;animation:csCellIn 1s linear both;animation-timeline:--heroC;animation-range:contain 54% contain 82%"><img src="assets/light-lagoon-park.jpg" alt="" style="width:100%;height:66px;object-fit:cover" /></div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:9px;background:#F5FBCB;border-radius:14px;padding:11px 13px;margin-top:14px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round" style="flex:none"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+              <span style="font-size:11.5px;line-height:1.4;color:#2E2E2E">Оттенок партии сверим с рулоном при вас на замере — образец приложим.</span>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <div style="flex:1;background:#DEF23B;border-radius:999px;padding:12px;text-align:center;font-size:13px;font-weight:500">Записать на замер</div>
+              <div style="flex:1;background:#FFFFFF;box-shadow:inset 0 0 0 1px #E2E2E2;border-radius:999px;padding:11px;text-align:center;font-size:13px;font-weight:500">Ещё вариант</div>
+            </div>
+          </div>
+
+          <div data-role="c-out" style="align-self:flex-start;background:#DEF23B;border-radius:18px 18px 18px 5px;padding:13px 17px;opacity:0;animation:csBubbleDown 1s linear both;animation-timeline:--heroC;animation-range:contain 76% contain 96%">
+            <p style="margin:0;font-size:14.5px;font-weight:500;line-height:1.4;color:#111111">а можно ещё в этом?</p>
+            <span style="font-size:11px;color:rgba(17,17,17,.5)">Артём · 14:32</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="position:absolute;left:40px;bottom:30px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:12.5px;color:#8E8E8E">Одна конфигурация · пять контуров</span>
+        <div style="width:120px;height:2px;background:rgba(255,255,255,.14);border-radius:2px;overflow:hidden"><div data-role="c-bar" style="height:2px;width:0%;background:#DEF23B;animation:csGrow 1s linear both;animation-timeline:--heroC;animation-range:contain 0% contain 100%"></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="padding:120px 40px 130px;background:#0B0B0C">
+    <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:44px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+        <h2 style="margin:0;max-width:660px;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Момент, ради которого всё построено, живёт минуты</h2>
+        <p style="margin:0;max-width:420px;font-size:14.5px;line-height:1.55;color:#9A9A9A;text-wrap:pretty">«А можно ещё в этом?» — единственная реплика, которая приносит деньги. Такой диалог поднимается наверх инбокса, даже если писали два дня назад.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+        <div style="background:#141416;border-radius:24px;padding:26px 26px 24px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:34px;font-weight:500;letter-spacing:-0.04em;font-variant-numeric:tabular-nums">18 сек</span>
+          <span style="font-size:13px;color:#9A9A9A;line-height:1.45">до первой карточки по марке и модели, без фото</span>
+        </div>
+        <div style="background:#141416;border-radius:24px;padding:26px 26px 24px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:34px;font-weight:500;letter-spacing:-0.04em;font-variant-numeric:tabular-nums">3</span>
+          <span style="font-size:13px;color:#9A9A9A;line-height:1.45">действия менеджера: открыл диалог, выбрал, отправил</span>
+        </div>
+        <div style="background:#141416;border-radius:24px;padding:26px 26px 24px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:34px;font-weight:500;letter-spacing:-0.04em;font-variant-numeric:tabular-nums">0</span>
+          <span style="font-size:13px;color:#9A9A9A;line-height:1.45">ручного ввода артикула и цены — всё из прайса точки</span>
+        </div>
+        <div style="background:#DEF23B;border-radius:24px;padding:26px 26px 24px;display:flex;flex-direction:column;gap:10px;color:#111111">
+          <span style="font-size:34px;font-weight:500;letter-spacing:-0.04em;font-variant-numeric:tabular-nums">1 час</span>
+          <span style="font-size:13px;line-height:1.45;opacity:.72">на запуск точки: каналы, прайс, менеджеры. Без миграции и обучения</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ notes }}">
+  <div style="padding:0 40px 90px;background:#0B0B0C">
+    <div style="max-width:1360px;margin:0 auto;display:flex;align-items:flex-start;gap:16px;border-top:1px solid rgba(255,255,255,.1);padding-top:26px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#DEF23B;flex:none;margin-top:3px">Ставка C</span>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:#8E8E8E;max-width:760px;text-wrap:pretty">Артефакт. Продаём не экран, а сообщение, которое уходит клиенту и потом защищает точку от переклейки. Самый честный первый экран и самый сложный: ВАУ приходит не сразу, а на второй секунде сборки.</p>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;idea&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;],&quot;default&quot;:&quot;A&quot;,&quot;tsType&quot;:&quot;'A'|'B'|'C'&quot;,&quot;section&quot;:&quot;Концепт&quot;},&quot;pace&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:5,&quot;min&quot;:3,&quot;max&quot;:9,&quot;step&quot;:1,&quot;unit&quot;:&quot;экранов&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Скролл&quot;},&quot;notes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Концепт&quot;}}">
+const FILMS = [
+  {img:'assets/wrap-01-silver.jpg', name:'Заводской серебристый', short:'Как приехал', sku:'фото клиента', finish:'до оклейки', price:'—', cur:'', stock:'ваш кузов', hex:'#AFB4B8'},
+  {img:'assets/wrap-02-satin-black.jpg', name:'Сатин чёрный оникс', short:'Чёрный оникс', sku:'KPMF K75403', finish:'сатин', price:'286\u2009400', cur:'\u20BD', stock:'есть', hex:'#191A1C'},
+  {img:'assets/wrap-06-anthracite.jpg', name:'Матовый антрацит', short:'Антрацит', sku:'Oracal 970-070', finish:'мат', price:'241\u2009900', cur:'\u20BD', stock:'есть', hex:'#43464A'},
+  {img:'assets/wrap-03-olive.jpg', name:'Матовый хаки', short:'Хаки', sku:'Avery SW-900 682', finish:'мат', price:'254\u2009700', cur:'\u20BD', stock:'есть', hex:'#6E6E4C'},
+  {img:'assets/wrap-04-lagoon.jpg', name:'Сатин лагуна', short:'Лагуна', sku:'KPMF K75427', finish:'сатин', price:'268\u2009300', cur:'\u20BD', stock:'есть', hex:'#1F6C80'},
+  {img:'assets/wrap-05-burgundy.jpg', name:'Глянец бордо', short:'Бордо', sku:'Hexis HX20 375', finish:'глянец', price:'259\u2009100', cur:'\u20BD', stock:'есть', hex:'#5E1622'},
+  {img:'assets/wrap-07-copper.jpg', name:'Сатин медь', short:'Медь', sku:'Avery SW-900 810', finish:'сатин-металлик', price:'297\u2009500', cur:'\u20BD', stock:'2 рулона', hex:'#B47C58'},
+  {img:'assets/wrap-08-acid.jpg', name:'Глянец кислотный лайм', short:'Кислотный лайм', sku:'Oracal 970-616', finish:'глянец', price:'243\u2009800', cur:'\u20BD', stock:'под заказ', hex:'#CFE83A'},
+  {img:'assets/wrap-09-pearl.jpg', name:'Сатин перламутр', short:'Перламутр', sku:'KPMF K75401', finish:'сатин-перл', price:'274\u2009900', cur:'\u20BD', stock:'есть', hex:'#E7E3DA'}
+];
+
+FILMS.forEach((f, k) => {
+  const step = 100 / (FILMS.length - 1);
+  f.num = (k + 1 < 10 ? '0' : '') + (k + 1);
+  f.rise = 'contain ' + ((k - 1) * step).toFixed(2) + '% contain ' + (k * step).toFixed(2) + '%';
+  const a = Math.max(0, k * step - step / 2);
+  const b = Math.min(100, k * step + step / 2);
+  f.hold = 'contain ' + a.toFixed(2) + '% contain ' + b.toFixed(2) + '%';
+  const last = k === FILMS.length - 1;
+  f.holdName = k === 0 ? 'csHoldFirst' : last ? 'csHoldLast' : 'csHold';
+  f.chipName = k === 0 ? 'csChipFirst' : last ? 'csChipLast' : 'csChip';
+  f.rowName = k === 0 ? 'csRowOnFirst' : last ? 'csRowOnLast' : 'csRowOn';
+});
+
+const FILMS_REST = FILMS.slice(1);
+
+/* прокрутка сцен — на CSS scroll-timeline, JS не участвует */
+
+
+
+/* Резервный привод: если браузер не поддерживает scroll-timeline, ту же раскадровку считает JS.
+   При работающем CSS анимации перекрывают инлайновые стили, и этот слой просто не виден. */
+const setOp = (el, v) => {
+  const s = v <= 0 ? '0' : v >= 1 ? '1' : v.toFixed(3);
+  if (el.style.opacity !== s) el.style.opacity = s;
+};
+const setTr = (el, v) => { if (el.style.transform !== v) el.style.transform = v; };
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+
+const SM = {};
+let SETTLING = false;
+let ALPHA = 0.18;
+
+function scProgress(wrap) {
+  const span = wrap.offsetHeight - window.innerHeight;
+  if (span <= 0) return 0;
+  return clamp01(-wrap.getBoundingClientRect().top / span);
+}
+
+function scEased(key, wrap) {
+  const t = scProgress(wrap);
+  const cur = SM[key];
+  if (cur === undefined) { SM[key] = t; return t; }
+  const next = cur + (t - cur) * ALPHA;
+  if (Math.abs(t - next) < 0.0006) { SM[key] = t; return t; }
+  SM[key] = next;
+  SETTLING = true;
+  return next;
+}
+
+function scHold(nodes, near) {
+  for (let k = 0; k < nodes.length; k++) setOp(nodes[k], k === near ? 1 : 0);
+}
+
+function paintScenes() {
+  const q = s => document.querySelector(s);
+  const qa = s => document.querySelectorAll(s);
+  const steps = FILMS.length - 1;
+  SETTLING = false;
+
+  const aWrap = q('[data-scene="a"]');
+  if (aWrap) {
+    const p = scEased('a', aWrap);
+    const x = p * steps;
+    const lyr = qa('[data-lyr]');
+    for (let k = 0; k < lyr.length; k++) setOp(lyr[k], clamp01(x - k));
+    const near = Math.round(x);
+    scHold(qa('[data-ro]'), near);
+    scHold(qa('[data-num]'), near);
+    const chips = qa('[data-chip]');
+    for (let k = 0; k < chips.length; k++) {
+      const on = k === near;
+      const dot = chips[k].lastElementChild;
+      const label = chips[k].firstElementChild;
+      if (dot) {
+        const sh = on ? '0 0 0 2px #DEF23B, 0 0 22px rgba(222,242,59,.5)' : '0 0 0 1px rgba(255,255,255,.22)';
+        if (dot.style.boxShadow !== sh) dot.style.boxShadow = sh;
+        setTr(dot, on ? 'scale(1.22)' : 'scale(1)');
+      }
+      if (label) setOp(label, on ? 1 : 0);
+    }
+    const bar = q('[data-role="a-bar"]');
+    if (bar) bar.style.width = (p * 100).toFixed(1) + '%';
+    const hint = q('[data-role="a-hint"]');
+    if (hint) setOp(hint, p > 0.02 ? 0 : 1);
+  }
+
+  const bWrap = q('[data-scene="b"]');
+  if (bWrap) {
+    const p = scEased('b', bWrap);
+    const x = p * steps;
+    const lyr = qa('[data-lyr]');
+    for (let k = 0; k < lyr.length; k++) setOp(lyr[k], clamp01(x - k));
+    const near = Math.round(x);
+    scHold(qa('[data-num]'), near);
+    const rows = q('[data-role="b-rows"]');
+    if (rows) {
+      setTr(rows, 'translateY(' + (-x * 66).toFixed(1) + 'px)');
+      const kids = rows.querySelectorAll('[data-row]');
+      for (let k = 0; k < kids.length; k++) {
+        const on = k === near;
+        const bg = on ? '#F7F7F7' : 'transparent';
+        if (kids[k].style.background !== bg) kids[k].style.background = bg;
+        setOp(kids[k], on ? 1 : 0.45);
+      }
+    }
+    const bar = q('[data-role="b-bar"]');
+    if (bar) bar.style.width = (p * 100).toFixed(1) + '%';
+  }
+
+  const cWrap = q('[data-scene="c"]');
+  if (cWrap) {
+    const p = scEased('c', cWrap);
+    const a = clamp01((p - 0.03) / 0.26);
+    const b = clamp01((p - 0.30) / 0.40);
+    const c = clamp01((p - 0.72) / 0.26);
+    const hero = q('[data-role="c-hero"]');
+    if (hero) { setOp(hero, 1 - a); setTr(hero, 'scale(' + (1 + 0.06 * a).toFixed(3) + ')'); }
+    const chat = q('[data-role="c-chat"]');
+    if (chat) setOp(chat, a);
+    const card = q('[data-role="c-card"]');
+    if (card) setTr(card, 'scale(' + (1.2 - 0.2 * c).toFixed(3) + ')');
+    const cells = qa('[data-cell]');
+    for (let k = 0; k < cells.length; k++) {
+      const local = clamp01((b - k * 0.048) / 0.5);
+      setOp(cells[k], local);
+      setTr(cells[k], 'translateY(' + (12 * (1 - local)).toFixed(1) + 'px) scale(' + (0.96 + 0.04 * local).toFixed(3) + ')');
+    }
+    const cIn = q('[data-role="c-in"]');
+    if (cIn) { setOp(cIn, c); setTr(cIn, 'translateY(' + (14 * (1 - c)).toFixed(1) + 'px)'); }
+    const cOut = q('[data-role="c-out"]');
+    if (cOut) { setOp(cOut, c); setTr(cOut, 'translateY(' + (-14 * (1 - c)).toFixed(1) + 'px)'); }
+    const bar = q('[data-role="c-bar"]');
+    if (bar) bar.style.width = (p * 100).toFixed(1) + '%';
+  }
+}
+
+function csStep() {
+  const now = performance.now();
+  const dt = Math.min(400, now - (window.__csT || now - 16));
+  window.__csT = now;
+  ALPHA = 1 - Math.exp(-dt / 90);
+  const y = window.scrollY;
+  if (y !== window.__csLastY || SETTLING) { window.__csLastY = y; paintScenes(); }
+}
+
+window.__csLastY = -1;
+window.__csGen = (window.__csGen || 0) + 1;
+const csGen = window.__csGen;
+function csFrame() {
+  if (window.__csGen !== csGen) return;
+  csStep();
+  requestAnimationFrame(csFrame);
+}
+requestAnimationFrame(csFrame);
+if (window.__csLoopId) clearInterval(window.__csLoopId);
+window.__csLoopId = setInterval(csStep, 120);
+if (window.__csOn) {
+  window.removeEventListener('scroll', window.__csOn);
+  window.removeEventListener('resize', window.__csOn);
+}
+window.__csOn = csStep;
+window.addEventListener('scroll', window.__csOn, { passive: true });
+window.addEventListener('resize', window.__csOn);
+
+class Component extends DCLogic {
+  state = { idea: this.props.idea || 'A' };
+
+  componentDidMount() {
+    paintScenes();
+    this.warm();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.idea !== this.state.idea) {
+      SM.a = SM.b = SM.c = undefined;
+      window.__csLastY = -1;
+      window.scrollTo(0, 0);
+    }
+    paintScenes();
+  }
+
+  warm() {
+    const load = list => list.forEach(f => { const i = new Image(); i.src = f.img; if (i.decode) i.decode().catch(() => {}); });
+    load(FILMS.slice(0, 3));
+    setTimeout(() => load(FILMS.slice(3)), 700);
+  }
+
+  renderVals() {
+    const idea = this.state.idea;
+    const pace = Math.max(3, Math.min(9, this.props.pace || 5));
+    return {
+      films: FILMS,
+      filmsRest: FILMS_REST,
+      isA: idea === 'A', isB: idea === 'B', isC: idea === 'C',
+      indicatorX: idea === 'A' ? '0px' : idea === 'B' ? '128px' : '256px',
+      pickA: () => this.setState({ idea: 'A' }),
+      pickB: () => this.setState({ idea: 'B' }),
+      pickC: () => this.setState({ idea: 'C' }),
+      paceA: (pace * 100) + 'vh',
+      paceB: (pace * 100) + 'vh',
+      paceC: ((pace + 1) * 100) + 'vh',
+      notes: this.props.notes !== false
+    };
+  }
+}
+</script>
+</body>
+</html>

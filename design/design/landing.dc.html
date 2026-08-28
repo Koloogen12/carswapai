@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#EFEFEF;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+*{box-sizing:border-box}
+a{color:#111111;text-decoration:none}
+a:hover{color:#6E6E6E}
+img{display:block}
+summary{list-style:none;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+details[open] .csChev{transform:rotate(180deg)}
+input[type=checkbox]{accent-color:#DEF23B;width:19px;height:19px;flex:none;cursor:pointer;margin:0}
+@keyframes csFadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</helmet>
+
+<div style="font-family:Onest,system-ui,sans-serif;color:#111111;background:#EFEFEF">
+
+<!-- ░░ 0 · НАВБАР ░░ -->
+<div style="position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:90;width:calc(100% - 28px);max-width:1360px;display:flex;align-items:center;justify-content:space-between;gap:24px;background:rgba(17,17,17,.76);backdrop-filter:blur(16px);border-radius:999px;padding:8px 8px 8px 22px;box-shadow:0 20px 44px -24px rgba(0,0,0,.6)">
+  <div style="display:flex;align-items:center;gap:11px;flex:none">
+    <div style="width:30px;height:30px;border-radius:10px;background:#DEF23B;display:flex;align-items:center;justify-content:center">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="4.2"/></svg>
+    </div>
+    <span style="font-size:16.5px;font-weight:600;letter-spacing:-0.025em;color:#FFFFFF">CarSwap AI</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:26px">
+    <a href="#how" style="font-size:13.5px;color:#C4C4C4">Как работает</a>
+    <a href="#card" style="font-size:13.5px;color:#C4C4C4">Что уходит клиенту</a>
+    <a href="#features" style="font-size:13.5px;color:#C4C4C4">Возможности</a>
+    <a href="#network" style="font-size:13.5px;color:#C4C4C4">Для сетей</a>
+    <a href="#pricing" style="font-size:13.5px;color:#C4C4C4">Тарифы</a>
+    <div style="display:flex;align-items:center;gap:8px">
+      <a href="#demo" style="background:#DEF23B;color:#111111;border-radius:999px;padding:12px 22px;font-size:13.5px;font-weight:500">Записаться на демо</a>
+      <div style="width:42px;height:42px;border-radius:999px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"/><path d="M5.5 20a6.5 6.5 0 0113 0"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 1 · ГЕРОЙ ░░ -->
+<div data-screen-label="Герой" style="position:relative;height:100vh;background:#0B0B0C;overflow:hidden">
+  <div style="position:absolute;inset:0;overflow:hidden;background:#0B0B0C">
+
+    <video data-hero-video="1" src="assets/hero-pov.mp4" poster="assets/hero-poster.jpg" autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,11,12,.96) 0%,rgba(11,11,12,.9) 27%,rgba(11,11,12,.42) 58%,rgba(11,11,12,.05) 80%)"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,11,12,.72) 0%,rgba(11,11,12,0) 20%,rgba(11,11,12,0) 60%,rgba(11,11,12,.76) 100%)"></div>
+
+    <div style="position:absolute;inset:0;display:flex;align-items:center;padding:100px 40px 96px">
+      <div style="max-width:min(47vw,640px);max-height:100%;overflow:hidden;display:flex;flex-direction:column;gap:clamp(9px,1.8vh,26px)">
+
+        <sc-if value="{{ showPilotBadge }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border-radius:999px;padding:6px 16px 6px 6px;width:fit-content;max-width:100%">
+            <div style="display:flex">
+              <span style="width:26px;height:26px;border-radius:999px;background:#DEF23B;box-shadow:0 0 0 2px #0B0B0C"></span>
+              <span style="width:26px;height:26px;border-radius:999px;background:#6E6E4C;box-shadow:0 0 0 2px #0B0B0C;margin-left:-9px"></span>
+              <span style="width:26px;height:26px;border-radius:999px;background:#1F6C80;box-shadow:0 0 0 2px #0B0B0C;margin-left:-9px"></span>
+            </div>
+            <span style="font-size:12.5px;color:#E8E8E8">Три точки-пилота уже в работе</span>
+          </div>
+        </sc-if>
+
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#DEF23B;text-wrap:balance">Для студий, где цветную оклейку продают в переписке</span>
+
+        <h1 style="margin:0;font-size:clamp(30px,calc(2vw + 2.1vh),76px);line-height:.98;font-weight:500;letter-spacing:-0.045em;text-wrap:balance;color:#FFFFFF">Покажи цвет на его машине, <span style="color:#DEF23B">пока он ещё в диалоге</span></h1>
+
+        <p style="margin:0;max-width:470px;font-size:clamp(12.5px,1.6vh,16px);line-height:1.45;color:#B4B4B4;text-wrap:pretty;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden">Заявки из WhatsApp, Telegram, MAX и Авито приходят в один список. Открываешь диалог, собираешь примерку прямо в нём и отправляешь одним действием: его машина, артикул из твоего прайса, твоя цена. Три минуты вместо получаса объяснений словами.</p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <a href="#demo" style="background:#DEF23B;color:#111111;border-radius:999px;padding:clamp(12px,1.7vh,15px) 28px;font-size:14px;font-weight:500">Записаться на демо · 15 минут</a>
+          <a href="#try" style="background:rgba(255,255,255,.1);color:#FFFFFF;border-radius:999px;padding:clamp(12px,1.7vh,15px) 28px;font-size:14px;font-weight:500">Померить на своей машине</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:absolute;left:40px;bottom:30px;right:40px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+      <span style="font-size:12.5px;color:#8E8E8E;text-wrap:pretty">Один кадр, без монтажа. Плёнка — из прайса точки, а не из палитры нейросети.</span>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:999px;padding:8px 16px 8px 10px">
+        <span style="width:8px;height:8px;border-radius:999px;background:#DEF23B;flex:none"></span>
+        <span style="font-size:12px;color:#C4C4C4;white-space:nowrap">Porsche 911 · фото клиента из двора</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- три строки ценности -->
+<div style="background:#0B0B0C;padding:0 40px 64px">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:26px">
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+      <div style="background:rgba(255,255,255,.06);border-radius:24px;padding:24px 26px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:15px;font-weight:500;color:#FFFFFF">Одно окно</span>
+        <span style="font-size:13.5px;line-height:1.5;color:#9A9A9A;text-wrap:pretty">WhatsApp, Telegram, MAX и Авито в одном списке. Не нужно каждый раз заходить на Авито, чтобы ответить.</span>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border-radius:24px;padding:24px 26px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:15px;font-weight:500;color:#FFFFFF">Его машина</span>
+        <span style="font-size:13.5px;line-height:1.5;color:#9A9A9A;text-wrap:pretty">Не студийный рендер на белом фоне. Его номер, его диски, его двор — он узнаёт её как свою.</span>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border-radius:24px;padding:24px 26px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:15px;font-weight:500;color:#FFFFFF">Твой прайс</span>
+        <span style="font-size:13.5px;line-height:1.5;color:#9A9A9A;text-wrap:pretty">Артикул и цена вшиты в картинку на уровне генерации. Руками не набираются и отвязаться не могут.</span>
+      </div>
+    </div>
+    <p style="margin:0;font-size:clamp(17px,1.5vw,22px);line-height:1.35;font-weight:500;letter-spacing:-0.02em;color:#FFFFFF;max-width:680px;text-wrap:balance">Всё, чтобы заявка, за которую вы уже заплатили, доехала до замера.</p>
+  </div>
+</div>
+
+<!-- ░░ 2 · ДЛЯ КОГО ЭТО ░░ -->
+<div style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:36px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:660px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">01 · Для кого это</span>
+        <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em;text-wrap:balance">Три ситуации, в которых CarSwap забирает работу целиком</h2>
+      </div>
+      <p style="margin:0;max-width:400px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Найди свою — дальше страница будет говорить с тобой.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+
+      <div style="background:#FFFFFF;border-radius:32px;padding:30px 30px 26px;display:flex;flex-direction:column;gap:20px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;color:#9A9A9A">01</span>
+        <h3 style="margin:0;font-size:22px;line-height:1.14;font-weight:500;letter-spacing:-0.03em;text-wrap:pretty">Ты платишь за заявки, а до замера доезжает каждый десятый?</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">«Сорок пять обращений за месяц. Четыре сделки. Реклама съела шестьдесят тысяч. Половина переписок кончается на "спасибо, я подумаю" — и я даже не знаю, о чём он думал. Он спросил про сатин-хром, менеджер объяснил словами, клиент ушёл. А он в этот момент писал ещё в два центра.»</p>
+        <div style="background:#F7F7F7;border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:24px;height:24px;border-radius:999px;background:#25455B;color:#FFFFFF;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">WA</span>
+            <span style="font-size:12.5px;font-weight:500;flex:1">Артём · Porsche 911</span>
+            <span style="font-size:11px;color:#D93F45;font-variant-numeric:tabular-nums">14 мин</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:24px;height:24px;border-radius:999px;background:#7A6A3F;color:#FFFFFF;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">AV</span>
+            <span style="font-size:12.5px;font-weight:500;flex:1">Без имени · «Актуально?»</span>
+            <span style="font-size:11px;color:#9A9A9A;font-variant-numeric:tabular-nums">2 мин</span>
+          </div>
+        </div>
+        <div style="height:1px;background:#F0F0F0"></div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5"><span style="font-weight:500">Задача:</span> <span style="color:#6E6E6E">довести до записи на замер сегодня тех, кто написал сегодня — показав цвет, а не описав его.</span></p>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:32px;padding:30px 30px 26px;display:flex;flex-direction:column;gap:20px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;color:#9A9A9A">02</span>
+        <h3 style="margin:0;font-size:22px;line-height:1.14;font-weight:500;letter-spacing:-0.03em;text-wrap:pretty">Ты третий раз платишь за софт, который никто не заполняет?</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">«Первую CRM внедряли месяц, вторую я бросил на переносе данных — половина истории клиентов не доехала. Сейчас плачу за третью, и менеджеры ведут её ровно тогда, когда я стою рядом. Ходить и напоминать я больше не буду. Мне нужно, чтобы заполнялось само.»</p>
+        <div style="background:#F7F7F7;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Неделя 34</span>
+            <span style="font-size:11.5px;color:#9A9A9A">покрытие входящих</span>
+          </div>
+          <div style="height:36px;border-radius:999px;background:#FFFFFF;box-shadow:inset 0 0 0 1px #EDEDED;background-image:repeating-linear-gradient(115deg,#D6D6D6 0 1px,transparent 1px 5px);display:flex;align-items:center;overflow:hidden">
+            <div style="width:68%;height:36px;border-radius:999px;background:#DEF23B;display:flex;align-items:center;justify-content:flex-end;padding-right:14px"><span style="font-size:12.5px;font-weight:500">68%</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px">
+            <span style="font-size:12px;color:#2E2E2E;flex:1">Артём Л. · 268&#8201;300 &#8381;</span>
+            <span style="font-size:10.5px;font-weight:500;background:#DEF23B;border-radius:999px;padding:5px 10px">цвет по примерке</span>
+          </div>
+        </div>
+        <div style="height:1px;background:#F0F0F0"></div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5"><span style="font-weight:500">Задача:</span> <span style="color:#6E6E6E">получить инструмент, который заполняется без твоего участия — потому что менеджеру он выгоден в его собственной смене.</span></p>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:32px;padding:30px 30px 26px;display:flex;flex-direction:column;gap:20px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;color:#9A9A9A">03</span>
+        <h3 style="margin:0;font-size:22px;line-height:1.14;font-weight:500;letter-spacing:-0.03em;text-wrap:pretty">Сдал работу — и споришь на выдаче за свой счёт?</h3>
+        <p style="margin:0;font-size:13.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">«"На картинке было ярче" — и всё, дальше это моё слово против его. Переклейка — это полтораста тысяч плёнки и неделя занятого поста. Плёнка от партии к партии играет, я это знаю, клиент — нет. Доказать нечем: переписку у поста не поднимешь.»</p>
+        <div style="background:#111111;border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:13px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500;color:#FFFFFF">Клиент подтвердил выбор</span>
+            <span style="font-size:11.5px;color:#9A9A9A;font-variant-numeric:tabular-nums">26 августа, 14:32 · KPMF K75427</span>
+          </div>
+        </div>
+        <div style="height:1px;background:#F0F0F0"></div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5"><span style="font-weight:500">Задача:</span> <span style="color:#6E6E6E">иметь выбор артикула, зафиксированный самим клиентом с датой — и закрывать спор за тридцать секунд, не запуская переклейку.</span></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 3 · ТАКЖЕ БУДЕТ ЦЕННО ░░ -->
+<div style="padding:64px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:20px">
+    <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Также будет ценно</span>
+    <div style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:baseline;gap:16px;padding:18px 0;border-top:1px solid #DCDCDC">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none;transform:translateY(2px)"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.015em;flex:none">Студиям на прозрачной защите, которые пробуют цветную</span>
+        <span style="font-size:14px;color:#6E6E6E;text-wrap:pretty">показать клиенту вариант, который сегодня даже не предлагают, потому что нечем показать</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:16px;padding:18px 0;border-top:1px solid #DCDCDC">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none;transform:translateY(2px)"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.015em;flex:none">Тюнинг-ателье с дисками, салоном и обвесом</span>
+        <span style="font-size:14px;color:#6E6E6E;text-wrap:pretty">примерить четыре категории на одной машине и продать конфигурацией, а не позициями</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:16px;padding:18px 0;border-top:1px solid #DCDCDC">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none;transform:translateY(2px)"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.015em;flex:none">Поставщикам и дистрибьюторам плёнки</span>
+        <span style="font-size:14px;color:#6E6E6E;text-wrap:pretty">дать своим точкам примерочную со своим каталогом артикулов</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:16px;padding:18px 0;border-top:1px solid #DCDCDC">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none;transform:translateY(2px)"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.015em;flex:none">Автоподборщикам и перекупам</span>
+        <span style="font-size:14px;color:#6E6E6E;text-wrap:pretty">показать покупателю машину в другом цвете до сделки</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:16px;padding:18px 0;border-top:1px solid #DCDCDC;border-bottom:1px solid #DCDCDC">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none;transform:translateY(2px)"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.015em;flex:none">Салонам с трейд-ином</span>
+        <span style="font-size:14px;color:#6E6E6E;text-wrap:pretty">оживить машину, которая стоит месяц из-за цвета</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 4 · ВОТ ЧТО УХОДИТ КЛИЕНТУ ░░ -->
+<div id="card" style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:680px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">02 · Вот что уходит клиенту</span>
+        <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em;text-wrap:balance">Ни одной правки руками</h2>
+      </div>
+      <p style="margin:0;max-width:420px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Решай сам, отправил бы ты такое своему клиенту. Четыре разных входа — от нормального фото до «сколько стоит» без единой детали.</p>
+    </div>
+
+    <div style="display:flex;gap:6px;background:#FFFFFF;border-radius:999px;padding:5px;width:fit-content;max-width:100%;flex-wrap:wrap">
+      <div onClick="{{ tab0 }}" style="font-size:13px;font-weight:500;border-radius:999px;padding:11px 20px;cursor:pointer;color:{{ t0fg }};background:{{ t0bg }}">Фото от клиента</div>
+      <div onClick="{{ tab1 }}" style="font-size:13px;font-weight:500;border-radius:999px;padding:11px 20px;cursor:pointer;color:{{ t1fg }};background:{{ t1bg }}">Фото нет, только марка</div>
+      <div onClick="{{ tab2 }}" style="font-size:13px;font-weight:500;border-radius:999px;padding:11px 20px;cursor:pointer;color:{{ t2fg }};background:{{ t2bg }}">Клиент собрал сам</div>
+      <div onClick="{{ tab3 }}" style="font-size:13px;font-weight:500;border-radius:999px;padding:11px 20px;cursor:pointer;color:{{ t3fg }};background:{{ t3bg }}">Холодный Авито</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:minmax(300px,.72fr) 1.28fr;gap:16px;align-items:start">
+
+      <div style="background:#FFFFFF;border-radius:32px;padding:26px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Что пришло</span>
+
+        <div style="display:{{ d0 }};flex-direction:column;gap:14px">
+          <div style="border-radius:22px;overflow:hidden;background:#F5F5F5"><img src="assets/input-client-photo.jpg" alt="" style="width:100%;height:230px;object-fit:cover" /></div>
+          <div style="background:#F7F7F7;border-radius:18px 18px 18px 6px;padding:13px 16px;align-self:flex-start;max-width:88%">
+            <p style="margin:0;font-size:14px;line-height:1.4;color:#2E2E2E">Здравствуйте! Porsche 911, хочу что-то тёмное матовое. Сколько выйдет?</p>
+          </div>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Одно фото с телефона: вечер, двор, машина под углом, половину кадра занимает соседняя. Номер, диски и фон сохранены — он узнаёт свою машину.</p>
+        </div>
+
+        <div style="display:{{ d1 }};flex-direction:column;gap:14px">
+          <div style="background:#F7F7F7;border-radius:18px 18px 18px 6px;padding:15px 18px;align-self:flex-start;max-width:92%">
+            <p style="margin:0;font-size:16px;line-height:1.4;color:#2E2E2E">Сколько будет обтянуть 911 в сатин-хром</p>
+          </div>
+          <div style="border-radius:22px;background:#F5F5F5;background-image:repeating-linear-gradient(115deg,#E2E2E2 0 1px,transparent 1px 6px);height:172px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;padding:20px">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.6" stroke-linecap="round"><path d="M4 20l16-16"/><rect x="4" y="6" width="16" height="12" rx="3"/></svg>
+            <span style="font-size:12.5px;color:#6E6E6E;line-height:1.4">Фото нет<br>берём типовой кузов по марке и модели</span>
+          </div>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Типовой кузов ушёл через 20 секунд — до того, как он успел уйти в другой центр. Своё фото он прислал уже потом, посмотрев.</p>
+        </div>
+
+        <div style="display:{{ d2 }};flex-direction:column;gap:14px">
+          <div style="background:#F7F7F7;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px">
+            <span style="font-size:12px;color:#9A9A9A">клиент открыл вашу ссылку</span>
+            <div style="display:flex;flex-wrap:wrap;gap:7px">
+              <span style="font-size:12px;background:#DEF23B;border-radius:999px;padding:7px 13px;font-weight:500">Сатин лагуна</span>
+              <span style="font-size:12px;background:#FFFFFF;border-radius:999px;padding:7px 13px;color:#2E2E2E">Диски чёрный мат</span>
+              <span style="font-size:12px;background:#FFFFFF;border-radius:999px;padding:7px 13px;color:#2E2E2E">Салон карбон</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:9px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" stroke-width="1.8" stroke-linecap="round"><path d="M4 12l16-8-6 16-2.5-6z"/></svg>
+              <span style="font-size:12.5px;color:#2E2E2E">Отправил в студию · +7 916 ···</span>
+            </div>
+          </div>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Клиент пришёл в диалог уже с готовой конфигурацией и артикулами. Менеджеру осталось назвать срок.</p>
+        </div>
+
+        <div style="display:{{ d3 }};flex-direction:column;gap:14px">
+          <div style="background:#F7F7F7;border-radius:18px 18px 18px 6px;padding:15px 18px;align-self:flex-start">
+            <p style="margin:0;font-size:17px;line-height:1.4;color:#2E2E2E">Актуально?</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:18px;padding:14px 16px">
+            <span style="width:26px;height:26px;border-radius:999px;background:#7A6A3F;color:#FFFFFF;font-size:9.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">AV</span>
+            <span style="font-size:12.5px;color:#2E2E2E">Авито · объявление «Оклейка премиум»</span>
+          </div>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Обращение с Авито в том же списке. Ответ ушёл в Авито, менеджер не выходил из кабинета.</p>
+        </div>
+      </div>
+
+      <div style="background:#0B0B0C;border-radius:32px;padding:26px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:28px;height:28px;border-radius:999px;background:#25455B;color:#FFFFFF;font-size:9.5px;font-weight:600;display:flex;align-items:center;justify-content:center">WA</span>
+            <div style="display:flex;flex-direction:column">
+              <span style="font-size:13px;font-weight:500;color:#FFFFFF">Артём</span>
+              <span style="font-size:11px;color:#8E8E8E">WhatsApp · сегодня</span>
+            </div>
+          </div>
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#8E8E8E">Что ушло в тот же тред</span>
+        </div>
+
+        <div style="background:#FFFFFF;border-radius:26px;padding:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="width:26px;height:26px;border-radius:8px;background:#111111;color:#DEF23B;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">АЗ</span>
+              <div style="display:flex;flex-direction:column">
+                <span style="font-size:13px;font-weight:500;letter-spacing:-0.01em">Porsche 911 Carrera · ваша машина</span>
+                <span style="font-size:10.5px;color:#9A9A9A">Ателье на Автозаводской · по вашему фото</span>
+              </div>
+            </div>
+            <span style="font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">3 из 214 SKU</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:118px 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px">
+            <span></span>
+            <span style="font-size:9.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A;text-align:center">День</span>
+            <span style="font-size:9.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A;text-align:center">Пасмурно</span>
+            <span style="font-size:9.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A;text-align:center">Паркинг</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:grid;grid-template-columns:118px 1fr 1fr 1fr;gap:8px;align-items:center">
+              <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                <span style="font-size:12px;font-weight:500;line-height:1.2">Сатин чёрный оникс</span>
+                <span style="font-size:10px;color:#9A9A9A;font-variant-numeric:tabular-nums">KPMF K75403</span>
+                <span style="font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:3px">286&#8201;400 &#8381;</span>
+              </div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-black-sun.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-black-cloud.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-black-park.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+            </div>
+            <div style="display:grid;grid-template-columns:118px 1fr 1fr 1fr;gap:8px;align-items:center">
+              <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                <span style="font-size:12px;font-weight:500;line-height:1.2">Матовый хаки</span>
+                <span style="font-size:10px;color:#9A9A9A;font-variant-numeric:tabular-nums">Avery SW-900 682</span>
+                <span style="font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:3px">254&#8201;700 &#8381;</span>
+              </div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-olive-sun.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-olive-cloud.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-olive-park.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+            </div>
+            <div style="display:grid;grid-template-columns:118px 1fr 1fr 1fr;gap:8px;align-items:center">
+              <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                <span style="font-size:12px;font-weight:500;line-height:1.2">Сатин лагуна</span>
+                <span style="font-size:10px;color:#9A9A9A;font-variant-numeric:tabular-nums">KPMF K75427</span>
+                <span style="font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:3px">268&#8201;300 &#8381;</span>
+              </div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-lagoon-sun.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-lagoon-cloud.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+              <div style="border-radius:12px;overflow:hidden;background:#F0F0F0"><img src="assets/light-lagoon-park.jpg" alt="" style="width:100%;height:82px;object-fit:cover" /></div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;background:#F5FBCB;border-radius:16px;padding:13px 15px;margin-top:14px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round" style="flex:none;margin-top:1px"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+            <span style="font-size:12px;line-height:1.45;color:#2E2E2E">Оттенок партии сверим с рулоном при вас на замере — приложим настоящий образец к вашему кузову. Замер бесплатный, 40 минут.</span>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <div style="flex:1;background:#DEF23B;border-radius:999px;padding:13px;text-align:center;font-size:13px;font-weight:500">Записаться на замер</div>
+            <div style="flex:1;background:#FFFFFF;box-shadow:inset 0 0 0 1px #E2E2E2;border-radius:999px;padding:12px;text-align:center;font-size:13px;font-weight:500">Ещё вариант</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="background:#DEF23B;border-radius:18px 18px 18px 6px;padding:12px 16px">
+            <p style="margin:0;font-size:14.5px;font-weight:500;line-height:1.3;color:#111111">а можно ещё в этом?</p>
+          </div>
+          <span style="font-size:11.5px;color:#8E8E8E">через 4 минуты</span>
+        </div>
+        <p style="margin:0;font-size:12.5px;line-height:1.5;color:#8E8E8E;text-wrap:pretty">Эта реплика — единственная, которая приносит деньги. Диалог с ней поднимается наверх инбокса, даже если писали два дня назад.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 5 · ПОМЕРЬ НА СВОЕЙ МАШИНЕ ░░ -->
+<div id="try" style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:660px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">03 · Живое демо</span>
+        <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em;text-wrap:balance">Померь на своей машине. Прямо здесь, без регистрации.</h2>
+      </div>
+      <p style="margin:0;max-width:420px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Это та же примерочная, которую ваши точки дают клиентам по своей ссылке. Клиент собирает конфигурацию сам, а в чат точки она приходит уже с артикулами и ценой.</p>
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:32px;padding:26px;display:grid;grid-template-columns:1.5fr minmax(280px,.7fr);gap:20px">
+
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div style="position:relative;border-radius:26px;overflow:hidden;background:#111111;aspect-ratio:16/9">
+          <img src="assets/wrap-01-silver.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+          <img src="assets/wrap-02-satin-black.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ op1 }}" />
+          <img src="assets/wrap-06-anthracite.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ op2 }}" />
+          <img src="assets/wrap-03-olive.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ op3 }}" />
+          <img src="assets/wrap-04-lagoon.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ op4 }}" />
+          <img src="assets/wrap-05-burgundy.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ op5 }}" />
+          <img src="assets/wrap-07-copper.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ op6 }}" />
+          <img src="assets/wrap-08-acid.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ op7 }}" />
+          <img src="assets/wrap-09-pearl.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ op8 }}" />
+          <div style="position:absolute;left:16px;right:16px;top:16px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div style="display:flex;gap:6px;background:rgba(17,17,17,.7);backdrop-filter:blur(8px);border-radius:999px;padding:5px">
+              <span style="font-size:12px;font-weight:500;color:#111111;background:#DEF23B;border-radius:999px;padding:8px 15px">Плёнка</span>
+              <span style="font-size:12px;font-weight:500;color:#C4C4C4;padding:8px 15px">Диски</span>
+              <span style="font-size:12px;font-weight:500;color:#C4C4C4;padding:8px 15px">Салон</span>
+              <span style="font-size:12px;font-weight:500;color:#C4C4C4;padding:8px 15px">Обвес</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-radius:999px;padding:8px 15px">
+              <span style="width:8px;height:8px;border-radius:999px;background:#DEF23B;flex:none"></span>
+              <span style="font-size:11.5px;font-weight:500;color:#111111;white-space:nowrap">3 бесплатные примерки в сутки</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:9px">
+          <sc-for list="{{ filmChips }}" as="c" hint-placeholder-count="9">
+            <div onClick="{{ c.pick }}" style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:999px;padding:7px 15px 7px 7px;cursor:pointer;box-shadow:{{ c.ring }}">
+              <span style="width:24px;height:24px;border-radius:999px;flex:none;background:{{ c.hex }};box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)"></span>
+              <span style="font-size:12.5px;font-weight:500;color:#2E2E2E;white-space:nowrap">{{ c.short }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Ваша машина</span>
+          <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:999px;padding:14px 18px">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.7" stroke-linecap="round" style="flex:none"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+            <span style="font-size:14px;color:#2E2E2E;flex:1">Porsche 911 Carrera, 2021</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:11px;background:#F7F7F7;border-radius:20px;padding:14px 16px;border:1px dashed #D6D6D6">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 17V7M8 11l4-4 4 4"/><path d="M4 19h16"/></svg>
+            <span style="font-size:13px;color:#6E6E6E;line-height:1.4">или загрузите своё фото — можно вечернее и под углом</span>
+          </div>
+        </div>
+
+        <div style="height:1px;background:#F0F0F0"></div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em">{{ tryName }}</span>
+          <div style="display:flex;align-items:baseline;gap:12px">
+            <span style="font-size:12.5px;color:#9A9A9A;font-variant-numeric:tabular-nums">{{ trySku }}</span>
+            <span style="font-size:12px;color:#9A9A9A">{{ tryFinish }}</span>
+          </div>
+          <div style="display:flex;align-items:baseline;font-size:26px;font-weight:500;letter-spacing:-0.035em;font-variant-numeric:tabular-nums;margin-top:2px">
+            <span>{{ tryPrice }}</span><span style="font-size:16px;margin-left:6px;color:#9A9A9A">{{ tryCur }}</span>
+          </div>
+          <span style="font-size:12px;color:#6E6E6E">под ключ, кузов без разбора · {{ tryStock }}</span>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:10px;background:#F5FBCB;border-radius:18px;padding:13px 15px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round" style="flex:none;margin-top:1px"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+          <span style="font-size:12px;line-height:1.45;color:#2E2E2E">Оттенок партии сверим с рулоном при вас на замере — образец приложим.</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:auto">
+          <div style="background:#111111;color:#FFFFFF;border-radius:999px;padding:15px;text-align:center;font-size:14px;font-weight:500;cursor:pointer">Отправить в студию</div>
+          <a href="#card" style="display:block;background:#FFFFFF;box-shadow:inset 0 0 0 1px #E2E2E2;border-radius:999px;padding:14px;text-align:center;font-size:14px;font-weight:500">Так это приходит в диалог точки</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 6 · ЕГО МАШИНА, А НЕ ПОХОЖАЯ ░░ -->
+<div style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <h2 style="margin:0;max-width:680px;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em;text-wrap:balance">Чат рисует похожую машину. CarSwap перекрашивает его.</h2>
+      <p style="margin:0;max-width:430px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Загрузите одно и то же фото в бесплатный чат и сюда. В чате получится другая машина: пропадёт номер, изменятся диски, поедет форма фар — он рисует заново по описанию. У нас меняется только покрытие. Клиент должен узнать свою машину, иначе доказательства не существует.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+      <div style="background:#FFFFFF;border-radius:32px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="border-radius:22px;overflow:hidden;background:#F5F5F5"><img src="assets/input-client-photo.jpg" alt="" style="width:100%;height:250px;object-fit:cover" /></div>
+        <div style="display:flex;flex-direction:column;gap:5px;padding:0 6px 6px">
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Исходное фото клиента</span>
+          <span style="font-size:14px;line-height:1.45;color:#2E2E2E">Вечер, двор, машина под углом. Ровно то, что реально присылают.</span>
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:32px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="border-radius:22px;overflow:hidden;background:#F5F5F5;position:relative">
+          <img src="assets/out-chat.jpg" alt="" style="width:100%;height:250px;object-fit:cover" />
+          <span style="position:absolute;left:14px;top:14px;font-size:11px;font-weight:500;background:#FBEEEF;color:#8A4448;border-radius:999px;padding:7px 13px">другая машина</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;padding:0 6px 6px">
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Бесплатный чат</span>
+          <span style="font-size:14px;line-height:1.45;color:#2E2E2E">Номер пропал, диски дженерик, двор перерисован. Красиво — и отправить нельзя.</span>
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:32px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="border-radius:22px;overflow:hidden;background:#F5F5F5;position:relative">
+          <img src="assets/out-carswap.jpg" alt="" style="width:100%;height:250px;object-fit:cover" />
+          <span style="position:absolute;left:14px;top:14px;font-size:11px;font-weight:500;background:#DEF23B;color:#111111;border-radius:999px;padding:7px 13px">его машина</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;padding:0 6px 6px">
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">CarSwap AI</span>
+          <span style="font-size:14px;line-height:1.45;color:#2E2E2E">Номер, диски и двор те же. Изменено только покрытие — плюс артикул и ваша цена.</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:32px;padding:8px 30px 26px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:22px 0;border-bottom:1px solid #F0F0F0">
+        <span style="font-size:14px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Другой номер · диски заменены на дженерик · форма зеркал изменилась · фон перерисован</span>
+        <span style="font-size:14px;line-height:1.5;text-wrap:pretty">Номер тот же · диски те же · двор тот же · изменено только покрытие</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:22px 0;border-bottom:1px solid #F0F0F0">
+        <span style="font-size:14px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Оттенок «похожий зелёный» — артикула не существует</span>
+        <span style="font-size:14px;line-height:1.5;text-wrap:pretty">Артикул KPMF K75427, есть на складе точки, 268&#8201;300 &#8381; по её прайсу</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:22px 0;border-bottom:1px solid #F0F0F0">
+        <span style="font-size:14px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Один вариант за запрос, 5–8 действий, надо выйти из мессенджера</span>
+        <span style="font-size:14px;line-height:1.5;text-wrap:pretty">Три артикула × три световых условия за одну отправку, не выходя из диалога</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:22px 0">
+        <span style="font-size:14px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Оговорку про свет надо написать самому — и никто её не пишет</span>
+        <span style="font-size:14px;line-height:1.5;text-wrap:pretty">Оговорка уходит всегда и отключить её нельзя</span>
+      </div>
+    </div>
+
+    <p style="margin:0;font-size:clamp(17px,1.5vw,22px);line-height:1.35;font-weight:500;letter-spacing:-0.02em;max-width:620px;text-wrap:balance">Оба изображения красивые. Отправить клиенту можно только одно.</p>
+  </div>
+</div>
+
+<!-- ░░ 7 · УЗНАЁШЬ СЕБЯ ░░ -->
+<div style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Узнаёшь себя?</h2>
+      <p style="margin:0;max-width:400px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Если хотя бы две строки из твоей колонки — про тебя, дальше можно не читать, а померить.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+      <div style="background:#FFFFFF;border-radius:32px;padding:30px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em">Ты владелец точки?</span>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Свёл месяц: обращений сорок, сделок четыре, реклама шестьдесят тысяч</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Знаешь, что менеджеры отвечают «от 200 тысяч, приезжайте на замер» — и на этом всё</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Платишь за CRM, в которой поле «источник» заполнено дай бог в половине сделок</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Считал, во сколько тебе обошлась последняя переклейка, и решил больше не считать</span></label>
+      </div>
+      <div style="background:#FFFFFF;border-radius:32px;padding:30px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em">Ты за приёмкой?</span>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Третий раз за смену объясняешь словами разницу между сатином и матом</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Видишь «прочитано» и понимаешь, что он сейчас пишет в соседний центр</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Отправляешь фото чужой машины из папки «примеры работ» и надеешься, что похоже</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Просишь фото — и клиент пропадает на два дня</span></label>
+      </div>
+      <div style="background:#FFFFFF;border-radius:32px;padding:30px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em">Ты у поста?</span>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Слышал «на картинке было ярче» и не смог ничего ответить</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Начинал оклейку и на середине понял, что артикул на рулоне не тот, что назвали клиенту</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Переклеивал за свой счёт то, что сдал нормально</span></label>
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer"><input type="checkbox" onChange="{{ tick }}" /><span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Держишь в голове, какая партия чуть темнее, и никому не можешь этого показать</span></label>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;background:#111111;border-radius:32px;padding:26px 30px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#DEF23B">{{ tickLabel }}</span>
+        <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em;color:#FFFFFF;text-wrap:pretty">{{ tickLine }}</span>
+      </div>
+      <a href="#demo" style="background:#DEF23B;color:#111111;border-radius:999px;padding:15px 28px;font-size:14px;font-weight:500;flex:none">Посмотрим на вашей точке · 15 минут</a>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 8 · ЧТО ВЫ ПОЛУЧАЕТЕ ░░ -->
+<div id="features" style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:640px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">04 · Возможности</span>
+        <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Что вы получаете</h2>
+      </div>
+      <p style="margin:0;max-width:400px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Каждая строка привязана к работе и к измеримому уровню. Прилагательных здесь нет.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16.5px;font-weight:500;letter-spacing:-0.02em">Все каналы в одном списке</span>
+        <div style="display:flex;flex-wrap:wrap;gap:7px">
+          <div style="display:flex;align-items:center;gap:7px;background:#F5F5F5;border-radius:999px;padding:6px 13px 6px 6px"><span style="width:22px;height:22px;border-radius:999px;background:#25455B;color:#FFFFFF;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center">WA</span><span style="font-size:11.5px;color:#2E2E2E">WhatsApp</span></div>
+          <div style="display:flex;align-items:center;gap:7px;background:#F5F5F5;border-radius:999px;padding:6px 13px 6px 6px"><span style="width:22px;height:22px;border-radius:999px;background:#3A6B8F;color:#FFFFFF;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center">TG</span><span style="font-size:11.5px;color:#2E2E2E">Telegram</span></div>
+          <div style="display:flex;align-items:center;gap:7px;background:#F5F5F5;border-radius:999px;padding:6px 13px 6px 6px"><span style="width:22px;height:22px;border-radius:999px;background:#5B4B8A;color:#FFFFFF;font-size:8px;font-weight:600;display:flex;align-items:center;justify-content:center">MAX</span><span style="font-size:11.5px;color:#2E2E2E">MAX</span></div>
+          <div style="display:flex;align-items:center;gap:7px;background:#F5F5F5;border-radius:999px;padding:6px 13px 6px 6px"><span style="width:22px;height:22px;border-radius:999px;background:#7A6A3F;color:#FFFFFF;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center">AV</span><span style="font-size:11.5px;color:#2E2E2E">Авито</span></div>
+        </div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Обращение приходит само, менеджер не заходит на Авито отвечать.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F5FBCB;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%">Ответ уходит в тот канал, откуда пришёл</span>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16.5px;font-weight:500;letter-spacing:-0.02em">Примерка прямо в диалоге</span>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;background:#F5F5F5;border-radius:999px;padding:5px">
+          <div style="flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:7px;background:#111111;border-radius:999px;padding:10px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.7" stroke-linecap="round" style="flex:none"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7"/></svg>
+            <span style="font-size:12px;font-weight:500;color:#FFFFFF">День</span>
+          </div>
+          <div style="flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M6.5 18h11a4 4 0 000-8 6 6 0 00-11.6 1.6A3.2 3.2 0 006.5 18z"/></svg>
+            <span style="font-size:12px;font-weight:500;color:#6E6E6E">Пасмурно</span>
+          </div>
+          <div style="flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 9l8-5 8 5"/><path d="M12 11v9"/><path d="M8 20h8"/></svg>
+            <span style="font-size:12px;font-weight:500;color:#6E6E6E">Паркинг</span>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Три артикула, три световых условия, одна отправка. Порядок фиксирован, тумблера отключения нет.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F5FBCB;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%">≤3 минуты · ≤3 действия · 0 выходов из диалога</span>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16.5px;font-weight:500;letter-spacing:-0.02em">Артикул и цена вшиты в картинку</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+          <div style="background:#DEF23B;border-radius:18px;padding:11px;display:flex;flex-direction:column;gap:8px">
+            <div style="height:56px;border-radius:12px;overflow:hidden"><img src="assets/light-lagoon-sun.jpg" alt="" style="width:100%;height:56px;object-fit:cover" /></div>
+            <div style="display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:11.5px;font-weight:500;line-height:1.2">Сатин лагуна</span>
+              <span style="font-size:10px;opacity:.6">K75427</span>
+              <span style="font-size:13.5px;font-weight:500;letter-spacing:-0.02em;margin-top:2px">268<span style="opacity:.55">&#8201;300 &#8381;</span></span>
+            </div>
+          </div>
+          <div style="background:#F5F5F5;border-radius:18px;padding:11px;display:flex;flex-direction:column;gap:8px">
+            <div style="height:56px;border-radius:12px;overflow:hidden"><img src="assets/light-olive-sun.jpg" alt="" style="width:100%;height:56px;object-fit:cover" /></div>
+            <div style="display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:11.5px;font-weight:500;line-height:1.2">Матовый хаки</span>
+              <span style="font-size:10px;color:#9A9A9A">SW-900 682</span>
+              <span style="font-size:13.5px;font-weight:500;letter-spacing:-0.02em;margin-top:2px">254<span style="color:#9A9A9A">&#8201;700 &#8381;</span></span>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Из прайса вашей точки, на уровне генерации.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F5FBCB;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%">0 символов ручного ввода</span>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16.5px;font-weight:500;letter-spacing:-0.02em">Примерочная по вашей ссылке</span>
+        <div style="display:flex;align-items:center;gap:10px;background:#F5F5F5;border-radius:999px;padding:12px 16px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.7" stroke-linecap="round" style="flex:none"><path d="M9 15l6-6"/><path d="M11 6l1.5-1.5a4 4 0 015.7 5.7L16.5 12"/><path d="M13 18l-1.5 1.5a4 4 0 01-5.7-5.7L7.5 12"/></svg>
+          <span style="font-size:13px;color:#2E2E2E;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">carswap.ai/az-detailing</span>
+          <span style="font-size:11px;font-weight:500;background:#DEF23B;border-radius:999px;padding:5px 10px">ваш логотип</span>
+        </div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Клиент сам меряет плёнку, диски, салон и обвес и присылает готовую конфигурацию.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F5FBCB;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%">0 полей регистрации до первой примерки</span>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16.5px;font-weight:500;letter-spacing:-0.02em">Подтверждение выбора для поста</span>
+        <div style="display:flex;align-items:center;gap:13px;background:#111111;border-radius:20px;padding:16px 18px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500;color:#FFFFFF">Клиент подтвердил выбор</span>
+            <span style="font-size:11.5px;color:#9A9A9A;font-variant-numeric:tabular-nums">26 августа, 14:32 · KPMF K75427</span>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Артикул, картинка и отметка с датой — его выбор, не наша запись.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F5FBCB;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%">≤30 секунд с телефона у поста, два тапа</span>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-size:16.5px;font-weight:500;letter-spacing:-0.02em">Недельная сводка владельцу</span>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:10.5px;color:#C4C4C4;width:9px">1</span>
+            <span style="font-size:13px;flex:1">Артём Л.</span>
+            <span style="font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums">268&#8201;300 &#8381;</span>
+            <span style="width:9px;height:9px;border-radius:999px;background:#DEF23B;flex:none"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:10.5px;color:#C4C4C4;width:9px">2</span>
+            <span style="font-size:13px;flex:1">Сергей П.</span>
+            <span style="font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums">286&#8201;400 &#8381;</span>
+            <span style="width:9px;height:9px;border-radius:999px;background:#DEF23B;flex:none"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:10.5px;color:#C4C4C4;width:9px">3</span>
+            <span style="font-size:13px;flex:1;color:#6E6E6E">Марина К.</span>
+            <span style="font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;color:#6E6E6E">254&#8201;700 &#8381;</span>
+            <span style="width:9px;height:9px;border-radius:999px;background:#EFEFEF;flex:none"></span>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Поимённые сделки с признаком «цвет выбран по примерке». Список с суммами, а не дашборд с графиками.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F5FBCB;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%">первая сводка — на 7-й день</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 9 · КАК ЭТО РАБОТАЕТ ░░ -->
+<div id="how" style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:640px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">05 · Как это работает</span>
+        <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em;text-wrap:balance">Четыре шага. Первые два делаем мы, на третьем менеджер уже отправляет.</h2>
+      </div>
+      <p style="margin:0;max-width:380px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Это включение, а не внедрение: ни прайс-листов, ни шаблонов документов, ни схем лояльности настраивать не нужно.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.09em;color:#9A9A9A">01</span>
+        <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em;text-wrap:pretty">Подключаем каналы</span>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">WhatsApp, Telegram, MAX и Авито заводим мы, на нашей стороне.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F7F7F7;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%;margin-top:auto">~30 минут · от вас доступ</span>
+      </div>
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.09em;color:#9A9A9A">02</span>
+        <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em;text-wrap:pretty">Загружаем ваш прайс</span>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Присылаете прайс в любом виде, артикулы и цены заводим мы.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F7F7F7;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%;margin-top:auto">в тот же день · 0 ручного ввода</span>
+      </div>
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.09em;color:#9A9A9A">03</span>
+        <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em;text-wrap:pretty">Менеджер открывает диалог и отправляет</span>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Без обучения, без инструкции, первая отправка вместе с нами.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#DEF23B;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%;margin-top:auto">первая примерка — в первые сутки</span>
+      </div>
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.09em;color:#9A9A9A">04</span>
+        <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em;text-wrap:pretty">На седьмой день приходит сводка</span>
+        <p style="margin:0;font-size:13.5px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Сколько примерок ушло, сколько клиентов ответили, какие сделки закрылись.</p>
+        <span style="font-size:12.5px;font-weight:500;background:#F7F7F7;border-radius:999px;padding:8px 14px;width:fit-content;max-width:100%;margin-top:auto">0 занятий · 0 обязательных импортов</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="background:#FFFFFF;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:16px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">Что делаете вы</span>
+        <div style="display:flex;align-items:center;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#111111;flex:none"></span><span style="font-size:14px">Даёте доступ к каналам</span></div>
+        <div style="display:flex;align-items:center;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#111111;flex:none"></span><span style="font-size:14px">Присылаете прайс в любом виде</span></div>
+        <div style="height:78px;border-radius:20px;background:#F7F7F7;background-image:repeating-linear-gradient(115deg,#E2E2E2 0 1px,transparent 1px 6px);display:flex;align-items:center;justify-content:center">
+          <span style="font-size:12.5px;color:#9A9A9A">дальше пусто</span>
+        </div>
+      </div>
+      <div style="background:#111111;border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#DEF23B">Что делаем мы</span>
+        <div style="display:flex;align-items:center;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#DEF23B;flex:none"></span><span style="font-size:14px;color:#FFFFFF">Подключение WhatsApp, Telegram, MAX и Авито</span></div>
+        <div style="display:flex;align-items:center;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#DEF23B;flex:none"></span><span style="font-size:14px;color:#FFFFFF">Заводим артикулы и цены из вашего прайса</span></div>
+        <div style="display:flex;align-items:center;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#DEF23B;flex:none"></span><span style="font-size:14px;color:#FFFFFF">Ведём первую отправку вместе с менеджером</span></div>
+        <div style="display:flex;align-items:center;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#DEF23B;flex:none"></span><span style="font-size:14px;color:#FFFFFF">Настраиваем брендирование карточек</span></div>
+        <div style="display:flex;align-items:center;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#DEF23B;flex:none"></span><span style="font-size:14px;color:#FFFFFF">Присылаем сводку на 7-й день</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 10 · ЧТО ИЗМЕНИТСЯ ░░ -->
+<div style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Что изменится</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="background:#FFFFFF;border-radius:32px;padding:32px;display:flex;flex-direction:column;gap:16px">
+        <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em;color:#6E6E6E">Ты перестанешь</span>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="2" stroke-linecap="round" style="flex:none;margin-top:3px"><path d="M6 6l12 12M18 6L6 18"/></svg><span style="font-size:14.5px;line-height:1.5;color:#6E6E6E">объяснять словами разницу оттенков по третьему разу за смену</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="2" stroke-linecap="round" style="flex:none;margin-top:3px"><path d="M6 6l12 12M18 6L6 18"/></svg><span style="font-size:14.5px;line-height:1.5;color:#6E6E6E">отправлять фото чужой машины и надеяться, что похоже</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="2" stroke-linecap="round" style="flex:none;margin-top:3px"><path d="M6 6l12 12M18 6L6 18"/></svg><span style="font-size:14.5px;line-height:1.5;color:#6E6E6E">заходить на Авито отдельно, чтобы ответить</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="2" stroke-linecap="round" style="flex:none;margin-top:3px"><path d="M6 6l12 12M18 6L6 18"/></svg><span style="font-size:14.5px;line-height:1.5;color:#6E6E6E">узнавать на выдаче, что клиент представлял себе другое</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="2" stroke-linecap="round" style="flex:none;margin-top:3px"><path d="M6 6l12 12M18 6L6 18"/></svg><span style="font-size:14.5px;line-height:1.5;color:#6E6E6E">платить за переклейку, которую сдал нормально</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="2" stroke-linecap="round" style="flex:none;margin-top:3px"><path d="M6 6l12 12M18 6L6 18"/></svg><span style="font-size:14.5px;line-height:1.5;color:#6E6E6E">ходить и напоминать менеджерам, чтобы вели заявки</span></div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:32px;padding:32px;display:flex;flex-direction:column;gap:16px">
+        <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Ты начнёшь</span>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:3px"><path d="M5 13l4.5 4.5L19 7"/></svg><span style="font-size:14.5px;line-height:1.5">отвечать картинкой его машины через три минуты после «сколько стоит»</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:3px"><path d="M5 13l4.5 4.5L19 7"/></svg><span style="font-size:14.5px;line-height:1.5">видеть, кто из написавших вернулся с вопросом «а можно ещё в этом?»</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:3px"><path d="M5 13l4.5 4.5L19 7"/></svg><span style="font-size:14.5px;line-height:1.5">закрывать спор у поста за тридцать секунд, а не переклейкой</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:3px"><path d="M5 13l4.5 4.5L19 7"/></svg><span style="font-size:14.5px;line-height:1.5">знать поимённо, какие сделки пришли через примерку</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:3px"><path d="M5 13l4.5 4.5L19 7"/></svg><span style="font-size:14.5px;line-height:1.5">показывать клиенту три варианта там, где раньше показывал один</span></div>
+        <div style="display:flex;align-items:flex-start;gap:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:3px"><path d="M5 13l4.5 4.5L19 7"/></svg><span style="font-size:14.5px;line-height:1.5">считать конверсию входящего в замер, а не «сколько-то там»</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 11 · А ЕСЛИ ░░ -->
+<div style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">А если…</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+      <div style="background:#FFFFFF;border-radius:32px;padding:12px 30px 18px;display:flex;flex-direction:column">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A;padding:18px 0 6px">Про вашу работу</span>
+        <details style="border-top:1px solid #F0F0F0">
+          <summary style="display:flex;align-items:center;gap:16px;padding:20px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">«А если цвет на выдаче окажется не тот?»</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+          <p style="margin:0;padding:0 0 20px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Строка про сверку оттенка на замере уходит с каждой карточкой, отключить её нельзя ни менеджеру, ни вам, ни сети. Мы не обещаем совпадение цвета — плёнка играет от партии к партии, и веер в этом честнее любого экрана. Мы делаем так, чтобы клиент знал это до того, как согласился, и подтвердил выбор сам, с датой.</p>
+        </details>
+        <details style="border-top:1px solid #F0F0F0">
+          <summary style="display:flex;align-items:center;gap:16px;padding:20px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">«А если менеджер начнёт отправлять что попало?»</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+          <p style="margin:0;padding:0 0 20px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Отправить примерку без артикула из вашего прайса и без вашей цены нельзя технически: они впечатаны на уровне генерации.</p>
+        </details>
+        <details style="border-top:1px solid #F0F0F0">
+          <summary style="display:flex;align-items:center;gap:16px;padding:20px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">«А если клиенты станут ходить мерить и не покупать?»</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+          <p style="margin:0;padding:0 0 20px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Примерка приходит к вам в диалог вместе с телефоном и конфигурацией. Это не потерянный клиент, а заявка, которая пришла с готовым выбором.</p>
+        </details>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:32px;padding:12px 30px 18px;display:flex;flex-direction:column">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A;padding:18px 0 6px">Про нас</span>
+        <details style="border-top:1px solid #F0F0F0">
+          <summary style="display:flex;align-items:center;gap:16px;padding:20px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">«А если это опять внедрение на месяц?»</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+          <p style="margin:0;padding:0 0 20px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Каналы и прайс заводим мы. Обучения нет, миграции нет: ноль обязательных импортов, чтобы начать. Если через час после старта у вас не ушла первая примерка — это наша недоработка, а не ваша.</p>
+        </details>
+        <details style="border-top:1px solid #F0F0F0">
+          <summary style="display:flex;align-items:center;gap:16px;padding:20px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">«А если менеджеры не будут этим пользоваться?»</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+          <p style="margin:0;padding:0 0 20px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Они не заполняют CRM, потому что она нужна вам, а не им. Примерку они отправляют, потому что она закрывает их собственную боль — им нечем показать цвет прямо сейчас. Если на четвёртой неделе меньше 70% входящих получили примерку без ваших напоминаний, инструмент не сработал, и это видно в сводке, а не через полгода.</p>
+        </details>
+        <details style="border-top:1px solid #F0F0F0">
+          <summary style="display:flex;align-items:center;gap:16px;padding:20px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">«А если я перестану платить — что с данными?»</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+          <p style="margin:0;padding:0 0 20px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">История клиентов, примерок и подтверждений выгружается целиком, в открытом формате.</p>
+        </details>
+        <details style="border-top:1px solid #F0F0F0">
+          <summary style="display:flex;align-items:center;gap:16px;padding:20px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">«А если сломается посреди смены?»</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+          <p style="margin:0;padding:0 0 20px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Обращения продолжают приходить и на них можно отвечать текстом, даже когда генерация недоступна: примерка деградирует до «сейчас пришлю», а не до пустого экрана.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 12 · ПОЧЕМУ МЫ, А НЕ ░░ -->
+<div style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Почему мы, а не…</h2>
+      <p style="margin:0;max-width:420px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Ваш реальный набор сравнения состоит не из конкурентов-визуализаторов, а из «ничего не делать» и «сделать бесплатно». Разбираем именно его.</p>
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:32px;padding:8px 30px 18px;display:flex;flex-direction:column">
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:20px;padding:24px 0">
+          <span style="font-size:11px;font-weight:600;color:#9A9A9A;width:20px;flex:none">01</span>
+          <span style="font-size:clamp(17px,1.5vw,21px);font-weight:500;letter-spacing:-0.025em;flex:1;text-wrap:pretty">«Ничего не менять, у нас и так продаётся»</span>
+          <span style="font-size:12px;font-weight:500;color:#6E6E6E;background:#F7F7F7;border-radius:999px;padding:8px 14px;flex:none;white-space:nowrap">0 &#8381; · клиент ушёл</span>
+          <svg class="csChev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg>
+        </summary>
+        <p style="margin:0;padding:0 0 24px 40px;max-width:820px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Продаётся. Вопрос в том, какой ценой: заявка стоит вам 67–162 &#8381;, а половина переписок кончается на «я подумаю» — и вы даже не знаете, о чём. Мы не про новые заявки. Мы про те, за которые вы уже заплатили.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:20px;padding:24px 0">
+          <span style="font-size:11px;font-weight:600;color:#9A9A9A;width:20px;flex:none">02</span>
+          <span style="font-size:clamp(17px,1.5vw,21px);font-weight:500;letter-spacing:-0.025em;flex:1;text-wrap:pretty">«Отправим фото чужой машины из папки "примеры работ"»</span>
+          <span style="font-size:12px;font-weight:500;color:#6E6E6E;background:#F7F7F7;border-radius:999px;padding:8px 14px;flex:none;white-space:nowrap">0 &#8381; · чужая машина</span>
+          <svg class="csChev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg>
+        </summary>
+        <p style="margin:0;padding:0 0 24px 40px;max-width:820px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Так и делают все. Клиент смотрит на чужой Мерседес и додумывает свою машину — а на выдаче выясняется, что додумал он не то. Плюс он видел ровно этот же приём в двух соседних студиях сегодня.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:20px;padding:24px 0">
+          <span style="font-size:11px;font-weight:600;color:#9A9A9A;width:20px;flex:none">03</span>
+          <span style="font-size:clamp(17px,1.5vw,21px);font-weight:500;letter-spacing:-0.025em;flex:1;text-wrap:pretty">«Попрошу нейросеть перекрасить, это бесплатно»</span>
+          <span style="font-size:12px;font-weight:500;color:#6E6E6E;background:#F7F7F7;border-radius:999px;padding:8px 14px;flex:none;white-space:nowrap">2 &#8381; · не отправишь</span>
+          <svg class="csChev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg>
+        </summary>
+        <p style="margin:0;padding:0 0 24px 40px;max-width:820px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Пробовали — получается другая машина: пропадает номер, меняются диски. Оттенок называется «похожий зелёный», артикула у него нет, цены вашей нет. Пять-восемь действий, выход из мессенджера, и оговорку про свет вы напишете сами ровно никогда. Отправлять клиенту это нельзя — и вы это знаете, поэтому и не отправляете.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:20px;padding:24px 0">
+          <span style="font-size:11px;font-weight:600;color:#9A9A9A;width:20px;flex:none">04</span>
+          <span style="font-size:clamp(17px,1.5vw,21px);font-weight:500;letter-spacing:-0.025em;flex:1;text-wrap:pretty">«У нас есть веер и демо-панели»</span>
+          <span style="font-size:12px;font-weight:500;color:#6E6E6E;background:#F7F7F7;border-radius:999px;padding:8px 14px;flex:none;white-space:nowrap">есть · только на замере</span>
+          <svg class="csChev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg>
+        </summary>
+        <p style="margin:0;padding:0 0 24px 40px;max-width:820px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">И правильно, что есть — веер честнее любого экрана, и мы его не заменяем. Только веер работает, когда клиент уже приехал. А теряете вы его в переписке, за два дня до приезда.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:20px;padding:24px 0">
+          <span style="font-size:11px;font-weight:600;color:#9A9A9A;width:20px;flex:none">05</span>
+          <span style="font-size:clamp(17px,1.5vw,21px);font-weight:500;letter-spacing:-0.025em;flex:1;text-wrap:pretty">«У нас уже CRM за полторы тысячи»</span>
+          <span style="font-size:12px;font-weight:500;color:#6E6E6E;background:#F7F7F7;border-radius:999px;padding:8px 14px;flex:none;white-space:nowrap">1 495 &#8381;/мес · другая работа</span>
+          <svg class="csChev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg>
+        </summary>
+        <p style="margin:0;padding:0 0 24px 40px;max-width:820px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">И пусть остаётся: заказ-наряды, склад и зарплата — её работа, мы туда не лезем. Ни одна CRM для автосервиса не показывает клиенту его машину в вашем артикуле. Это разные строки расхода, а не выбор из двух.</p>
+      </details>
+      <details>
+        <summary style="display:flex;align-items:center;gap:20px;padding:24px 0">
+          <span style="font-size:11px;font-weight:600;color:#9A9A9A;width:20px;flex:none">06</span>
+          <span style="font-size:clamp(17px,1.5vw,21px);font-weight:500;letter-spacing:-0.025em;flex:1;text-wrap:pretty">«Возьму фрилансера, он отрисует в фотошопе»</span>
+          <span style="font-size:12px;font-weight:500;color:#6E6E6E;background:#F7F7F7;border-radius:999px;padding:8px 14px;flex:none;white-space:nowrap">от 1 000 &#8381; · часы</span>
+          <svg class="csChev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg>
+        </summary>
+        <p style="margin:0;padding:0 0 24px 40px;max-width:820px;font-size:14.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">От тысячи за картинку и от нескольких часов ожидания. Клиент в переписке живёт минуты, не часы. И артикул фрилансер поставит тот, который вы ему продиктуете — то есть руками.</p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 13 · ДЛЯ СЕТЕЙ ░░ -->
+<div id="network" style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto">
+    <div style="background:#0B0B0C;border-radius:40px;padding:52px;display:flex;flex-direction:column;gap:36px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:16px;max-width:700px">
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#DEF23B">06 · Для сетей и франшиз</span>
+          <h2 style="margin:0;font-size:clamp(26px,3.1vw,46px);line-height:1.03;font-weight:500;letter-spacing:-0.04em;color:#FFFFFF;text-wrap:balance">Точке — инструмент. Сети — то, чего нет у конкурирующих франшиз.</h2>
+        </div>
+        <p style="margin:0;max-width:400px;font-size:14.5px;line-height:1.55;color:#9A9A9A;text-wrap:pretty">Ваши точки конкурируют за один и тот же поток входящих. Ваши рычаги влияния на конверсию точки заканчиваются на регламенте. Это рычаг, который работает внутри смены менеджера, а не в отчёте.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="background:rgba(255,255,255,.06);border-radius:26px;padding:26px;display:flex;flex-direction:column;gap:9px">
+          <span style="font-size:16px;font-weight:500;color:#FFFFFF">Точка не купит это мимо вас</span>
+          <span style="font-size:13.5px;line-height:1.5;color:#9A9A9A;text-wrap:pretty">Примерочная привязана к сети: артикулы, цены и брендирование — ваши. Отдельной подписки для точки не существует.</span>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border-radius:26px;padding:26px;display:flex;flex-direction:column;gap:9px">
+          <span style="font-size:16px;font-weight:500;color:#FFFFFF">Ноль обращений в управляющую компанию</span>
+          <span style="font-size:13.5px;line-height:1.5;color:#9A9A9A;text-wrap:pretty">Каналы и прайс заводим мы. Обучения нет. Поддержка идёт напрямую к нам, а не через вашего менеджера — считаем обращения на точку за первый месяц и показываем вам счёт.</span>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border-radius:26px;padding:26px;display:flex;flex-direction:column;gap:9px">
+          <span style="font-size:16px;font-weight:500;color:#FFFFFF">На комитете вы показываете сделки, а не «активацию»</span>
+          <span style="font-size:13.5px;line-height:1.5;color:#9A9A9A;text-wrap:pretty">Поимённый список: клиент, точка, артикул, дата, сумма, признак «цвет выбран по примерке».</span>
+        </div>
+        <div style="background:#DEF23B;border-radius:26px;padding:26px;display:flex;flex-direction:column;gap:9px">
+          <span style="font-size:16px;font-weight:500;color:#111111">Пилот — пять точек, первый месяц бесплатно</span>
+          <span style="font-size:13.5px;line-height:1.5;color:#111111;opacity:.72;text-wrap:pretty">Условие успеха фиксируем заранее: ≥60% точек имеют хотя бы одну сделку через примерку за квартал. Не вышло — расходимся, вы ничего не объясняете партнёрам.</span>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:32px;padding:26px;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+          <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em">Кабинет сети · неделя 34</span>
+          <div style="display:flex;gap:20px">
+            <div style="display:flex;flex-direction:column"><span style="font-size:19px;font-weight:500;letter-spacing:-0.03em;font-variant-numeric:tabular-nums">312</span><span style="font-size:11px;color:#9A9A9A">примерок</span></div>
+            <div style="display:flex;flex-direction:column"><span style="font-size:19px;font-weight:500;letter-spacing:-0.03em;font-variant-numeric:tabular-nums">96</span><span style="font-size:11px;color:#9A9A9A">ответов клиентов</span></div>
+            <div style="display:flex;flex-direction:column"><span style="font-size:19px;font-weight:500;letter-spacing:-0.03em;font-variant-numeric:tabular-nums">14</span><span style="font-size:11px;color:#9A9A9A">сделок по примерке</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:16px;padding:12px 0;border-bottom:1px solid #F0F0F0">
+            <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Точка</span>
+            <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Примерки</span>
+            <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Ответы</span>
+            <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Сделки по примерке</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:16px;padding:14px 0;border-bottom:1px solid #F0F0F0;align-items:center">
+            <span style="font-size:14px">Автозаводская</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">84</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">31</span>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:500;font-variant-numeric:tabular-nums">5</span><span style="font-size:12px;background:#DEF23B;border-radius:999px;padding:4px 10px;font-weight:500">1&#8201;342&#8201;000 &#8381;</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:16px;padding:14px 0;border-bottom:1px solid #F0F0F0;align-items:center">
+            <span style="font-size:14px">Сколково</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">71</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">24</span>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:500;font-variant-numeric:tabular-nums">4</span><span style="font-size:12px;background:#DEF23B;border-radius:999px;padding:4px 10px;font-weight:500">1&#8201;074&#8201;000 &#8381;</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:16px;padding:14px 0;border-bottom:1px solid #F0F0F0;align-items:center">
+            <span style="font-size:14px">Химки</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">63</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">19</span>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:500;font-variant-numeric:tabular-nums">3</span><span style="font-size:12px;background:#DEF23B;border-radius:999px;padding:4px 10px;font-weight:500">793&#8201;000 &#8381;</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:16px;padding:14px 0;border-bottom:1px solid #F0F0F0;align-items:center">
+            <span style="font-size:14px">Казань</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">58</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">15</span>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:500;font-variant-numeric:tabular-nums">2</span><span style="font-size:12px;background:#DEF23B;border-radius:999px;padding:4px 10px;font-weight:500">521&#8201;000 &#8381;</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:16px;padding:14px 0;align-items:center">
+            <span style="font-size:14px;color:#6E6E6E">Екатеринбург</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums;color:#6E6E6E">36</span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums;color:#6E6E6E">7</span>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:500;font-variant-numeric:tabular-nums;color:#6E6E6E">0</span><span style="font-size:12px;color:#9A9A9A;background:#F7F7F7;border-radius:999px;padding:4px 10px;background-image:repeating-linear-gradient(115deg,#E8E8E8 0 1px,transparent 1px 5px)">нет данных</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+        <p style="margin:0;max-width:620px;font-size:14px;line-height:1.55;color:#9A9A9A;text-wrap:pretty">Референсов в вашей отрасли у нас пока нет — и мы это проговариваем вслух, а не подставляем «студию из Москвы» без названия.</p>
+        <a href="#demo" style="background:#DEF23B;color:#111111;border-radius:999px;padding:16px 30px;font-size:14.5px;font-weight:500;flex:none">Обсудить пилот на 5 точках</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ 14 · ТАРИФЫ ░░ -->
+<div id="pricing" style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A">07 · Тарифы</span>
+        <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Первый месяц бесплатно. Карту не спрашиваем.</h2>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start">
+
+      <div style="background:#FFFFFF;border-radius:32px;padding:32px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Примерочная</span>
+          <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:38px;font-weight:500;letter-spacing:-0.04em">0</span><span style="font-size:17px;color:#9A9A9A">&#8381;</span></div>
+        </div>
+        <div style="height:1px;background:#F0F0F0"></div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Публичная примерка по вашей ссылке</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Плёнка, диски, салон, обвес</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Ваш логотип на карточках</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Конфигурация приходит вам в чат</span>
+        </div>
+        <a href="#try" style="display:block;background:#FFFFFF;box-shadow:inset 0 0 0 1px #E2E2E2;border-radius:999px;padding:14px;text-align:center;font-size:14px;font-weight:500;margin-top:auto">Забрать ссылку</a>
+      </div>
+
+      <div style="background:#111111;border-radius:32px;padding:32px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em;color:#FFFFFF">Точка</span>
+            <span style="font-size:11px;font-weight:500;background:#DEF23B;border-radius:999px;padding:6px 12px">первый месяц 0 &#8381;</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:38px;font-weight:500;letter-spacing:-0.04em;color:#FFFFFF">10 000</span><span style="font-size:17px;color:#8E8E8E">&#8381;/мес</span></div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,.12)"></div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13.5px;line-height:1.45;color:#DEF23B">Всё из примерочной</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#E8E8E8">Все каналы в одном списке</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#E8E8E8">Примерка в диалоге, артикул и цена из прайса</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#E8E8E8">Подтверждение выбора для поста</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#E8E8E8">Недельная сводка владельцу</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#E8E8E8">Столько менеджеров, сколько нужно</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#E8E8E8">Подключение и загрузка прайса — наша работа</span>
+        </div>
+        <a href="#demo" style="display:block;background:#DEF23B;color:#111111;border-radius:999px;padding:15px;text-align:center;font-size:14px;font-weight:500;margin-top:auto">Подключить точку</a>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:32px;padding:32px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Сеть</span>
+          <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:38px;font-weight:500;letter-spacing:-0.04em">по договору</span></div>
+        </div>
+        <div style="height:1px;background:#F0F0F0"></div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Всё из «Точки» на каждой точке</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Кабинет сети со сводкой по всем точкам</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Единый каталог артикулов и цен сети</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Невозможность подключения точки мимо сети</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Пилот 5 точек, первый месяц бесплатно</span>
+          <span style="font-size:13.5px;line-height:1.45;color:#2E2E2E">Выделенный канал поддержки</span>
+        </div>
+        <a href="#demo" style="display:block;background:#FFFFFF;box-shadow:inset 0 0 0 1px #E2E2E2;border-radius:999px;padding:14px;text-align:center;font-size:14px;font-weight:500;margin-top:auto">Обсудить пилот</a>
+      </div>
+
+    </div>
+
+    <p style="margin:0;font-size:14px;line-height:1.55;color:#6E6E6E;max-width:900px;text-wrap:pretty">Без доплаты за второго менеджера, за чат-бота и за подключение. Единственное, что считается отдельно — подключение WhatsApp через шлюз оператора, если он вам нужен; Telegram, MAX и Авито входят в тариф.</p>
+  </div>
+</div>
+
+<!-- ░░ 15 · ВОПРОСЫ ░░ -->
+<div style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:grid;grid-template-columns:minmax(240px,.5fr) 1.5fr;gap:40px">
+    <h2 style="margin:0;font-size:clamp(28px,3.4vw,50px);line-height:1.02;font-weight:500;letter-spacing:-0.04em">Вопросы</h2>
+    <div style="background:#FFFFFF;border-radius:32px;padding:8px 30px 18px;display:flex;flex-direction:column">
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">У нас в основном прозрачная защита, цветной оклейки мало</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Тогда пока не берите. Инструмент окупается там, где клиенту нужно выбрать из чего-то — на прозрачной плёнке выбирать нечего.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">Сколько времени от решения до первой отправленной примерки?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Час, включая загрузку прайса. Каналы и прайс заводим мы.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">Надо ли учить менеджеров?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Нет. Первый успешный сценарий менеджер проходит без инструкции — если не проходит, это наша ошибка в интерфейсе.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">Что с фотографиями клиентов?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Фото клиента используется только для его примерки и хранится в карточке этого клиента у вашей точки. Мы не публикуем и не передаём их.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">Вы гарантируете, что цвет совпадёт?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Нет, и никто не гарантирует. Оттенок партии сверяется на замере — это написано в каждой карточке, которую получает ваш клиент.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">Мы уже платим за CRM. Придётся переезжать?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Нет. Ничего переносить не нужно, ноль обязательных импортов.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">А если мы хотим только примерочную для клиентов?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Берите её отдельно, она бесплатна. Обращения будут приходить туда, куда приходят сейчас.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">Работает на Авито?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Обращения приходят и ответ уходит обратно в Авито.</p>
+      </details>
+      <details style="border-bottom:1px solid #F0F0F0">
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">Сколько машин можно померить?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">В тарифе «Точка» — без ограничения по числу примерок.</p>
+      </details>
+      <details>
+        <summary style="display:flex;align-items:center;gap:16px;padding:22px 0"><span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;flex:1;text-wrap:pretty">Мы сеть. Можно посмотреть на одной точке?</span><svg class="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.9" stroke-linecap="round" style="flex:none;transition:transform .22s"><path d="M7 10l5 5 5-5"/></svg></summary>
+        <p style="margin:0;padding:0 0 22px;font-size:14px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Да, пилот на пяти точках, первый месяц бесплатно, условие успеха фиксируем заранее.</p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ ФИНАЛЬНЫЙ CTA ░░ -->
+<div id="demo" style="padding:96px 22px 0;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto">
+    <div style="background:#0B0B0C;border-radius:40px;padding:56px;display:grid;grid-template-columns:1.25fr minmax(300px,.75fr);gap:44px;align-items:center">
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <h2 style="margin:0;font-size:clamp(28px,3.3vw,48px);line-height:1.02;font-weight:500;letter-spacing:-0.04em;color:#FFFFFF;text-wrap:balance">Покажем на вашей точке. Пришлите прайс — соберём примерку на вашей машине.</h2>
+        <p style="margin:0;max-width:540px;font-size:15px;line-height:1.55;color:#9A9A9A;text-wrap:pretty">Пятнадцать минут, без презентации. Показываем инбокс, собираем одну примерку из вашего прайса и отправляем в ваш же WhatsApp — дальше решаете сами.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <a href="#demo" style="background:#DEF23B;color:#111111;border-radius:999px;padding:16px 30px;font-size:14.5px;font-weight:500">Записаться на демо</a>
+          <a href="#try" style="background:rgba(255,255,255,.1);color:#FFFFFF;border-radius:999px;padding:16px 30px;font-size:14.5px;font-weight:500">Сначала померить самому</a>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#DEF23B">Что будет на демо</span>
+        <div style="display:flex;align-items:flex-start;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#DEF23B;flex:none;margin-top:7px"></span><span style="font-size:14px;line-height:1.5;color:#E8E8E8">Смотрим ваш последний месяц: обращений, сделок, где обрываются переписки</span></div>
+        <div style="display:flex;align-items:flex-start;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#DEF23B;flex:none;margin-top:7px"></span><span style="font-size:14px;line-height:1.5;color:#E8E8E8">Собираем одну примерку из вашего прайса, на вашей машине</span></div>
+        <div style="display:flex;align-items:flex-start;gap:11px"><span style="width:7px;height:7px;border-radius:999px;background:#DEF23B;flex:none;margin-top:7px"></span><span style="font-size:14px;line-height:1.5;color:#E8E8E8">Считаем порог: сколько сделок в квартал окупают подписку у вас</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ ФУТЕР ░░ -->
+<div style="padding:80px 22px 40px;background:#EFEFEF">
+  <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:44px">
+    <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1.4fr;gap:32px">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:30px;height:30px;border-radius:10px;background:#111111;display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="4.2"/></svg>
+          </div>
+          <span style="font-size:16.5px;font-weight:600;letter-spacing:-0.025em">CarSwap AI</span>
+        </div>
+        <p style="margin:0;max-width:280px;font-size:13px;line-height:1.5;color:#6E6E6E;text-wrap:pretty">Рабочее место точки детейлинга: заявки из всех каналов в одном списке, примерка на машине клиента прямо в диалоге.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A;margin-bottom:3px">Продукт</span>
+        <a href="#features" style="font-size:13.5px;color:#2E2E2E">Инбокс</a>
+        <a href="#card" style="font-size:13.5px;color:#2E2E2E">Примерка в диалоге</a>
+        <a href="#try" style="font-size:13.5px;color:#2E2E2E">Примерочная</a>
+        <a href="#features" style="font-size:13.5px;color:#2E2E2E">Подтверждение выбора</a>
+        <a href="#features" style="font-size:13.5px;color:#2E2E2E">Сводка владельцу</a>
+        <a href="#network" style="font-size:13.5px;color:#2E2E2E">Кабинет сети</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A;margin-bottom:3px">Материалы</span>
+        <a href="#" style="font-size:13.5px;color:#2E2E2E">Как считать потерю заявок</a>
+        <a href="#" style="font-size:13.5px;color:#2E2E2E">Гайд по подбору оттенка</a>
+        <a href="#" style="font-size:13.5px;color:#2E2E2E">Changelog</a>
+        <a href="#" style="font-size:13.5px;color:#2E2E2E">Вопросы</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#9A9A9A;margin-bottom:3px">Если пока не готовы говорить</span>
+        <div style="display:flex;align-items:center;gap:8px;background:#FFFFFF;border-radius:999px;padding:6px 6px 6px 20px">
+          <span style="font-size:14px;color:#9A9A9A;flex:1">Почта</span>
+          <div style="background:#111111;color:#FFFFFF;border-radius:999px;padding:12px 22px;font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap">Оставить</div>
+        </div>
+        <span style="font-size:12px;line-height:1.5;color:#9A9A9A">Пришлём разбор «куда уходят заявки в детейлинге» — на одной реальной точке, с цифрами.</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid #DCDCDC;padding-top:22px;flex-wrap:wrap">
+      <span style="font-size:12px;color:#9A9A9A">© 2026 CarSwap AI</span>
+      <div style="display:flex;gap:24px">
+        <a href="#" style="font-size:12px;color:#9A9A9A">О нас</a>
+        <a href="#" style="font-size:12px;color:#9A9A9A">Контакты</a>
+        <a href="#" style="font-size:12px;color:#9A9A9A">Обработка данных</a>
+        <a href="#" style="font-size:12px;color:#9A9A9A">Условия</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440},&quot;showPilotBadge&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Доказательства&quot;},&quot;posterOnly&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Сцена героя&quot;}}">
+const FILMS = [
+  {img:'assets/wrap-01-silver.jpg', name:'Заводской серебристый', short:'Как приехал', sku:'фото клиента', finish:'до оклейки', price:'—', cur:'', stock:'ваш кузов', hex:'#B9BDC0'},
+  {img:'assets/wrap-02-satin-black.jpg', name:'Сатин чёрный оникс', short:'Чёрный оникс', sku:'KPMF K75403', finish:'сатин', price:'286\u2009400', cur:'\u20BD', stock:'есть на складе', hex:'#191A1C'},
+  {img:'assets/wrap-06-anthracite.jpg', name:'Матовый антрацит', short:'Антрацит', sku:'Oracal 970-070', finish:'мат', price:'241\u2009900', cur:'\u20BD', stock:'есть на складе', hex:'#43464A'},
+  {img:'assets/wrap-03-olive.jpg', name:'Матовый хаки', short:'Хаки', sku:'Avery SW-900 682', finish:'мат', price:'254\u2009700', cur:'\u20BD', stock:'есть на складе', hex:'#6E6E4C'},
+  {img:'assets/wrap-04-lagoon.jpg', name:'Сатин лагуна', short:'Лагуна', sku:'KPMF K75427', finish:'сатин', price:'268\u2009300', cur:'\u20BD', stock:'есть на складе', hex:'#1F6C80'},
+  {img:'assets/wrap-05-burgundy.jpg', name:'Глянец бордо', short:'Бордо', sku:'Hexis HX20 375', finish:'глянец', price:'259\u2009100', cur:'\u20BD', stock:'есть на складе', hex:'#5E1622'},
+  {img:'assets/wrap-07-copper.jpg', name:'Сатин медь', short:'Медь', sku:'Avery SW-900 810', finish:'сатин-металлик', price:'297\u2009500', cur:'\u20BD', stock:'2 рулона', hex:'#B47C58'},
+  {img:'assets/wrap-08-acid.jpg', name:'Глянец кислотный лайм', short:'Кислотный лайм', sku:'Oracal 970-616', finish:'глянец', price:'243\u2009800', cur:'\u20BD', stock:'под заказ', hex:'#CFE83A'},
+  {img:'assets/wrap-09-pearl.jpg', name:'Сатин перламутр', short:'Перламутр', sku:'KPMF K75401', finish:'сатин-перл', price:'274\u2009900', cur:'\u20BD', stock:'есть на складе', hex:'#E7E3DA'}
+];
+
+
+
+class Component extends DCLogic {
+  state = { tab: 0, film: 4, ticks: 0 };
+
+  componentDidMount() {
+    this.driveVideo();
+    const load = list => list.forEach(f => { const i = new Image(); i.src = f.img; if (i.decode) i.decode().catch(() => {}); });
+    setTimeout(() => load(FILMS), 900);
+  }
+
+  componentDidUpdate() { this.driveVideo(); }
+
+  /* Автозапуск фонового видео: браузеры пускают его только у muted-элемента,
+     и атрибута autoplay иногда недостаточно — дожимаем свойствами. */
+  driveVideo() {
+    const v = document.querySelector('[data-hero-video]');
+    if (!v) return;
+    v.muted = true;
+    v.loop = true;
+    if (this.props.posterOnly === true) { v.pause(); v.currentTime = 0; return; }
+    const p = v.play();
+    if (p && p.catch) p.catch(() => {});
+  }
+
+  tickLine(n) {
+    if (n === 0) return 'Отметьте то, что про вас — посчитаем, во сколько это обходится.';
+    if (n < 3) return n + ' из 12 — уже повод посмотреть, где обрываются переписки.';
+    if (n < 6) return n + ' из 12 — это примерно 2–3 потерянные сделки в месяц.';
+    return n + ' из 12 — счёт идёт на сделки, а не на неудобства.';
+  }
+
+  renderVals() {
+    const tab = this.state.tab;
+    const f = FILMS[this.state.film] || FILMS[4];
+    const n = this.state.ticks;
+    const on = i => tab === i;
+    return {
+      showPilotBadge: this.props.showPilotBadge === true,
+
+      tab0: () => this.setState({ tab: 0 }),
+      tab1: () => this.setState({ tab: 1 }),
+      tab2: () => this.setState({ tab: 2 }),
+      tab3: () => this.setState({ tab: 3 }),
+      t0bg: on(0) ? '#111111' : 'transparent', t0fg: on(0) ? '#FFFFFF' : '#6E6E6E',
+      t1bg: on(1) ? '#111111' : 'transparent', t1fg: on(1) ? '#FFFFFF' : '#6E6E6E',
+      t2bg: on(2) ? '#111111' : 'transparent', t2fg: on(2) ? '#FFFFFF' : '#6E6E6E',
+      t3bg: on(3) ? '#111111' : 'transparent', t3fg: on(3) ? '#FFFFFF' : '#6E6E6E',
+      d0: on(0) ? 'flex' : 'none', d1: on(1) ? 'flex' : 'none',
+      d2: on(2) ? 'flex' : 'none', d3: on(3) ? 'flex' : 'none',
+
+      filmChips: FILMS.map((c, i) => ({
+        hex: c.hex, short: c.short,
+        ring: i === this.state.film ? 'inset 0 0 0 1.5px #111111' : 'none',
+        pick: () => this.setState({ film: i })
+      })),
+      op1: this.state.film === 1 ? 1 : 0,
+      op2: this.state.film === 2 ? 1 : 0,
+      op3: this.state.film === 3 ? 1 : 0,
+      op4: this.state.film === 4 ? 1 : 0,
+      op5: this.state.film === 5 ? 1 : 0,
+      op6: this.state.film === 6 ? 1 : 0,
+      op7: this.state.film === 7 ? 1 : 0,
+      op8: this.state.film === 8 ? 1 : 0,
+      tryName: f.name, trySku: f.sku, tryFinish: f.finish,
+      tryPrice: f.price, tryCur: f.cur, tryStock: f.stock,
+
+      tick: e => this.setState(s => ({ ticks: Math.max(0, s.ticks + (e.target.checked ? 1 : -1)) })),
+      tickLabel: n === 0 ? 'Чек-лист' : 'Отмечено ' + n + ' из 12',
+      tickLine: this.tickLine(n)
+    };
+  }
+}
+</script>
+</body>
+</html>

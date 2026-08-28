@@ -1,0 +1,41 @@
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink-700);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { margin: 0; font-weight: 500; text-wrap: balance; }
+p { margin: 0; text-wrap: pretty; }
+button { font: inherit; color: inherit; }
+a { color: var(--ink-900); text-decoration: none; }
+a:hover { color: var(--ink-500); }
+
+/* Обязательное требование хендофа, а не стилистика: 1fr разворачивается
+ * в minmax(auto,1fr), min-content содержимого раздувает дорожки шире
+ * контейнера, и страница уезжает по горизонтали. */
+.g2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--gap); }
+.g3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: var(--gap); }
+.g4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: var(--gap); }
+
+/* Та же причина: max-content не сжимается по родителю и вылезает из узкой
+ * колонки поверх соседнего текста. */
+.fit { width: fit-content; max-width: 100%; }
+
+/* Иконкам flex:none: min-width:0 на родителе снимает минимум и у вложенного
+ * svg — иконка схлопывается в ноль, чтобы уместить нежимающийся текст. */
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg > * { flex: 1 1 auto; }
+.seg svg { flex: none; }
+
+@media print {
+  body { background: #fff; }
+  .no-print { display: none !important; }
+}

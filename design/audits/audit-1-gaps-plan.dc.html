@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#2A2A2A;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#DEF23B;text-decoration:none}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#2A2A2A;padding:56px 40px 110px;font-family:Onest,system-ui,sans-serif;color:#111111">
+<div style="max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:26px">
+
+<div style="display:flex;flex-direction:column;gap:14px;color:#FFFFFF;max-width:880px">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:11px;font-weight:600;background:#D93F45;color:#FFFFFF;border-radius:5px;padding:4px 9px;letter-spacing:0.04em">Аудит</span>
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8A8A8A">28 августа 2026 · до и после сборки</span>
+  </div>
+  <h1 style="margin:0;font-size:48px;font-weight:500;letter-spacing:-0.038em;line-height:1.03">Чего в продукте нет</h1>
+  <p style="margin:0;font-size:15.5px;line-height:1.55;color:#BFBFBF;text-wrap:pretty">Прошёл продукт двумя проходами: путём покупателя целиком и путём компании по каждой роли. Нашёл 34 дыры, из них 11 обрывают путь до денег. Ниже — что именно отсутствует, чем закрывается и в каком порядке. Собранное на сегодня — 59 экранов, шесть фаз; это примерно 60% продукта.</p>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+  <div style="background:#FFFFFF;border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:5px">
+    <span style="font-size:12px;color:#9A9A9A">Собрано</span>
+    <span style="font-size:34px;font-weight:500;letter-spacing:-0.04em;line-height:1">59</span>
+    <span style="font-size:11.5px;color:#6E6E6E">экранов в шести фазах</span>
+  </div>
+  <div style="background:#FBEEEF;border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:5px">
+    <span style="font-size:12px;color:#8A4448">Дыры P0 · рвут путь до денег</span>
+    <span style="font-size:34px;font-weight:500;letter-spacing:-0.04em;line-height:1;color:#8A4448">11</span>
+    <span style="font-size:11.5px;color:#8A4448">закрываю первыми</span>
+  </div>
+  <div style="background:#F5FBCB;border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:5px">
+    <span style="font-size:12px;color:#6E6E6E">Дыры P1 · ломают смену</span>
+    <span style="font-size:34px;font-weight:500;letter-spacing:-0.04em;line-height:1">14</span>
+    <span style="font-size:11.5px;color:#2E2E2E">вторым заходом</span>
+  </div>
+  <div style="background:#FFFFFF;border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:5px">
+    <span style="font-size:12px;color:#9A9A9A">Дыры P2 · терпят</span>
+    <span style="font-size:34px;font-weight:500;letter-spacing:-0.04em;line-height:1">9</span>
+    <span style="font-size:11.5px;color:#6E6E6E">после пилота</span>
+  </div>
+</div>
+
+<!-- A · ПОКУПАТЕЛЬ -->
+<div style="background:#FFFFFF;border-radius:28px;padding:30px 32px;display:flex;flex-direction:column;gap:22px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#9A9A9A">Блок A</span>
+      <span style="font-size:28px;font-weight:500;letter-spacing:-0.03em">Сущность покупателя</span>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;max-width:520px;text-align:right;text-wrap:pretty">Главный вывод: у клиента собрана только первая половина пути — до «мне нравится». Всё, что после выбора цвета и до получения машины, отсутствует целиком. Это 180–380 тысяч рублей, которые сейчас проходят вне продукта.</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:7px">
+    <div style="display:flex;align-items:center;gap:14px;padding:0 18px 8px">
+      <span style="width:30px;flex:none;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">№</span>
+      <span style="width:250px;flex:none;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Шаг пути клиента</span>
+      <span style="width:104px;flex:none;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Состояние</span>
+      <span style="flex:1;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Чем закрывается</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#9A9A9A">Приор.</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#C4C4C4;font-variant-numeric:tabular-nums">A1</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Написал в мессенджер</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#DEF23B;border-radius:999px;padding:5px 10px">есть</span></span>
+      <span style="flex:1;font-size:12.5px;color:#6E6E6E">Фаза 2, экраны 09–16</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;color:#C4C4C4">—</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">A2</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Получил карточку в WhatsApp</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Нарисовано глазами менеджера. Глазами клиента — в чужом мессенджере, где живёт момент «ага» — нет ни одного экрана</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">A3</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Открыл публичную страницу конфигурации</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Упомянута в трёх местах как несущая конструкция шеринга и фолбэк для каналов без картинок — экрана нет</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">A4</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Сам зафиксировал выбор</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Весь контур мастера стоит на «клиент подтвердил сам с датой». Экрана, где он это делает и видит оговорку, нет — фундамент висит в воздухе</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">A5</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Выбрал день и время замера</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Есть только календарь в панели менеджера. Клиент записывается голосом — окно 1–7 дней самая дорогая потеря продукта</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">A6</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Оплатил предоплату</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Счёт формируется, но клиент его нигде не открывает и не платит. Эквайринг, QR, статус оплаты — ноль экранов</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">A7</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Приехал на замер · карточка визита</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">Куда ехать, во сколько, что взять, сколько по времени. Сейчас клиент это переспрашивает в чате</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">A8</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Машина в работе · статус</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Три дня клиент без машины и без информации. Здесь рождаются звонки «ну что там» — прямая нагрузка на менеджера</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">A9</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Приёмка и гарантийный талон</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Экран выдачи нарисован со стороны мастера. Со стороны клиента: подтверждение приёмки, акт, гарантийный талон на плёнку — нет ни одного</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">A10</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Мой гараж после контакта</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">Клиент оставил номер и получил ещё десять примерок — но личного пространства, где живут его сборки, заказы и документы, нет</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">A11</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Отзыв и повторный визит</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">После выдачи клиент исчезает. Ни оценки, ни возврата через год на «в прошлый раз смотрели», ни обращения по дефекту</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#C4C4C4;font-variant-numeric:tabular-nums">A12</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Примеряю к покупке · чужая машина</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EFEFEF;color:#6E6E6E;border-radius:999px;padding:5px 10px">частично</span></span>
+      <span style="flex:1;font-size:12.5px;color:#6E6E6E">Развилка описана в требованиях, в макетах только упомянута словом</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#9A9A9A">P2</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">A13</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Согласие, оферта, персональные данные</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">Место на первом экране заложено, самих экранов согласия и оферты нет. Фото с читаемым госномером — персональные данные</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+  </div>
+</div>
+
+<!-- B · КОМПАНИЯ -->
+<div style="background:#FFFFFF;border-radius:28px;padding:30px 32px;display:flex;flex-direction:column;gap:22px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#9A9A9A">Блок B</span>
+      <span style="font-size:28px;font-weight:500;letter-spacing:-0.03em">Сущность компании · по сотрудникам</span>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:1.5;color:#6E6E6E;max-width:520px;text-align:right;text-wrap:pretty">Главный вывод: у менеджера нет ни одного инструмента дожима, у точки нет склада и расписания, а закрывающих документов два из четырёх. Роль приёмщика и роль бухгалтера не обслужены вообще.</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:7px">
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">B1</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Менеджер · дожим окна 1–7 дней</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Самая дорогая потеря происходит после момента «ага». Ни задач, ни напоминаний, ни списка «подтвердил, но не записан»</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">B2</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Точка · расписание постов</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Менеджер назначает замер, не видя загрузки постов. Два поста и трёхдневные работы — это неизбежные накладки</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">B3</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Склад · рулоны, метраж, партии</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Флаг наличия по SKU есть, склада нет. Мастер сверяет рулон с записью, но откуда система знает, что рулон вообще есть и хватит 18,2 м</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">B4</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Документы · акт и гарантийный талон</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Наряд и счёт готовы. Акт выполненных работ и гарантийный талон на плёнку — нет, а без талона точка не закрывает выдачу</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#FBEEEF;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#8A4448;font-variant-numeric:tabular-nums">B5</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500;color:#8A4448">Владелец · подписка и биллинг</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#D93F45;color:#FFFFFF;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#8A4448">Расход генераций показан, но тарифа, оплаты подписки, истории платежей и поднятия лимита в один клик нет. Это наша собственная выручка</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#8A4448">P0</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">B6</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Настройки точки</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">Логотип, который впечатывается в изображение, реквизиты для документов, часы работы, шаблоны — всё используется, но нигде не настраивается</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">B7</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Уведомления и центр событий</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">Мастер сообщает менеджеру о несовпадении рулона «одним действием» — но куда приходит это сообщение, не нарисовано</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">B8</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Финансы точки · касса и остатки</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">Предоплата, остаток, факт оплаты, долги по нарядам. Роль бухгалтера не обслужена ни одним экраном</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">B9</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Отчёт по менеджерам</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">Владелец видит сделки, но не видит, кто из менеджеров доводит, а кто сливает горячие диалоги</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F5FBCB;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#9A9A9A;font-variant-numeric:tabular-nums">B10</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Первый вход мастера</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EAF77E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#2E2E2E">Мастер открывает ссылку впервые — у него сразу наряд? Экрана знакомства и списка его нарядов нет</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#6E6E6E">P1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#C4C4C4;font-variant-numeric:tabular-nums">B11</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Шаблоны быстрых ответов</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EFEFEF;color:#6E6E6E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#6E6E6E">Менеджер отвечает на 3–5 однотипных запросов за смену. Заготовок нет</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#9A9A9A">P2</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#C4C4C4;font-variant-numeric:tabular-nums">B12</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Аудит-лог и поиск по кабинету</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EFEFEF;color:#6E6E6E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#6E6E6E">Кто поменял цену, кто отправил, кто отозвал доступ. И глобальный поиск по клиентам, нарядам, артикулам</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#9A9A9A">P2</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#C4C4C4;font-variant-numeric:tabular-nums">B13</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Сеть · приглашение точки и каталог</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EFEFEF;color:#6E6E6E;border-radius:999px;padding:5px 10px">частично</span></span>
+      <span style="flex:1;font-size:12.5px;color:#6E6E6E">Отчёт нарисован. Редактирование сетевого каталога, границ наценки, тарифов и снятия стопа по точке — только пилюлями в отчёте</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#9A9A9A">P2</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:16px;padding:13px 18px">
+      <span style="width:30px;flex:none;font-size:12px;color:#C4C4C4;font-variant-numeric:tabular-nums">B14</span>
+      <span style="width:250px;flex:none;font-size:13.5px;font-weight:500">Мобильный кабинет владельца</span>
+      <span style="width:104px;flex:none"><span style="font-size:11px;font-weight:500;background:#EFEFEF;color:#6E6E6E;border-radius:999px;padding:5px 10px">дыра</span></span>
+      <span style="flex:1;font-size:12.5px;color:#6E6E6E">Сводку он откроет с телефона в субботу. Нарисован только десктоп</span>
+      <span style="width:52px;flex:none;text-align:right;font-size:11.5px;font-weight:600;color:#9A9A9A">P2</span>
+    </div>
+  </div>
+</div>
+
+<!-- C · ПЛАН -->
+<div style="background:#DEF23B;border-radius:28px;padding:30px 32px;display:flex;flex-direction:column;gap:22px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(17,17,17,.55)">Блок C</span>
+      <span style="font-size:28px;font-weight:500;letter-spacing:-0.03em">План закрытия</span>
+    </div>
+    <p style="margin:0;font-size:13px;line-height:1.5;color:rgba(17,17,17,.65);max-width:500px;text-align:right;text-wrap:pretty">Порядок не по объёму работы, а по тому, где рвётся путь до денег. Начинаю сразу, без остановки на согласование.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+    <div style="background:#111111;border-radius:22px;padding:24px 26px;display:flex;flex-direction:column;gap:13px">
+      <div style="display:flex;align-items:baseline;gap:9px">
+        <span style="font-size:11px;font-weight:600;background:#DEF23B;color:#111111;border-radius:5px;padding:4px 8px">Заход 1</span>
+        <span style="font-size:12px;color:#9A9A9A">11 экранов · сейчас</span>
+      </div>
+      <span style="font-size:19px;font-weight:500;letter-spacing:-0.022em;line-height:1.25;color:#FFFFFF">Вторая половина пути клиента</span>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:12.5px;color:#DDDDDD">Карточка в WhatsApp глазами клиента</span>
+        <span style="font-size:12.5px;color:#DDDDDD">Публичная страница конфигурации</span>
+        <span style="font-size:12.5px;color:#DDDDDD">Подтверждение выбора клиентом</span>
+        <span style="font-size:12.5px;color:#DDDDDD">Запись на замер и карточка визита</span>
+        <span style="font-size:12.5px;color:#DDDDDD">Счёт и оплата предоплаты</span>
+        <span style="font-size:12.5px;color:#DDDDDD">Статус работы по дням</span>
+        <span style="font-size:12.5px;color:#DDDDDD">Приёмка, акт, гарантийный талон</span>
+        <span style="font-size:12.5px;color:#DDDDDD">Мой гараж и отзыв</span>
+      </div>
+      <span style="font-size:11.5px;color:#8A8A8A;line-height:1.5;margin-top:auto">Закрывает A2–A11. Без этого продукт заканчивается там, где клиент говорит «нравится», — то есть до денег.</span>
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:22px;padding:24px 26px;display:flex;flex-direction:column;gap:13px">
+      <div style="display:flex;align-items:baseline;gap:9px">
+        <span style="font-size:11px;font-weight:600;background:#111111;color:#DEF23B;border-radius:5px;padding:4px 8px">Заход 2</span>
+        <span style="font-size:12px;color:#9A9A9A">10 экранов</span>
+      </div>
+      <span style="font-size:19px;font-weight:500;letter-spacing:-0.022em;line-height:1.25">Операционка точки</span>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:12.5px;color:#2E2E2E">Дожим окна 1–7 дней и задачи</span>
+        <span style="font-size:12.5px;color:#2E2E2E">Расписание постов и загрузка</span>
+        <span style="font-size:12.5px;color:#2E2E2E">Склад рулонов и списание метража</span>
+        <span style="font-size:12.5px;color:#2E2E2E">Заявка на материал при нехватке</span>
+        <span style="font-size:12.5px;color:#2E2E2E">Подписка, тариф, поднятие лимита</span>
+        <span style="font-size:12.5px;color:#2E2E2E">Настройки точки и логотип в кадре</span>
+        <span style="font-size:12.5px;color:#2E2E2E">Уведомления и центр событий</span>
+        <span style="font-size:12.5px;color:#2E2E2E">Первый вход мастера и его наряды</span>
+      </div>
+      <span style="font-size:11.5px;color:#9A9A9A;line-height:1.5;margin-top:auto">Закрывает B1–B10. Без этого точка работает, но теряет деньги на накладках и на молчании после подтверждения.</span>
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:22px;padding:24px 26px;display:flex;flex-direction:column;gap:13px">
+      <div style="display:flex;align-items:baseline;gap:9px">
+        <span style="font-size:11px;font-weight:600;background:#F5F5F5;color:#6E6E6E;border-radius:5px;padding:4px 8px">Заход 3</span>
+        <span style="font-size:12px;color:#9A9A9A">9 экранов · после пилота</span>
+      </div>
+      <span style="font-size:19px;font-weight:500;letter-spacing:-0.022em;line-height:1.25">Управление и обвязка</span>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:12.5px;color:#6E6E6E">Финансы точки и касса</span>
+        <span style="font-size:12.5px;color:#6E6E6E">Отчёт по менеджерам</span>
+        <span style="font-size:12.5px;color:#6E6E6E">Шаблоны быстрых ответов</span>
+        <span style="font-size:12.5px;color:#6E6E6E">Аудит-лог и глобальный поиск</span>
+        <span style="font-size:12.5px;color:#6E6E6E">Сетевой каталог и тарифы точек</span>
+        <span style="font-size:12.5px;color:#6E6E6E">Мобильный кабинет владельца</span>
+        <span style="font-size:12.5px;color:#6E6E6E">Согласие, оферта, персональные данные</span>
+        <span style="font-size:12.5px;color:#6E6E6E">Примерка к покупке чужой машины</span>
+      </div>
+      <span style="font-size:11.5px;color:#9A9A9A;line-height:1.5;margin-top:auto">Юридический контур делаю только как макет с местом под текст: формулировки требуют юриста, а не дизайнера.</span>
+    </div>
+  </div>
+
+  <div style="background:rgba(17,17,17,.08);border-radius:20px;padding:18px 20px;display:flex;gap:26px">
+    <span style="font-size:12.5px;line-height:1.55;color:#111111;flex:1;text-wrap:pretty"><span style="font-weight:600">Что осознанно не строю. </span>Складской учёт как отдельный продукт, зарплаты и мотивация мастеров, телефония, воронка лидов из рекламы, конструктор документов. Всё это уводит витрину в сторону CRM, где мы проигрываем отраслевым системам по полноте за 1 495 ₽/мес.</span>
+    <span style="font-size:12.5px;line-height:1.55;color:#111111;flex:1;text-wrap:pretty"><span style="font-weight:600">Правило приоритета. </span>Экран попадает в заход 1, только если без него обрывается путь от «нравится» до оплаченной работы. Всё остальное — удобство, и оно ждёт.</span>
+  </div>
+</div>
+
+</div>
+</div>
+</x-dc>
+</body>
+</html>

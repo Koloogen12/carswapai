@@ -1,0 +1,5 @@
+node_modules/
+.next/
+*.tsbuildinfo
+.env*.local
+worker/fixtures/dev-set/.preview/

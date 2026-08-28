@@ -1,0 +1,98 @@
+/* CarSwap AI · токены дизайна
+ *
+ * Источник: design/design-system.dc.html — снята один в один.
+ * Три допущения системы, которые нельзя нарушать при добавлении компонентов:
+ *   1. Кислота — метка горячего, не бренд-цвет. Один-два акцента на экран.
+ *   2. Чёрный — только активное и подтверждённое.
+ *   3. Штриховка — универсальный «остаток / нет данных», и это НЕ «ноль».
+ * И четвёртое, выведенное из системы: рамки здесь не выделяют. Выбранное
+ * заливается кислотой, а не обводится.
+ */
+
+:root {
+  /* Цвет */
+  --acid-500: #DEF23B;   /* горячий диалог, выбранный артикул, заполненная шкала */
+  --acid-300: #EAF77E;   /* вторая доля шкалы, порог 80% расхода */
+  --acid-100: #F5FBCB;   /* фон оговорки о свете */
+
+  --ink-900:  #111111;   /* активное, подтверждённое, первичная кнопка */
+  --ink-700:  #2E2E2E;   /* основной текст */
+  --ink-500:  #6E6E6E;   /* подписи, неактивное */
+  --ink-400:  #9A9A9A;   /* метки, копейки, надзаголовки */
+
+  --surface:  #EFEFEF;   /* фон кабинета */
+  --white:    #FFFFFF;   /* карточка */
+  --dark:     #0B0B0C;   /* тёмные секции лендинга */
+
+  --alert-500: #D93F45;  /* не доставлено, артикул не сошёлся */
+  --alert-100: #F0C9CB;  /* доля повреждений на шкале */
+
+  --rule:        #F0F0F0;  /* разделители в карточках */
+  --rule-strong: #E2E2E2;  /* обводка штриховки и полей */
+
+  /* Образцы плёнок для чипов примерочной */
+  --film-silver: #B9BDC0; --film-onyx: #191A1C; --film-anthracite: #43464A;
+  --film-olive:  #6E6E4C; --film-lagoon: #1F6C80; --film-burgundy: #5E1622;
+  --film-copper: #B47C58; --film-acid: #CFE83A;  --film-pearl: #E7E3DA;
+
+  /* Типографика. Правило веса: заголовки и цифры — 500 с отрицательным
+   * трекингом; 600 только в мелких капслочных метках; 400 — остальной текст. */
+  --font: Onest, Manrope, system-ui, -apple-system, sans-serif;
+  --fs-display: 46px; --lh-display: 1;    --ls-display: -0.035em;
+  --fs-h1: 32px;      --ls-h1: -0.03em;
+  --fs-h2: 24px;      --ls-h2: -0.025em;
+  --fs-h3: 18px;      --ls-h3: -0.02em;
+  --fs-body: 15px;    --lh-body: 1.5;
+  --fs-body-s: 13px;  --lh-body-s: 1.45;
+  --fs-label: 12px;
+  --fs-caption: 11px; --ls-caption: 0.075em;
+  --fs-price: 42px;   --ls-price: -0.04em;
+
+  /* Радиусы */
+  --r-shell: 32px;   /* оболочка */
+  --r-card: 24px;    /* карточка */
+  --r-inner: 20px;   /* вложенная */
+  --r-btn: 14px;     /* кнопка */
+  --r-pill: 999px;
+  --r-thumb: 12px;
+
+  /* Ритм */
+  --content-max: 1360px;
+  --page-pad: 56px 40px 100px;
+  --gap: 14px;          /* шаг сетки в кабинете */
+  --gap-lg: 16px;
+
+  /* Цели нажатия. 52px — минимум в кабинете, 64px у поста: работа в перчатках
+   * (МС-1), а не «покрупнее для красоты». */
+  --tap: 52px;
+  --tap-bay: 64px;
+
+  /* Слои. Теней в системе почти нет: глубина — фон и радиус. */
+  --raise: 0 1px 2px rgba(17,17,17,.05);
+  --float: 0 -22px 48px rgba(17,17,17,.14);
+}
+
+/* Экран мастера у поста.
+ * Хендоф сам отмечает: #9A9A9A на белом даёт 2.8:1, ниже AA. Для кабинета это
+ * решение вкуса, у поста — нет: читать надо на солнце, грязными руками,
+ * при плохом свете в боксе. Кегль поднят, подписи затемнены до прохода AA. */
+[data-surface='bay'] {
+  --ink-500: #5A5A5A;
+  --ink-400: #767676;
+  --fs-body: 18px;
+  --fs-body-s: 16px;
+  --fs-label: 15px;
+  --fs-caption: 13px;
+  --tap: var(--tap-bay);
+}
+
+@font-face { font-family: 'Onest'; src: url('/fonts/Onest-Light.woff2') format('woff2');
+             font-weight: 300; font-display: swap; }
+@font-face { font-family: 'Onest'; src: url('/fonts/Onest-Regular.woff2') format('woff2');
+             font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Onest'; src: url('/fonts/Onest-Medium.woff2') format('woff2');
+             font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Onest'; src: url('/fonts/Onest-SemiBold.woff2') format('woff2');
+             font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Onest'; src: url('/fonts/Onest-Bold.woff2') format('woff2');
+             font-weight: 700; font-display: swap; }

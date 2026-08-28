@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#2A2A2A;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#111111;text-decoration:none}a:hover{color:#6E6E6E}
+img{display:block;width:100%;height:100%;object-fit:cover}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes slidein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#2A2A2A;font-family:Onest,system-ui,sans-serif;color:#111111;display:flex;flex-direction:column;align-items:flex-start;gap:22px;padding:22px 22px 60px;width:max-content;min-width:100%">
+
+<!-- ── ХАРНЕСС ПРОТОТИПА ── -->
+<div style="width:100%;max-width:1460px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="width:28px;height:28px;border-radius:9px;background:#DEF23B;display:flex;align-items:center;justify-content:center">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>
+      </div>
+      <span style="font-size:15px;font-weight:600;color:#FFFFFF;letter-spacing:-0.02em">CarSwap AI</span>
+    </div>
+    <span style="font-size:12px;color:#8A8A8A">кликабельный прототип · сквозной сценарий</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+    <div onClick="{{ goManager }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:9px 15px;background:{{ tabManagerBg }};color:{{ tabManagerFg }}">Менеджер</div>
+    <div onClick="{{ goClient }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:9px 15px;background:{{ tabClientBg }};color:{{ tabClientFg }}">Клиент · гараж</div>
+    <div onClick="{{ goMaster }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:9px 15px;background:{{ tabMasterBg }};color:{{ tabMasterFg }}">Мастер</div>
+    <div onClick="{{ goOwner }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:9px 15px;background:{{ tabOwnerBg }};color:{{ tabOwnerFg }}">Владелец</div>
+    <div onClick="{{ goNetwork }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:9px 15px;background:{{ tabNetworkBg }};color:{{ tabNetworkFg }}">Сеть</div>
+    <div onClick="{{ reset }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:9px 15px;background:rgba(255,255,255,.1);color:#DDDDDD;margin-left:6px">Сброс</div>
+  </div>
+</div>
+
+<div style="width:100%;max-width:1460px;display:flex;align-items:center;gap:10px;padding:0 2px">
+  <span style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#DEF23B">Сейчас</span>
+  <span style="font-size:12.5px;color:#C9C9C9">{{ hint }}</span>
+</div>
+
+<!-- ══════════ МЕНЕДЖЕР ══════════ -->
+<sc-if value="{{ isManager }}" hint-placeholder-val="{{ true }}">
+<div style="width:1440px;height:920px;background:#EFEFEF;border-radius:30px;padding:18px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 6px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:28px;height:28px;border-radius:9px;background:#111111;display:flex;align-items:center;justify-content:center">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="2.2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>
+      </div>
+      <span style="font-size:16px;font-weight:600;letter-spacing:-0.02em">CarSwap</span>
+      <span style="font-size:11.5px;color:#9A9A9A;background:#FFFFFF;border-radius:999px;padding:5px 11px;margin-left:4px">Пост на Кутузовском</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+        <span style="font-size:11px;color:#9A9A9A">Генерации</span>
+        <div style="display:flex;align-items:center;gap:7px">
+          <div style="width:62px;height:5px;border-radius:999px;background:#E2E2E2;overflow:hidden"><div style="width:{{ genPct }};height:5px;background:#DEF23B"></div></div>
+          <span style="font-size:11.5px;font-weight:500;font-variant-numeric:tabular-nums">{{ genUsed }}<span style="color:#9A9A9A">/2 000</span></span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#FFFFFF;border-radius:999px;padding:6px 13px 6px 6px">
+        <div style="width:32px;height:32px;border-radius:999px;background:#EFEFEF;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;color:#6E6E6E">ИК</div>
+        <div style="display:flex;flex-direction:column">
+          <span style="font-size:12.5px;font-weight:500;line-height:1.2">Ирина Ковалёва</span>
+          <span style="font-size:10.5px;color:#9A9A9A;line-height:1.3">Менеджер</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;gap:12px;min-height:0">
+
+    <!-- ИНБОКС -->
+    <div style="width:340px;flex:none;background:#FFFFFF;border-radius:24px;padding:18px 15px;display:flex;flex-direction:column;gap:12px;min-height:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 4px">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <span style="font-size:18px;font-weight:500;letter-spacing:-0.025em">Обращения</span>
+          <span style="font-size:11.5px;font-weight:500;background:#DEF23B;border-radius:999px;padding:3px 8px">{{ inboxCount }}</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;background:#F5F5F5;border-radius:999px;padding:10px 14px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+        <span style="font-size:13px;color:#9A9A9A">Клиент, номер или артикул</span>
+      </div>
+      <div style="display:flex;gap:4px;background:#F5F5F5;border-radius:999px;padding:4px">
+        <span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#FFFFFF;background:#111111;border-radius:999px;padding:8px 0">Горячие сверху</span>
+        <span style="flex:1;text-align:center;font-size:12px;font-weight:500;color:#6E6E6E;padding:8px 0">Все</span>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-height:0;overflow:hidden">
+
+        <sc-if value="{{ fromGarage }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ openGarageLead }}" style="cursor:pointer;background:#DEF23B;border-radius:18px;padding:13px 14px;display:flex;flex-direction:column;gap:8px;animation:slidein .35s ease">
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:34px;height:34px;border-radius:999px;background:#111111;color:#DEF23B;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;flex:none">ЕЛ</div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13.5px;font-weight:500">Егор Лапин</span>
+              <span style="font-size:11px;opacity:.65">Kia K5 · конфигурация из гаража</span>
+            </div>
+            <span style="font-size:10.5px;opacity:.65;flex:none">только что</span>
+          </div>
+          <span style="font-size:12px;line-height:1.35">Собрал в гараже: сатин хаки + диски. Посчитайте?</span>
+        </div>
+        </sc-if>
+
+        <div onClick="{{ openArtem }}" style="cursor:pointer;background:{{ rowArtemBg }};border-radius:18px;padding:13px 14px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:34px;height:34px;border-radius:999px;background:#DEF23B;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;flex:none">АГ</div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:13.5px;font-weight:500;color:{{ rowArtemFg }}">Артём Гусев</span>
+                <span style="width:15px;height:15px;border-radius:999px;background:#25455B;color:#FFFFFF;font-size:6.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">WA</span>
+              </div>
+              <span style="font-size:11px;color:#9A9A9A">BMW X5 2021 · А 432 ОР 77</span>
+            </div>
+            <span style="font-size:10.5px;color:#9A9A9A;flex:none">{{ artemTime }}</span>
+          </div>
+          <span style="font-size:12px;line-height:1.35;color:{{ rowArtemMsgFg }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ artemLast }}</span>
+          <div style="display:flex;align-items:center;gap:7px;background:{{ artemChipBg }};border-radius:999px;padding:6px 11px;width:max-content">
+            <span style="font-size:11.5px;font-weight:500;color:{{ artemChipFg }}">{{ artemState }}</span>
+          </div>
+        </div>
+
+        <div style="background:#F7F7F7;border-radius:18px;padding:13px 14px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:34px;height:34px;border-radius:999px;background:#EFEFEF;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:500;color:#6E6E6E;flex:none">КД</div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:13.5px;font-weight:500">Кирилл Дёмин</span>
+                <span style="width:15px;height:15px;border-radius:999px;background:#3A6B8F;color:#FFFFFF;font-size:6.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">TG</span>
+              </div>
+              <span style="font-size:11px;color:#9A9A9A">Kia K5 2022</span>
+            </div>
+            <span style="font-size:10.5px;color:#9A9A9A;flex:none">14 мин</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;background:#FFFFFF;border-radius:999px;padding:6px 11px;width:max-content">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" stroke-width="2.2" stroke-linecap="round"><path d="M4 12l16-8-6 16-2.5-6z"/></svg>
+            <span style="font-size:11.5px;font-weight:500;color:#2E2E2E">Отправлена · ждём</span>
+          </div>
+        </div>
+
+        <div style="background:#F7F7F7;border-radius:18px;padding:13px 14px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:34px;height:34px;border-radius:999px;background:#EFEFEF;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:500;color:#6E6E6E;flex:none">МС</div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:13.5px;font-weight:500">Марина Соловьёва</span>
+                <span style="width:15px;height:15px;border-radius:999px;background:#7A6A3F;color:#FFFFFF;font-size:6.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">AV</span>
+              </div>
+              <span style="font-size:11px;color:#C4C4C4">авто не распознано</span>
+            </div>
+            <span style="font-size:10.5px;color:#9A9A9A;flex:none">27 мин</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;background:#EFEFEF;border-radius:999px;padding:6px 11px;width:max-content">
+            <span style="font-size:11.5px;font-weight:500;color:#9A9A9A">Без примерки</span>
+          </div>
+        </div>
+
+        <div style="background:#F7F7F7;border-radius:18px;padding:13px 14px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:34px;height:34px;border-radius:999px;background:#FBEEEF;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:500;color:#D93F45;flex:none">ДР</div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13.5px;font-weight:500">Данил Рощин</span>
+              <span style="font-size:11px;color:#9A9A9A">Mazda 6 2019</span>
+            </div>
+            <span style="font-size:10.5px;color:#9A9A9A;flex:none">5 ч</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;background:#FBEEEF;border-radius:999px;padding:6px 11px;width:max-content">
+            <span style="font-size:11.5px;font-weight:500;color:#D93F45">Не доставлено · повторить</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ДИАЛОГ -->
+    <div style="flex:1;min-width:0;background:#FFFFFF;border-radius:24px;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <div style="padding:16px 20px 13px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid #F2F2F2">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px">
+          <div style="display:flex;align-items:center;gap:11px">
+            <div style="width:40px;height:40px;border-radius:999px;background:#DEF23B;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex:none">АГ</div>
+            <div style="display:flex;flex-direction:column;gap:1px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Артём Гусев</span>
+                <span style="display:flex;align-items:center;gap:5px;background:#F5F5F5;border-radius:999px;padding:3px 8px 3px 3px">
+                  <span style="width:14px;height:14px;border-radius:999px;background:#25455B;color:#FFFFFF;font-size:6px;font-weight:600;display:flex;align-items:center;justify-content:center">WA</span>
+                  <span style="font-size:10.5px;color:#6E6E6E">+7 916 ··· 41 08</span>
+                </span>
+              </div>
+              <span style="font-size:11px;color:#9A9A9A">Второе обращение · в марте смотрели матовый чёрный</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex:none">
+            <div style="width:36px;height:36px;border-radius:999px;background:#F5F5F5;display:flex;align-items:center;justify-content:center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>
+            </div>
+            <div style="width:36px;height:36px;border-radius:999px;background:#F5F5F5;display:flex;align-items:center;justify-content:center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15V5a2 2 0 012-2h9l5 5v7a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M8 19h10"/></svg>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span style="font-size:11px;color:#6E6E6E;background:#F5F5F5;border-radius:999px;padding:5px 11px">BMW X5 2021 · G05</span>
+          <span style="font-size:11px;color:#6E6E6E;background:#F5F5F5;border-radius:999px;padding:5px 11px">А 432 ОР 77</span>
+          <span style="font-size:11px;color:#6E6E6E;background:#F5F5F5;border-radius:999px;padding:5px 11px">Оклейка целиком · 18,2 м</span>
+        </div>
+      </div>
+
+      <div style="flex:1;padding:18px 20px;display:flex;flex-direction:column;gap:12px;justify-content:flex-end;background:#FBFBFB;min-height:0;overflow:hidden">
+
+        <div style="align-self:flex-start;max-width:74%;display:flex;flex-direction:column;gap:3px">
+          <div style="background:#FFFFFF;border-radius:18px 18px 18px 5px;padding:12px 16px;font-size:13.5px;line-height:1.45;color:#2E2E2E;box-shadow:0 1px 2px rgba(17,17,17,.04)">Здравствуйте! Сколько будет обклеить X5 в сатин-хром?</div>
+          <span style="font-size:10px;color:#C4C4C4;padding-left:6px">13:58</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;align-self:center;background:#F5FBCB;border-radius:999px;padding:6px 13px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17V8a2 2 0 012-2h2l1.5-2h5L16 6h2a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><circle cx="12" cy="12.5" r="3.2"/></svg>
+          <span style="font-size:11.5px;color:#2E2E2E">Фото из диалога подхвачено автоматически · 14:01</span>
+        </div>
+
+        <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+        <div style="align-self:center;display:flex;flex-direction:column;align-items:center;gap:7px;padding:18px 0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="1.6" stroke-linecap="round"><path d="M14 6l6 6-6 6"/><path d="M4 12h15"/></svg>
+          <span style="font-size:12.5px;color:#9A9A9A;text-align:center;max-width:280px;line-height:1.45">Соберите примерку в панели справа и отправьте — карточка появится здесь и уйдёт в WhatsApp</span>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+        <div style="align-self:flex-end;max-width:98%;display:flex;flex-direction:column;gap:3px;align-items:flex-end;animation:slidein .3s ease">
+          <div style="background:#111111;border-radius:22px 22px 7px 22px;padding:12px;display:flex;flex-direction:column;gap:10px;width:520px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 4px 0">
+              <span style="font-size:12px;font-weight:500;color:#FFFFFF">Ваш X5 · {{ cardCount }} плёнки × три света</span>
+              <span style="font-size:10px;color:#9A9A9A">Пост на Кутузовском</span>
+            </div>
+            <div style="display:flex;gap:7px">
+              <div style="flex:1;background:#DEF23B;border-radius:16px;padding:7px;display:flex;flex-direction:column;gap:5px">
+                <div style="height:84px;border-radius:11px;overflow:hidden"><img src="{{ scDay }}" alt="сатин-хром, день"></div>
+                <div style="display:flex;gap:4px">
+                  <div style="flex:1;height:44px;border-radius:8px;overflow:hidden"><img src="{{ scCloud }}" alt="пасмурно"></div>
+                  <div style="flex:1;height:44px;border-radius:8px;overflow:hidden"><img src="{{ scPark }}" alt="паркинг"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:1px;padding:1px 3px 2px">
+                  <span style="font-size:11.5px;font-weight:500;line-height:1.2">Сатин-хром тёмный</span>
+                  <span style="font-size:9.5px;opacity:.6">KPMF K75407</span>
+                  <span style="font-size:13.5px;font-weight:500;letter-spacing:-0.02em;margin-top:2px;font-variant-numeric:tabular-nums">248<span style="opacity:.55"> 400 ₽</span></span>
+                </div>
+              </div>
+              <div style="flex:1;background:#2E2E2E;border-radius:16px;padding:7px;display:flex;flex-direction:column;gap:5px">
+                <div style="height:84px;border-radius:11px;overflow:hidden"><img src="{{ mgDay }}" alt="матовый графит, день"></div>
+                <div style="display:flex;gap:4px">
+                  <div style="flex:1;height:44px;border-radius:8px;overflow:hidden"><img src="{{ mgCloud }}" alt="пасмурно"></div>
+                  <div style="flex:1;height:44px;border-radius:8px;overflow:hidden"><img src="{{ mgPark }}" alt="паркинг"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:1px;padding:1px 3px 2px">
+                  <span style="font-size:11.5px;font-weight:500;line-height:1.2;color:#FFFFFF">Матовый графит</span>
+                  <span style="font-size:9.5px;color:#9A9A9A">Oracal 970-070</span>
+                  <span style="font-size:13.5px;font-weight:500;letter-spacing:-0.02em;margin-top:2px;color:#FFFFFF;font-variant-numeric:tabular-nums">214<span style="color:#9A9A9A"> 900 ₽</span></span>
+                </div>
+              </div>
+              <div style="flex:1;background:#2E2E2E;border-radius:16px;padding:7px;display:flex;flex-direction:column;gap:5px">
+                <div style="height:84px;border-radius:11px;overflow:hidden"><img src="{{ ngDay }}" alt="нардо, день"></div>
+                <div style="display:flex;gap:4px">
+                  <div style="flex:1;height:44px;border-radius:8px;overflow:hidden"><img src="{{ ngCloud }}" alt="пасмурно"></div>
+                  <div style="flex:1;height:44px;border-radius:8px;overflow:hidden"><img src="{{ ngPark }}" alt="паркинг"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:1px;padding:1px 3px 2px">
+                  <span style="font-size:11.5px;font-weight:500;line-height:1.2;color:#FFFFFF">Глянец «серый нардо»</span>
+                  <span style="font-size:9.5px;color:#9A9A9A">Avery SW900-193</span>
+                  <span style="font-size:13.5px;font-weight:500;letter-spacing:-0.02em;margin-top:2px;color:#FFFFFF;font-variant-numeric:tabular-nums">231<span style="color:#9A9A9A"> 500 ₽</span></span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:8px;background:#3E3E3E;border-radius:13px;padding:10px 12px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.8" stroke-linecap="round" style="flex:none;margin-top:1px"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+              <span style="font-size:11px;line-height:1.45;color:#DDDDDD">Оттенок партии сверим с рулоном при вас на замере — образец приложим. На экране цвет всегда немного другой, поэтому и показываем три света.</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding-right:6px">
+            <span style="font-size:10px;color:#C4C4C4">14:03 · доставлено в WhatsApp</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="2.2" stroke-linecap="round"><path d="M2 13l3.5 3.5L13 9"/><path d="M11 13l3.5 3.5L22 9"/></svg>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ asked }}" hint-placeholder-val="{{ false }}">
+        <div style="align-self:flex-start;max-width:74%;display:flex;flex-direction:column;gap:3px;animation:slidein .3s ease">
+          <div style="background:#FFFFFF;border-radius:18px 18px 18px 5px;padding:12px 16px;font-size:13.5px;line-height:1.45;color:#111111;box-shadow:0 0 0 2px #DEF23B">А можно ещё в этом, но матовый?</div>
+          <div style="display:flex;align-items:center;gap:6px;padding-left:6px">
+            <span style="font-size:10px;color:#C4C4C4">14:06</span>
+            <span style="font-size:10px;font-weight:500;background:#DEF23B;border-radius:999px;padding:2px 7px">момент «ага»</span>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ added }}" hint-placeholder-val="{{ false }}">
+        <div style="align-self:flex-end;max-width:98%;display:flex;flex-direction:column;gap:3px;align-items:flex-end;animation:slidein .3s ease">
+          <div style="background:#111111;border-radius:22px 22px 7px 22px;padding:12px;display:flex;flex-direction:column;gap:9px;width:300px">
+            <span style="font-size:11.5px;font-weight:500;color:#FFFFFF">Добрали: матовый хром тёмный</span>
+            <div style="background:#DEF23B;border-radius:14px;padding:6px;display:flex;flex-direction:column;gap:4px">
+              <div style="height:78px;border-radius:10px;overflow:hidden"><img src="{{ mgDay }}" alt="матовый хром, день"></div>
+              <div style="display:flex;gap:4px">
+                <div style="flex:1;height:40px;border-radius:7px;overflow:hidden"><img src="{{ mgCloud }}" alt="пасмурно"></div>
+                <div style="flex:1;height:40px;border-radius:7px;overflow:hidden"><img src="{{ mgPark }}" alt="паркинг"></div>
+              </div>
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:1px 3px 2px">
+                <span style="font-size:9.5px;opacity:.65">KPMF K75491</span>
+                <span style="font-size:13.5px;font-weight:500;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">253<span style="opacity:.55"> 900 ₽</span></span>
+              </div>
+            </div>
+            <span style="font-size:10.5px;color:#9A9A9A;line-height:1.4">Та же оговорка про сверку оттенка ушла вместе с кадром.</span>
+          </div>
+          <span style="font-size:10px;color:#C4C4C4;padding-right:6px">14:08 · доставлено</span>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ confirmed }}" hint-placeholder-val="{{ false }}">
+        <div style="align-self:center;display:flex;align-items:center;gap:10px;background:#111111;border-radius:16px;padding:12px 16px;animation:slidein .3s ease">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          <div style="display:flex;flex-direction:column">
+            <span style="font-size:12.5px;font-weight:500;color:#FFFFFF">Артём подтвердил выбор: матовый хром тёмный</span>
+            <span style="font-size:10.5px;color:#9A9A9A">28 августа, 14:11 · KPMF K75491 · оговорка показана до подтверждения</span>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ booked }}" hint-placeholder-val="{{ false }}">
+        <div style="align-self:center;display:flex;align-items:center;gap:10px;background:#DEF23B;border-radius:16px;padding:12px 16px;animation:slidein .3s ease">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>
+          <span style="font-size:12.5px;font-weight:500">Замер: 29 августа, 11:00 · Пост №2 · наряд создан</span>
+        </div>
+        </sc-if>
+      </div>
+
+      <div style="padding:12px 18px 16px;display:flex;align-items:center;gap:9px;background:#FFFFFF">
+        <div style="width:40px;height:40px;border-radius:999px;background:#F5F5F5;display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <div style="flex:1;background:#F5F5F5;border-radius:999px;padding:13px 18px;font-size:13.5px;color:#9A9A9A">Ответить Артёму…</div>
+        <div onClick="{{ nextStep }}" style="cursor:pointer;display:flex;align-items:center;gap:8px;background:{{ ctaBg }};border-radius:999px;padding:12px 19px;flex:none">
+          <span style="font-size:13.5px;font-weight:500;color:{{ ctaFg }}">{{ ctaLabel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ ПРИМЕРКИ -->
+    <div style="width:368px;flex:none;background:#FFFFFF;border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:12px;min-height:0;overflow:hidden">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:17px;font-weight:500;letter-spacing:-0.025em">Панель примерки</span>
+          <span style="font-size:11px;color:#9A9A9A">в этом же диалоге · без перехода</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;background:#F5F5F5;border-radius:999px;padding:6px 11px;flex:none">
+          <span style="width:6px;height:6px;border-radius:999px;background:#DEF23B"></span>
+          <span style="font-size:11px;font-weight:500">{{ stepsLeft }}</span>
+        </div>
+      </div>
+
+      <div style="border-radius:18px;overflow:hidden;background:#F7F7F7;height:158px;position:relative">
+        <img src="{{ heroImg }}" alt="примерка">
+        <div style="position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.92);border-radius:999px;padding:5px 10px">
+          <span style="width:6px;height:6px;border-radius:999px;background:#DEF23B"></span>
+          <span style="font-size:10.5px;font-weight:500">{{ heroLabel }}</span>
+        </div>
+        <div style="position:absolute;right:10px;bottom:10px;background:rgba(17,17,17,.78);border-radius:999px;padding:5px 10px">
+          <span style="font-size:10px;font-weight:500;color:#FFFFFF">{{ heroLight }}</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:16px;padding:10px 12px">
+        <div style="width:46px;height:34px;border-radius:10px;overflow:hidden;flex:none"><img src="{{ basePhoto }}" alt="фото клиента"></div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+          <span style="font-size:12.5px;font-weight:500">BMW X5 2021 · G05</span>
+          <span style="font-size:10.5px;color:#9A9A9A">распознано из фото · номер и двор сохранены</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <span style="font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Из прайса точки</span>
+          <span style="font-size:11px;color:#6E6E6E">4 в наличии из 6</span>
+        </div>
+        <div onClick="{{ pickSc }}" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:{{ skuScBg }};border-radius:16px;padding:9px 11px">
+          <div style="width:40px;height:40px;border-radius:11px;overflow:hidden;flex:none"><img src="{{ scDay }}" alt=""></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:12.5px;font-weight:500;line-height:1.2;color:{{ skuScFg }}">Сатин-хром тёмный</span>
+            <span style="font-size:10.5px;color:{{ skuScSub }}">KPMF K75407 · сатин</span>
+          </div>
+          <span style="font-size:13px;font-weight:500;flex:none;color:{{ skuScFg }};font-variant-numeric:tabular-nums">248 400</span>
+        </div>
+        <div onClick="{{ pickMg }}" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:{{ skuMgBg }};border-radius:16px;padding:9px 11px">
+          <div style="width:40px;height:40px;border-radius:11px;overflow:hidden;flex:none"><img src="{{ mgDay }}" alt=""></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:12.5px;font-weight:500;line-height:1.2;color:{{ skuMgFg }}">Матовый графит</span>
+            <span style="font-size:10.5px;color:{{ skuMgSub }}">Oracal 970-070 · мат</span>
+          </div>
+          <span style="font-size:13px;font-weight:500;flex:none;color:{{ skuMgFg }};font-variant-numeric:tabular-nums">214 900</span>
+        </div>
+        <div onClick="{{ pickNg }}" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:{{ skuNgBg }};border-radius:16px;padding:9px 11px">
+          <div style="width:40px;height:40px;border-radius:11px;overflow:hidden;flex:none"><img src="{{ ngDay }}" alt=""></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:12.5px;font-weight:500;line-height:1.2;color:{{ skuNgFg }}">Глянец «серый нардо»</span>
+            <span style="font-size:10.5px;color:{{ skuNgSub }}">Avery SW900-193 · глянец</span>
+          </div>
+          <span style="font-size:13px;font-weight:500;flex:none;color:{{ skuNgFg }};font-variant-numeric:tabular-nums">231 500</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:#FFFFFF;border-radius:16px;padding:8px 10px;box-shadow:inset 0 0 0 1px #EDEDED;background-image:repeating-linear-gradient(115deg,#F4F4F4 0 1px,transparent 1px 6px)">
+          <div style="width:40px;height:40px;border-radius:11px;background:#F7F7F7;flex:none;display:flex;align-items:center;justify-content:center">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="1.9" stroke-linecap="round"><path d="M5 19L19 5"/><circle cx="12" cy="12" r="8.5"/></svg>
+          </div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:12.5px;font-weight:500;line-height:1.2;color:#9A9A9A">Зелёный британский</span>
+            <span style="font-size:10.5px;color:#C4C4C4">нет на складе · не уйдёт клиенту</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <span style="font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Свет</span>
+          <span style="font-size:10.5px;color:#9A9A9A">уходят все три · К-1</span>
+        </div>
+        <div style="display:flex;gap:4px;background:#F5F5F5;border-radius:999px;padding:4px">
+          <div onClick="{{ lightDay }}" style="cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:{{ lDayBg }};border-radius:999px;padding:9px 0">
+            <span style="font-size:11.5px;font-weight:500;color:{{ lDayFg }}">День</span>
+          </div>
+          <div onClick="{{ lightCloud }}" style="cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:{{ lCloudBg }};border-radius:999px;padding:9px 0">
+            <span style="font-size:11.5px;font-weight:500;color:{{ lCloudFg }}">Пасмурно</span>
+          </div>
+          <div onClick="{{ lightPark }}" style="cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:{{ lParkBg }};border-radius:999px;padding:9px 0">
+            <span style="font-size:11.5px;font-weight:500;color:{{ lParkFg }}">Паркинг</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px">
+        <div style="background:#F7F7F7;border-radius:18px;padding:12px 14px;display:flex;align-items:flex-end;justify-content:space-between">
+          <span style="font-size:12px;color:#6E6E6E">К отправке</span>
+          <div style="display:flex;align-items:baseline;font-size:24px;font-weight:500;letter-spacing:-0.035em;font-variant-numeric:tabular-nums">{{ price }}<span style="font-size:15px;color:#9A9A9A;margin-left:3px">₽</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;background:#F5FBCB;border-radius:16px;padding:11px 13px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round" style="flex:none;margin-top:1px"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+          <span style="font-size:11px;line-height:1.45;color:#2E2E2E">Оговорка про сверку оттенка уходит с карточкой. Отключить нельзя.</span>
+        </div>
+        <div onClick="{{ nextStep }}" style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;background:{{ ctaBg }};border-radius:999px;padding:15px 22px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{ ctaIcon }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-2.5-6z"/></svg>
+          <span style="font-size:14px;font-weight:500;color:{{ ctaFg }}">{{ ctaLabel }}</span>
+        </div>
+        <span style="font-size:10.5px;color:#9A9A9A;text-align:center">{{ genNote }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══════════ КЛИЕНТ · ГАРАЖ ══════════ -->
+<sc-if value="{{ isClient }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:26px;align-items:flex-start">
+
+  <!-- ЭКРАН ГАРАЖА -->
+  <div style="width:390px;height:844px;background:#EFEFEF;border-radius:44px;overflow:hidden;display:flex;flex-direction:column;position:relative;flex:none">
+
+    <sc-if value="{{ gLanding }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;inset:0"><img src="{{ demoImg }}" alt="демо-машина в плёнке"></div>
+    <div style="position:relative;padding:26px 18px 0;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.94);border-radius:999px;padding:8px 13px">
+        <div style="width:18px;height:18px;border-radius:6px;background:#111111;display:flex;align-items:center;justify-content:center">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="3" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>
+        </div>
+        <span style="font-size:12px;font-weight:500">Пост на Кутузовском</span>
+      </div>
+    </div>
+    <div style="position:relative;margin-top:auto;padding:0 14px 18px;display:flex;flex-direction:column;gap:11px">
+      <div style="background:#FFFFFF;border-radius:30px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:25px;font-weight:500;letter-spacing:-0.03em;line-height:1.1;text-wrap:pretty">Посмотрите свою машину в другом цвете</span>
+          <span style="font-size:13px;line-height:1.45;color:#6E6E6E">Это чужая — уже перекрашена. Загрузите фото своей, и через минуту увидите её же: свой номер, свои диски, свой двор.</span>
+        </div>
+        <div style="display:flex;gap:7px">
+          <div onClick="{{ gStart }}" style="cursor:pointer;flex:1;background:#DEF23B;border-radius:999px;padding:15px 0;text-align:center"><span style="font-size:13.5px;font-weight:500">Снять</span></div>
+          <div onClick="{{ gStart }}" style="cursor:pointer;flex:1;background:#F5F5F5;border-radius:999px;padding:15px 0;text-align:center"><span style="font-size:13.5px;font-weight:500">Галерея</span></div>
+          <div onClick="{{ gStartTypical }}" style="cursor:pointer;flex:1;background:#F5F5F5;border-radius:999px;padding:15px 0;text-align:center"><span style="font-size:13.5px;font-weight:500;color:#6E6E6E">Нет фото</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px">
+          <div style="width:17px;height:17px;border-radius:5px;background:#F5F5F5;flex:none;margin-top:1px"></div>
+          <span style="font-size:10.5px;line-height:1.45;color:#9A9A9A">Согласен на обработку фото автомобиля, включая читаемый госномер, для показа примерки. Фото не публикуется без моего действия.</span>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ gUpload }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:26px 18px 18px;gap:18px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div onClick="{{ gBackLanding }}" style="cursor:pointer;width:34px;height:34px;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg>
+        </div>
+        <span style="font-size:13px;color:#6E6E6E">Собираем на вашей машине</span>
+      </div>
+      <div style="border-radius:26px;overflow:hidden;height:210px;position:relative">
+        <img src="{{ basePhoto }}" alt="фото клиента">
+        <div style="position:absolute;left:12px;bottom:12px;background:rgba(255,255,255,.94);border-radius:999px;padding:6px 12px">
+          <span style="font-size:11.5px;font-weight:500">BMW X5 · А 432 ОР 77</span>
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:26px;padding:20px;display:flex;flex-direction:column;gap:13px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          <span style="flex:1;font-size:13.5px;font-weight:500">Машина распознана — BMW X5, 2021</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:11px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          <span style="flex:1;font-size:13.5px;font-weight:500">Прайс Поста на Кутузовском подтянут</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:17px;height:17px;border-radius:999px;box-shadow:inset 0 0 0 2px #DEF23B;flex:none;animation:pulse 1.1s infinite"></div>
+          <span style="flex:1;font-size:13.5px;font-weight:500;color:#6E6E6E">Первый цвет · осталось ~14 секунд</span>
+        </div>
+        <div style="height:6px;border-radius:999px;background:#F0F0F0;overflow:hidden"><div style="width:62%;height:6px;background:#DEF23B"></div></div>
+      </div>
+      <div onClick="{{ gToMain }}" style="cursor:pointer;margin-top:auto;background:#111111;border-radius:999px;padding:17px 0;text-align:center"><span style="font-size:14.5px;font-weight:500;color:#FFFFFF">Готово — показать</span></div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ gMain }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0"><img src="{{ gHero }}" alt="ваша машина в плёнке"></div>
+    <div style="position:relative;padding:26px 14px 0;display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.94);border-radius:999px;padding:8px 13px">
+        <span style="width:6px;height:6px;border-radius:999px;background:#DEF23B"></span>
+        <span style="font-size:11.5px;font-weight:500">Ваш X5 · А 432 ОР 77</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.94);border-radius:999px;padding:8px 12px">
+        <span style="font-size:11.5px;font-weight:500;font-variant-numeric:tabular-nums">{{ gLeft }}</span>
+        <span style="font-size:10.5px;color:#6E6E6E">примерок осталось</span>
+      </div>
+    </div>
+    <div style="position:relative;margin-top:auto;display:flex;flex-direction:column;gap:9px;padding:0 12px 14px">
+      <div style="display:flex;gap:4px;background:rgba(255,255,255,.94);border-radius:999px;padding:4px;align-self:center">
+        <div onClick="{{ gLightDay }}" style="cursor:pointer;font-size:11.5px;font-weight:500;border-radius:999px;padding:8px 14px;background:{{ gLDayBg }};color:{{ gLDayFg }}">День</div>
+        <div onClick="{{ gLightCloud }}" style="cursor:pointer;font-size:11.5px;font-weight:500;border-radius:999px;padding:8px 14px;background:{{ gLCloudBg }};color:{{ gLCloudFg }}">Пасмурно</div>
+        <div onClick="{{ gLightPark }}" style="cursor:pointer;font-size:11.5px;font-weight:500;border-radius:999px;padding:8px 14px;background:{{ gLParkBg }};color:{{ gLParkFg }}">Паркинг</div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:30px;padding:14px;display:flex;flex-direction:column;gap:13px">
+        <div style="display:flex;gap:5px">
+          <div onClick="{{ gCatFilm }}" style="cursor:pointer;flex:1;text-align:center;font-size:11.5px;font-weight:500;border-radius:999px;padding:9px 0;background:{{ gCatFilmBg }};color:{{ gCatFilmFg }}">Плёнка</div>
+          <div onClick="{{ gCatWheel }}" style="cursor:pointer;flex:1;text-align:center;font-size:11.5px;font-weight:500;border-radius:999px;padding:9px 0;background:{{ gCatWheelBg }};color:{{ gCatWheelFg }}">Диски</div>
+          <div onClick="{{ gCatTrim }}" style="cursor:pointer;flex:1;text-align:center;font-size:11.5px;font-weight:500;border-radius:999px;padding:9px 0;background:{{ gCatTrimBg }};color:{{ gCatTrimFg }}">Салон</div>
+          <div onClick="{{ gCatKit }}" style="cursor:pointer;flex:1;text-align:center;font-size:11.5px;font-weight:500;border-radius:999px;padding:9px 0;background:{{ gCatKitBg }};color:{{ gCatKitFg }}">Обвес</div>
+        </div>
+
+        <sc-if value="{{ gIsFilm }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;gap:8px">
+          <div onClick="{{ gPickSc }}" style="cursor:pointer;flex:1;display:flex;flex-direction:column;gap:6px">
+            <div style="height:58px;border-radius:16px;overflow:hidden;box-shadow:{{ gScRing }}"><img src="{{ scDay }}" alt=""></div>
+            <span style="font-size:9.5px;text-align:center;font-weight:500;color:{{ gScFg }}">Сатин-хром</span>
+          </div>
+          <div onClick="{{ gPickMg }}" style="cursor:pointer;flex:1;display:flex;flex-direction:column;gap:6px">
+            <div style="height:58px;border-radius:16px;overflow:hidden;box-shadow:{{ gMgRing }}"><img src="{{ mgDay }}" alt=""></div>
+            <span style="font-size:9.5px;text-align:center;font-weight:500;color:{{ gMgFg }}">Мат графит</span>
+          </div>
+          <div onClick="{{ gPickNg }}" style="cursor:pointer;flex:1;display:flex;flex-direction:column;gap:6px">
+            <div style="height:58px;border-radius:16px;overflow:hidden;box-shadow:{{ gNgRing }}"><img src="{{ ngDay }}" alt=""></div>
+            <span style="font-size:9.5px;text-align:center;font-weight:500;color:{{ gNgFg }}">Нардо</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+            <div style="height:58px;border-radius:16px;background:#F5F5F5;background-image:repeating-linear-gradient(115deg,#E6E6E6 0 1px,transparent 1px 6px);display:flex;align-items:center;justify-content:center">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="1.9" stroke-linecap="round"><path d="M5 19L19 5"/><circle cx="12" cy="12" r="8.5"/></svg>
+            </div>
+            <span style="font-size:9.5px;text-align:center;color:#C4C4C4">Хаки — нет</span>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ gIsWheel }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ gToggleWheel }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:{{ gWheelBg }};border-radius:18px;padding:10px 12px">
+          <div style="width:52px;height:52px;border-radius:14px;overflow:hidden;flex:none"><img src="{{ wheelImg }}" alt=""></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:13px;font-weight:500">Диски в глянцевом чёрном</span>
+            <span style="font-size:10.5px;color:{{ gWheelSub }}">Порошок · 21" · 4 диска</span>
+          </div>
+          <span style="font-size:14px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">46 000</span>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ gIsTrim }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ gToggleTrim }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:{{ gTrimBg }};border-radius:18px;padding:10px 12px">
+          <div style="width:52px;height:52px;border-radius:14px;overflow:hidden;flex:none"><img src="{{ trimImg }}" alt=""></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:13px;font-weight:500">Алькантара, тёмно-серая</span>
+            <span style="font-size:10.5px;color:{{ gTrimSub }}">Сиденья и карты дверей</span>
+          </div>
+          <span style="font-size:14px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">88 000</span>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ gIsKit }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:11px;background:#F7F7F7;border-radius:18px;padding:13px 14px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" stroke-width="1.8" stroke-linecap="round" style="flex:none"><path d="M12 8v5M12 16.4v.5"/><circle cx="12" cy="12" r="8.5"/></svg>
+          <span style="flex:1;font-size:12.5px;line-height:1.4;color:#2E2E2E">Обвеса под X5 G05 в прайсе этой точки нет. Ближайшая точка с обвесом — Ленинградское шоссе.</span>
+        </div>
+        </sc-if>
+
+        <div style="display:flex;align-items:flex-start;gap:9px;background:#F5FBCB;border-radius:16px;padding:10px 12px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none;margin-top:1px"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+          <span style="font-size:10.5px;line-height:1.45;color:#2E2E2E">Оттенок партии сверим с рулоном при вас на замере — образец приложим. Поэтому показываем три света.</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:10.5px;color:#9A9A9A">{{ gSummary }}</span>
+            <div style="display:flex;align-items:baseline;font-size:21px;font-weight:500;letter-spacing:-0.03em;font-variant-numeric:tabular-nums">{{ gTotal }}<span style="font-size:13px;color:#9A9A9A;margin-left:3px">₽</span></div>
+          </div>
+          <div onClick="{{ gToCompare }}" style="cursor:pointer;width:44px;height:44px;border-radius:999px;background:#F5F5F5;display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="5" width="7" height="14" rx="2"/><rect x="14" y="5" width="7" height="14" rx="2"/></svg>
+          </div>
+          <div onClick="{{ gSend }}" style="cursor:pointer;background:#DEF23B;border-radius:999px;padding:14px 18px;flex:none">
+            <span style="font-size:13px;font-weight:500">Написать точке</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ gCompare }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:26px 14px 16px;gap:11px">
+      <div style="display:flex;align-items:center;gap:10px;padding:0 4px">
+        <div onClick="{{ gToMain }}" style="cursor:pointer;width:34px;height:34px;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg>
+        </div>
+        <span style="font-size:19px;font-weight:500;letter-spacing:-0.025em">Что взять</span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:6px;background:#FFFFFF;border-radius:999px;padding:7px 11px">
+          <span style="width:6px;height:6px;border-radius:999px;background:#DEF23B"></span>
+          <span style="font-size:11px;font-weight:500">{{ gLightLabel }}</span>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-height:0">
+        <div style="flex:1;background:#FFFFFF;border-radius:26px;padding:10px;display:flex;flex-direction:column;gap:8px;box-shadow:0 0 0 3px #DEF23B">
+          <div style="flex:1;border-radius:18px;overflow:hidden;min-height:0"><img src="{{ gHero }}" alt="вариант А"></div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:0 5px 3px">
+            <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;font-weight:500">{{ gSkuName }}</span><span style="font-size:10.5px;color:#9A9A9A">{{ gSkuCode }}</span></div>
+            <span style="font-size:17px;font-weight:500;letter-spacing:-0.025em;font-variant-numeric:tabular-nums">{{ gSkuPrice }}</span>
+          </div>
+        </div>
+        <div style="flex:1;background:#FFFFFF;border-radius:26px;padding:10px;display:flex;flex-direction:column;gap:8px">
+          <div style="flex:1;border-radius:18px;overflow:hidden;min-height:0"><img src="{{ gHeroAlt }}" alt="вариант Б"></div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:0 5px 3px">
+            <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;font-weight:500">{{ gAltName }}</span><span style="font-size:10.5px;color:#9A9A9A">{{ gAltCode }}</span></div>
+            <span style="font-size:17px;font-weight:500;letter-spacing:-0.025em;font-variant-numeric:tabular-nums">{{ gAltPrice }}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;background:#FFFFFF;border-radius:20px;padding:11px 13px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+        <span style="font-size:10.5px;line-height:1.4;color:#2E2E2E">Разница между сатином и матом вживую сильнее, чем на экране. Сверим с рулоном при вас.</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div onClick="{{ gSwap }}" style="cursor:pointer;flex:1;background:#FFFFFF;border-radius:999px;padding:14px 0;text-align:center"><span style="font-size:13px;font-weight:500">Заменить Б</span></div>
+        <div onClick="{{ gSend }}" style="cursor:pointer;flex:1;background:#DEF23B;border-radius:999px;padding:14px 0;text-align:center"><span style="font-size:13px;font-weight:500">Беру {{ gSkuShort }}</span></div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ gLimit }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:26px 14px 16px;gap:14px">
+      <div style="border-radius:26px;overflow:hidden;height:190px;position:relative">
+        <img src="{{ gHero }}" alt="последняя примерка">
+        <div style="position:absolute;inset:0;background:rgba(17,17,17,.12)"></div>
+      </div>
+      <div style="display:flex;gap:7px">
+        <div style="flex:1;height:58px;border-radius:14px;overflow:hidden"><img src="{{ scDay }}" alt=""></div>
+        <div style="flex:1;height:58px;border-radius:14px;overflow:hidden"><img src="{{ mgDay }}" alt=""></div>
+        <div style="flex:1;height:58px;border-radius:14px;background:#F5F5F5;background-image:repeating-linear-gradient(115deg,#E2E2E2 0 1px,transparent 1px 6px);display:flex;align-items:center;justify-content:center"><span style="font-size:9.5px;color:#6E6E6E;text-align:center;line-height:1.3">готовое<br>превью</span></div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:26px;padding:20px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:20px;font-weight:500;letter-spacing:-0.025em;line-height:1.15">Крутить дальше можно</span>
+        <span style="font-size:13px;line-height:1.45;color:#6E6E6E">Новые кадры на вашей машине закончились на сегодня. Оставьте номер — откроем ещё десять и сохраним всё, что вы собрали.</span>
+        <div style="background:#F5F5F5;border-radius:999px;padding:14px 18px;font-size:14px;color:#9A9A9A">+7 ···  ··· ·· ··</div>
+        <div onClick="{{ gSend }}" style="cursor:pointer;background:#111111;border-radius:999px;padding:16px 0;text-align:center"><span style="font-size:14px;font-weight:500;color:#FFFFFF">Продолжить</span></div>
+        <span style="font-size:10.5px;color:#9A9A9A;text-align:center">Собранное не пропадёт, даже если закроете страницу</span>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ gSent }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:26px 14px 16px;gap:14px">
+      <div style="border-radius:26px;overflow:hidden;height:200px"><img src="{{ gHero }}" alt="выбранная конфигурация"></div>
+      <div style="background:#FFFFFF;border-radius:26px;padding:20px;display:flex;flex-direction:column;gap:13px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:38px;height:38px;border-radius:999px;background:#DEF23B;display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em">Ушло в Пост на Кутузовском</span>
+            <span style="font-size:11.5px;color:#9A9A9A">{{ gSummary }} · {{ gTotal }} ₽</span>
+          </div>
+        </div>
+        <div style="height:1px;background:#F0F0F0"></div>
+        <span style="font-size:13px;line-height:1.45;color:#2E2E2E">Менеджер увидит вашу сборку целиком — с артикулами и ценой, ничего не надо пересказывать. Обычно отвечают в течение десяти минут.</span>
+        <div style="display:flex;gap:8px">
+          <div onClick="{{ gToMain }}" style="cursor:pointer;flex:1;background:#F5F5F5;border-radius:999px;padding:14px 0;text-align:center"><span style="font-size:13px;font-weight:500">Собрать ещё</span></div>
+          <div onClick="{{ goManagerFromGarage }}" style="cursor:pointer;flex:1;background:#111111;border-radius:999px;padding:14px 0;text-align:center"><span style="font-size:13px;font-weight:500;color:#FFFFFF">Открыть у точки</span></div>
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Ссылка на конфигурацию</span>
+        <div style="display:flex;align-items:center;gap:10px;background:#F7F7F7;border-radius:14px;padding:11px 13px">
+          <span style="flex:1;font-size:12px;color:#6E6E6E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">carswap.ai/g/x5-satin-a432or</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" style="flex:none"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 5H6a2 2 0 00-2 2v9"/></svg>
+        </div>
+        <span style="font-size:10.5px;color:#9A9A9A;line-height:1.4">Открывается без регистрации и не протухает. Логотип точки внутри самого изображения.</span>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+
+  <div style="width:330px;display:flex;flex-direction:column;gap:12px;padding-top:6px">
+    <div style="background:rgba(255,255,255,.07);border-radius:20px;padding:17px 19px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#DEF23B">Что проверить в этом потоке</span>
+      <p style="margin:0;font-size:12.5px;line-height:1.55;color:#C9C9C9;text-wrap:pretty">Результат показан до любого действия — на первом экране чужая машина уже перекрашена. Регистрации нет до самого конца. Переключайте свет и категории: конфигурация не теряется.</p>
+    </div>
+    <div style="background:rgba(255,255,255,.07);border-radius:20px;padding:17px 19px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#DEF23B">Экономика</span>
+      <p style="margin:0;font-size:12.5px;line-height:1.55;color:#C9C9C9;text-wrap:pretty">Счётчик остатка виден сверху. Смените плёнку или свет {{ gLeft }} раз — гараж перейдёт в кэшированные превью и попросит контакт вместо отказа.</p>
+    </div>
+    <div onClick="{{ gForceLimit }}" style="cursor:pointer;background:rgba(255,255,255,.07);border-radius:20px;padding:15px 19px;display:flex;align-items:center;gap:10px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.8" stroke-linecap="round" style="flex:none"><path d="M14 6l6 6-6 6"/><path d="M4 12h15"/></svg>
+      <span style="font-size:12.5px;font-weight:500;color:#FFFFFF">Показать экран исчерпанного лимита</span>
+    </div>
+    <div onClick="{{ gForceSent }}" style="cursor:pointer;background:rgba(255,255,255,.07);border-radius:20px;padding:15px 19px;display:flex;align-items:center;gap:10px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.8" stroke-linecap="round" style="flex:none"><path d="M14 6l6 6-6 6"/><path d="M4 12h15"/></svg>
+      <span style="font-size:12.5px;font-weight:500;color:#FFFFFF">Отправить конфигурацию в точку</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══════════ МАСТЕР ══════════ -->
+<sc-if value="{{ isMaster }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:26px;align-items:flex-start">
+  <div style="width:390px;height:844px;background:#EFEFEF;border-radius:44px;overflow:hidden;display:flex;flex-direction:column;flex:none">
+
+    <sc-if value="{{ mRecord }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:26px 14px 16px;gap:12px;overflow:hidden">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:0 4px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:24px;font-weight:500;letter-spacing:-0.03em">Наряд 4182</span>
+          <span style="font-size:12.5px;color:#6E6E6E">Артём Гусев · BMW X5 · пост №2</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;background:#DEF23B;border-radius:999px;padding:8px 12px;flex:none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.6" stroke-linecap="round"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          <span style="font-size:11.5px;font-weight:600">Полная</span>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF;border-radius:26px;padding:18px;display:flex;flex-direction:column;gap:5px">
+        <span style="font-size:12px;color:#9A9A9A">Артикул</span>
+        <span style="font-size:27px;font-weight:500;letter-spacing:-0.01em;font-variant-numeric:tabular-nums">KPMF K75491</span>
+        <span style="font-size:13px;color:#6E6E6E">Матовый хром тёмный · 18,2 м</span>
+      </div>
+
+      <div style="border-radius:26px;overflow:hidden;height:172px;position:relative;flex:none">
+        <img src="{{ mgDay }}" alt="картинка, которую видел клиент">
+        <div style="position:absolute;left:12px;top:12px;background:rgba(255,255,255,.94);border-radius:999px;padding:6px 12px">
+          <span style="font-size:11.5px;font-weight:500">Это видел клиент</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:7px">
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+          <div style="height:56px;border-radius:14px;overflow:hidden"><img src="{{ mgDay }}" alt="день"></div>
+          <span style="font-size:10px;text-align:center;color:#6E6E6E">День</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+          <div style="height:56px;border-radius:14px;overflow:hidden"><img src="{{ mgCloud }}" alt="пасмурно"></div>
+          <span style="font-size:10px;text-align:center;color:#6E6E6E">Пасмурно</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+          <div style="height:56px;border-radius:14px;overflow:hidden"><img src="{{ mgPark }}" alt="паркинг"></div>
+          <span style="font-size:10px;text-align:center;color:#6E6E6E">Паркинг</span>
+        </div>
+      </div>
+
+      <div style="background:#111111;border-radius:22px;padding:15px 17px;display:flex;align-items:center;gap:12px">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+        <div style="display:flex;flex-direction:column;gap:1px">
+          <span style="font-size:14px;font-weight:500;color:#FFFFFF">Клиент подтвердил выбор</span>
+          <span style="font-size:11.5px;color:#9A9A9A">28 августа, 14:11 · оговорка про свет показана до подтверждения</span>
+        </div>
+      </div>
+
+      <div onClick="{{ mToScan }}" style="cursor:pointer;margin-top:auto;background:#DEF23B;border-radius:999px;padding:21px 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.9" stroke-linecap="round"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M7 12h10"/></svg>
+        <span style="font-size:16px;font-weight:500">Сверить рулон</span>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ mScan }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;background:#1A1A1A;padding:26px 14px 16px;gap:14px">
+      <div style="display:flex;align-items:center;gap:10px;padding:0 4px">
+        <div onClick="{{ mToRecord }}" style="cursor:pointer;width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg>
+        </div>
+        <span style="font-size:15px;font-weight:500;color:#FFFFFF">Штрихкод на рулоне</span>
+      </div>
+      <div style="flex:1;border-radius:26px;background:#2A2A2A;position:relative;display:flex;align-items:center;justify-content:center">
+        <div style="width:230px;height:150px;border-radius:18px;box-shadow:0 0 0 3px #DEF23B;display:flex;align-items:center;justify-content:center;gap:3px;padding:20px">
+          <span style="width:3px;height:70px;background:#DEF23B"></span><span style="width:6px;height:70px;background:#DEF23B"></span>
+          <span style="width:2px;height:70px;background:#DEF23B"></span><span style="width:8px;height:70px;background:#DEF23B"></span>
+          <span style="width:3px;height:70px;background:#DEF23B"></span><span style="width:2px;height:70px;background:#DEF23B"></span>
+          <span style="width:7px;height:70px;background:#DEF23B"></span><span style="width:3px;height:70px;background:#DEF23B"></span>
+          <span style="width:5px;height:70px;background:#DEF23B"></span><span style="width:2px;height:70px;background:#DEF23B"></span>
+        </div>
+        <span style="position:absolute;bottom:22px;font-size:12.5px;color:#9A9A9A">Наведите на этикетку рулона</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div onClick="{{ mToOk }}" style="cursor:pointer;background:#DEF23B;border-radius:999px;padding:19px 0;text-align:center"><span style="font-size:15px;font-weight:500">Демо: артикул совпал</span></div>
+        <div onClick="{{ mToMismatch }}" style="cursor:pointer;background:rgba(255,255,255,.12);border-radius:999px;padding:19px 0;text-align:center"><span style="font-size:15px;font-weight:500;color:#FFFFFF">Демо: рулон другой</span></div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ mMismatch }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:26px 14px 16px;gap:14px">
+      <div style="background:#FBEEEF;border-radius:26px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:40px;height:40px;border-radius:999px;background:#D93F45;display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </div>
+          <span style="font-size:21px;font-weight:500;letter-spacing:-0.025em;color:#8A4448">Рулон не тот</span>
+        </div>
+        <div style="display:flex;gap:9px">
+          <div style="flex:1;background:#FFFFFF;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:10.5px;color:#9A9A9A">в записи клиента</span><span style="font-size:15px;font-weight:500;font-variant-numeric:tabular-nums">K75491</span></div>
+          <div style="flex:1;background:#FFFFFF;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:10.5px;color:#9A9A9A">скан рулона</span><span style="font-size:15px;font-weight:500;color:#D93F45;font-variant-numeric:tabular-nums">K75427</span></div>
+        </div>
+        <span style="font-size:12.5px;line-height:1.5;color:#8A4448">Закрытие наряда заблокировано до сверки. Номер партии уже записан в карточку клиента — если поедете дальше, спор на выдаче будет вашим.</span>
+      </div>
+      <div style="background:#FFFFFF;border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#9A9A9A">Что дальше</span>
+        <span style="font-size:13px;line-height:1.5;color:#2E2E2E">Диалог с Артёмом уже существует — менеджер объяснит сам, повторно рассказывать не надо.</span>
+      </div>
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+        <div onClick="{{ mToRecord }}" style="cursor:pointer;background:#111111;border-radius:999px;padding:20px 0;text-align:center"><span style="font-size:15px;font-weight:500;color:#FFFFFF">Сообщить менеджеру · 1 действие</span></div>
+        <div onClick="{{ mToScan }}" style="cursor:pointer;background:#F5F5F5;border-radius:999px;padding:18px 0;text-align:center"><span style="font-size:14.5px;font-weight:500">Сканировать другой рулон</span></div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ mOk }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:26px 14px 16px;gap:14px">
+      <div style="background:#DEF23B;border-radius:26px;padding:22px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:40px;height:40px;border-radius:999px;background:#111111;display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          </div>
+          <span style="font-size:21px;font-weight:500;letter-spacing:-0.025em">Артикул сошёлся</span>
+        </div>
+        <div style="display:flex;gap:9px">
+          <div style="flex:1;background:rgba(255,255,255,.6);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:10.5px;opacity:.6">в записи</span><span style="font-size:15px;font-weight:500;font-variant-numeric:tabular-nums">K75491</span></div>
+          <div style="flex:1;background:rgba(255,255,255,.6);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:10.5px;opacity:.6">рулон · партия 24-118</span><span style="font-size:15px;font-weight:500;font-variant-numeric:tabular-nums">K75491</span></div>
+        </div>
+        <span style="font-size:12px;line-height:1.45;opacity:.7">Партия 24-118 записана в карточку клиента. На выдаче она будет видна.</span>
+      </div>
+      <div style="border-radius:26px;overflow:hidden;height:190px"><img src="{{ mgDay }}" alt="цель работы"></div>
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+        <div onClick="{{ mToHandover }}" style="cursor:pointer;background:#111111;border-radius:999px;padding:21px 0;text-align:center"><span style="font-size:16px;font-weight:500;color:#FFFFFF">Начать оклейку</span></div>
+        <div onClick="{{ mToHandover }}" style="cursor:pointer;background:#F5F5F5;border-radius:999px;padding:18px 0;text-align:center"><span style="font-size:14.5px;font-weight:500">Перейти к выдаче</span></div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ mHandover }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:26px 14px 16px;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px;padding:0 4px">
+        <div onClick="{{ mToRecord }}" style="cursor:pointer;width:34px;height:34px;border-radius:999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg>
+        </div>
+        <span style="font-size:21px;font-weight:500;letter-spacing:-0.025em">Выдача</span>
+        <span style="margin-left:auto;font-size:11.5px;color:#6E6E6E">разверните телефон клиенту</span>
+      </div>
+      <div style="background:#111111;border-radius:28px;padding:14px;display:flex;flex-direction:column;gap:11px">
+        <div style="display:flex;align-items:center;gap:10px;padding:2px 4px 0">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          <div style="display:flex;flex-direction:column">
+            <span style="font-size:13.5px;font-weight:500;color:#FFFFFF">Вы подтвердили этот выбор</span>
+            <span style="font-size:11px;color:#9A9A9A">28 августа, 14:11 · KPMF K75491 · партия 24-118</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="height:126px;border-radius:16px;overflow:hidden"><img src="{{ mgDay }}" alt="день"></div>
+          <div style="display:flex;gap:6px">
+            <div style="flex:1;height:72px;border-radius:13px;overflow:hidden"><img src="{{ mgCloud }}" alt="пасмурно"></div>
+            <div style="flex:1;height:72px;border-radius:13px;overflow:hidden"><img src="{{ mgPark }}" alt="паркинг"></div>
+          </div>
+          <div style="display:flex;gap:5px;justify-content:center">
+            <span style="font-size:10px;font-weight:500;background:#DEF23B;border-radius:999px;padding:3px 9px">День</span>
+            <span style="font-size:10px;font-weight:500;color:#9A9A9A;background:#3E3E3E;border-radius:999px;padding:3px 9px">Пасмурно</span>
+            <span style="font-size:10px;font-weight:500;color:#9A9A9A;background:#3E3E3E;border-radius:999px;padding:3px 9px">Паркинг</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;background:#3E3E3E;border-radius:14px;padding:11px 13px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" stroke-width="1.8" stroke-linecap="round" style="flex:none;margin-top:1px"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>
+          <span style="font-size:11px;line-height:1.45;color:#DDDDDD">Мы предупреждали, что оттенок партии сверяется на замере — вы видели все три света до подтверждения.</span>
+        </div>
+      </div>
+      <div onClick="{{ mDone }}" style="cursor:pointer;margin-top:auto;background:#DEF23B;border-radius:999px;padding:20px 0;text-align:center"><span style="font-size:15.5px;font-weight:500">Закрыть работу</span></div>
+      <span style="font-size:10.5px;color:#6E6E6E;text-align:center">Одним действием из наряда у поста · без захода в кабинет</span>
+    </div>
+    </sc-if>
+  </div>
+
+  <div style="width:330px;display:flex;flex-direction:column;gap:12px;padding-top:6px">
+    <div style="background:rgba(255,255,255,.07);border-radius:20px;padding:17px 19px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#DEF23B">Контур 3 · запись у поста</span>
+      <p style="margin:0;font-size:12.5px;line-height:1.55;color:#C9C9C9;text-wrap:pretty">Открывается по ссылке из мессенджера мастера, без пароля. Четыре обязательных поля видны сразу, цели нажатия 64px, крупные цифры артикула читаются на солнце.</p>
+    </div>
+    <div style="background:rgba(255,255,255,.07);border-radius:20px;padding:17px 19px;display:flex;flex-direction:column;gap:7px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#DEF23B">Ради чего экран</span>
+      <p style="margin:0;font-size:12.5px;line-height:1.55;color:#C9C9C9;text-wrap:pretty">Одна переклейка — 50–150 тыс. ₽ плёнки и неделя занятого поста. Сверка рулона блокирует закрытие наряда, а экран выдачи гасит спор за 15 секунд подтверждением, которое поставил сам клиент.</p>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══════════ ВЛАДЕЛЕЦ ══════════ -->
+<sc-if value="{{ isOwner }}" hint-placeholder-val="{{ false }}">
+<div style="width:1440px;background:#EFEFEF;border-radius:30px;padding:26px 28px 30px;display:flex;flex-direction:column;gap:20px">
+
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#9A9A9A">Контур 4 · управление точкой</span>
+      <span style="font-size:30px;font-weight:500;letter-spacing:-0.03em">Пост на Кутузовском</span>
+    </div>
+    <div style="display:flex;gap:5px;background:#FFFFFF;border-radius:999px;padding:5px">
+      <div onClick="{{ oToSetup }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:10px 18px;background:{{ oSetupBg }};color:{{ oSetupFg }}">Запуск</div>
+      <div onClick="{{ oToPrice }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:10px 18px;background:{{ oPriceBg }};color:{{ oPriceFg }}">Прайс</div>
+      <div onClick="{{ oToSummary }}" style="cursor:pointer;font-size:12.5px;font-weight:500;border-radius:999px;padding:10px 18px;background:{{ oSummaryBg }};color:{{ oSummaryFg }}">Сводка · 7-й день</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ oSetup }}" hint-placeholder-val="{{ true }}">
+  <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start">
+    <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <span style="font-size:20px;font-weight:500;letter-spacing:-0.025em">Подключение каналов</span>
+        <span style="font-size:12px;color:#9A9A9A">{{ chDone }} из 3 · ни одного звонка в УК</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:20px;padding:16px 18px">
+          <span style="width:34px;height:34px;border-radius:999px;background:#25455B;color:#FFFFFF;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">WA</span>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:15px;font-weight:500">WhatsApp Business</span>
+            <span style="font-size:11.5px;color:#6E6E6E">+7 495 ··· 12 40 · через шлюз, авторизация на нашей стороне</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;flex:none">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.4" stroke-linecap="round"><path d="M5 13l4.5 4.5L19 7"/></svg>
+            <span style="font-size:12.5px;font-weight:500">Работает</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:20px;padding:16px 18px">
+          <span style="width:34px;height:34px;border-radius:999px;background:#3A6B8F;color:#FFFFFF;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">TG</span>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:15px;font-weight:500;color:{{ tgFg }}">Telegram</span>
+            <span style="font-size:11.5px;color:#6E6E6E">{{ tgNote }}</span>
+          </div>
+          <div onClick="{{ connectTg }}" style="cursor:pointer;background:{{ tgBtnBg }};border-radius:999px;padding:11px 17px;flex:none"><span style="font-size:12.5px;font-weight:500;color:{{ tgBtnFg }}">{{ tgBtn }}</span></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:20px;padding:16px 18px">
+          <span style="width:34px;height:34px;border-radius:999px;background:#7A6A3F;color:#FFFFFF;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">AV</span>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:15px;font-weight:500;color:{{ avFg }}">Avito</span>
+            <span style="font-size:11.5px;color:#6E6E6E">{{ avNote }}</span>
+          </div>
+          <div onClick="{{ connectAv }}" style="cursor:pointer;background:{{ avBtnBg }};border-radius:999px;padding:11px 17px;flex:none"><span style="font-size:12.5px;font-weight:500;color:{{ avBtnFg }}">{{ avBtn }}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:11px;background:#F5FBCB;border-radius:20px;padding:15px 17px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.7" stroke-linecap="round" style="flex:none;margin-top:1px"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v.5M12 11.5v4.5"/></svg>
+        <span style="font-size:12.5px;line-height:1.5;color:#2E2E2E">Точка рабочая уже на одном канале. Остальные — список на потом, а не блокирующая ошибка: это единственный экран, где проваливается критерий «ноль обращений в управляющую компанию».</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="background:#FFFFFF;border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Три шага до первой отправки</span>
+        <div style="display:flex;align-items:center;gap:12px;background:{{ step1Bg }};border-radius:18px;padding:14px 16px">
+          <span style="width:24px;height:24px;border-radius:999px;background:#111111;color:#DEF23B;font-size:11.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">1</span>
+          <span style="flex:1;font-size:13.5px;font-weight:500">Подключить каналы</span>
+          <span style="font-size:11.5px;color:#6E6E6E">{{ chDone }}/3</span>
+        </div>
+        <div onClick="{{ oToPrice }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:#F7F7F7;border-radius:18px;padding:14px 16px">
+          <span style="width:24px;height:24px;border-radius:999px;background:#EFEFEF;color:#9A9A9A;font-size:11.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">2</span>
+          <span style="flex:1;font-size:13.5px;color:#2E2E2E">Подтвердить прайс — хватит пяти бестселлеров</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:#F7F7F7;border-radius:18px;padding:14px 16px">
+          <span style="width:24px;height:24px;border-radius:999px;background:#EFEFEF;color:#9A9A9A;font-size:11.5px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">3</span>
+          <span style="flex:1;font-size:13.5px;color:#2E2E2E">Добавить менеджеров</span>
+        </div>
+        <span style="font-size:11.5px;color:#9A9A9A;line-height:1.45">Ни один шаг не требует третьей стороны. Обучения и онбординг-карусели нет — первый сценарий проходится без инструкции.</span>
+      </div>
+
+      <div style="background:#111111;border-radius:26px;padding:22px 24px;display:flex;flex-direction:column;gap:11px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#6E6E6E">Отключение</span>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#DDDDDD;text-wrap:pretty">Отключить точку — один клик. Подтверждённые выборы клиентов останутся доступны на чтение навсегда: данные клиента не заложник биллинга.</p>
+        <div style="background:rgba(255,255,255,.1);border-radius:999px;padding:12px 18px;align-self:flex-start"><span style="font-size:12.5px;font-weight:500;color:#FFFFFF">Отключить точку</span></div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ oPrice }}" hint-placeholder-val="{{ false }}">
+  <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start">
+    <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <span style="font-size:20px;font-weight:500;letter-spacing:-0.025em">Прайс точки</span>
+        <span style="font-size:12px;color:#9A9A9A">пришёл предзаполненным из каталога сети · 214 SKU</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:14px;background:#DEF23B;border-radius:18px;padding:13px 16px">
+          <div style="width:44px;height:44px;border-radius:12px;overflow:hidden;flex:none"><img src="{{ scDay }}" alt=""></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:500">Сатин-хром тёмный</span><span style="font-size:11px;opacity:.6">KPMF K75407 · база сети 188 000</span></div>
+          <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">248 400</span>
+          <div style="width:44px;height:24px;border-radius:999px;background:#111111;position:relative;flex:none"><span style="position:absolute;right:3px;top:3px;width:18px;height:18px;border-radius:999px;background:#DEF23B"></span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:18px;padding:13px 16px">
+          <div style="width:44px;height:44px;border-radius:12px;overflow:hidden;flex:none"><img src="{{ mgDay }}" alt=""></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:500">Матовый графит</span><span style="font-size:11px;color:#9A9A9A">Oracal 970-070 · база сети 162 800</span></div>
+          <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">214 900</span>
+          <div style="width:44px;height:24px;border-radius:999px;background:#111111;position:relative;flex:none"><span style="position:absolute;right:3px;top:3px;width:18px;height:18px;border-radius:999px;background:#DEF23B"></span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:18px;padding:13px 16px">
+          <div style="width:44px;height:44px;border-radius:12px;overflow:hidden;flex:none"><img src="{{ ngDay }}" alt=""></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:500">Глянец «серый нардо»</span><span style="font-size:11px;color:#9A9A9A">Avery SW900-193 · база сети 175 400</span></div>
+          <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">231 500</span>
+          <div style="width:44px;height:24px;border-radius:999px;background:#111111;position:relative;flex:none"><span style="position:absolute;right:3px;top:3px;width:18px;height:18px;border-radius:999px;background:#DEF23B"></span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;background:#FFFFFF;border-radius:18px;padding:12px 15px;box-shadow:inset 0 0 0 1px #EDEDED;background-image:repeating-linear-gradient(115deg,#F4F4F4 0 1px,transparent 1px 6px)">
+          <div style="width:44px;height:44px;border-radius:12px;background:#F7F7F7;flex:none;display:flex;align-items:center;justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C4C4C4" stroke-width="1.9" stroke-linecap="round"><path d="M5 19L19 5"/><circle cx="12" cy="12" r="8.5"/></svg></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:500;color:#9A9A9A">Зелёный британский</span><span style="font-size:11px;color:#C4C4C4">погашен одним касанием · не существует ни в панели, ни в гараже</span></div>
+          <div style="width:44px;height:24px;border-radius:999px;background:#E2E2E2;position:relative;flex:none"><span style="position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:999px;background:#FFFFFF"></span></div>
+        </div>
+      </div>
+      <div onClick="{{ oToSummary }}" style="cursor:pointer;background:#111111;border-radius:999px;padding:16px 0;text-align:center"><span style="font-size:14px;font-weight:500;color:#FFFFFF">Подтвердить прайс и начать</span></div>
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:18px">
+      <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Наценка — одним коэффициентом</span>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <span style="font-size:52px;font-weight:500;letter-spacing:-0.04em;line-height:1">+32</span>
+        <span style="font-size:22px;font-weight:500;color:#9A9A9A;padding-bottom:6px">%</span>
+      </div>
+      <div style="height:8px;border-radius:999px;background:#F0F0F0;position:relative">
+        <div style="width:64%;height:8px;border-radius:999px;background:#DEF23B"></div>
+        <span style="position:absolute;left:calc(64% - 11px);top:-7px;width:22px;height:22px;border-radius:999px;background:#111111;box-shadow:0 2px 6px rgba(17,17,17,.2)"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:#9A9A9A">граница сети +18%</span><span style="font-size:11px;color:#9A9A9A">+60%</span></div>
+      <div style="height:1px;background:#F0F0F0"></div>
+      <span style="font-size:12.5px;line-height:1.55;color:#6E6E6E;text-wrap:pretty">Не двести строк, а один коэффициент поверх каталога сети. Сеть задаёт границы, точка отклоняется внутри них — и ни одно требование сети не превращается в поле, которое менеджер заполняет при живом клиенте.</span>
+      <div style="background:#F7F7F7;border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:12px;color:#9A9A9A">Работать можно с первого дня</span>
+        <span style="font-size:14px;font-weight:500">на пяти бестселлерах из 214</span>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ oSummary }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+      <div style="background:#FFFFFF;border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:12px;color:#9A9A9A">Входящих за неделю</span>
+        <span style="font-size:38px;font-weight:500;letter-spacing:-0.04em;line-height:1">34</span>
+      </div>
+      <div style="background:#FFFFFF;border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:12px;color:#9A9A9A">С примеркой</span>
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:38px;font-weight:500;letter-spacing:-0.04em;line-height:1">23</span><span style="font-size:14px;color:#9A9A9A">68%</span></div>
+      </div>
+      <div style="background:#DEF23B;border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:12px;opacity:.65">Сделок, где цвет выбран по картинке</span>
+        <span style="font-size:38px;font-weight:500;letter-spacing:-0.04em;line-height:1">3</span>
+      </div>
+      <div style="background:#FFFFFF;border-radius:26px;padding:24px 26px;display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:12px;color:#9A9A9A">Генерации за месяц</span>
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:38px;font-weight:500;letter-spacing:-0.04em;line-height:1">7 440</span><span style="font-size:14px;color:#9A9A9A">₽</span></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start">
+      <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <span style="font-size:20px;font-weight:500;letter-spacing:-0.025em">Сделки, где выбрали цвет по картинке</span>
+          <span style="font-size:12px;color:#9A9A9A">это список, а не дашборд</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:20px;padding:14px 16px">
+            <div style="width:52px;height:40px;border-radius:12px;overflow:hidden;flex:none"><img src="{{ mgDay }}" alt=""></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:14.5px;font-weight:500">Артём Гусев · BMW X5 2021</span>
+              <span style="font-size:11.5px;color:#6E6E6E">Матовый хром тёмный · подтвердил 28 авг, 14:11 · замер 29 авг</span>
+            </div>
+            <span style="font-size:17px;font-weight:500;letter-spacing:-0.025em;flex:none;font-variant-numeric:tabular-nums">253 900</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:20px;padding:14px 16px">
+            <div style="width:52px;height:40px;border-radius:12px;overflow:hidden;flex:none"><img src="{{ scDay }}" alt=""></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:14.5px;font-weight:500">Сергей Пахомов · Toyota Camry 2020</span>
+              <span style="font-size:11.5px;color:#6E6E6E">Сатин-хром тёмный · сдан 26 авг · без переклейки</span>
+            </div>
+            <span style="font-size:17px;font-weight:500;letter-spacing:-0.025em;flex:none;font-variant-numeric:tabular-nums">198 200</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:#F7F7F7;border-radius:20px;padding:14px 16px">
+            <div style="width:52px;height:40px;border-radius:12px;overflow:hidden;flex:none"><img src="{{ demoImg }}" alt=""></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:14.5px;font-weight:500">Егор Лапин · Kia K5 2022</span>
+              <span style="font-size:11.5px;color:#6E6E6E">Сатин хаки + диски · пришёл из гаража по ссылке · замер 30 авг</span>
+            </div>
+            <span style="font-size:17px;font-weight:500;letter-spacing:-0.025em;flex:none;font-variant-numeric:tabular-nums">184 600</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:11px;background:#F5FBCB;border-radius:20px;padding:15px 17px">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" style="flex:none"><path d="M5 13l4.5 4.5L19 7"/></svg>
+          <span style="font-size:12.5px;line-height:1.5;color:#2E2E2E">Ни одного напоминания менеджерам не потребовалось. Заполненность возникла сама — инструмент выгоден Ирине в её собственную смену.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:16px">
+          <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Покрытие входящих</span>
+          <div style="height:40px;border-radius:999px;box-shadow:inset 0 0 0 1px #EDEDED;background-image:repeating-linear-gradient(115deg,#D6D6D6 0 1px,transparent 1px 5px);display:flex;align-items:center;overflow:hidden">
+            <div style="width:68%;height:40px;border-radius:999px;background:#DEF23B;display:flex;align-items:center;justify-content:flex-end;padding-right:15px"><span style="font-size:13px;font-weight:500">68%</span></div>
+          </div>
+          <span style="font-size:12px;color:#9A9A9A;line-height:1.45">Одиннадцать входящих ушли без примерки — девять из них Avito, где канал подключён только вчера.</span>
+        </div>
+        <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between">
+            <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Расход генераций</span>
+            <span style="font-size:12px;color:#9A9A9A">поимённо</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <div style="display:flex;align-items:center;gap:12px"><span style="flex:1;font-size:13px">Гараж по ссылке из TG-канала</span><div style="width:70px;height:4px;background-image:repeating-linear-gradient(90deg,#D6D6D6 0 2px,transparent 2px 4px)"><div style="width:82%;height:4px;background:#EAF77E"></div></div><span style="font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums">310</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="flex:1;font-size:13px">Ирина Ковалёва</span><div style="width:70px;height:4px;background-image:repeating-linear-gradient(90deg,#D6D6D6 0 2px,transparent 2px 4px)"><div style="width:44%;height:4px;background:#DEF23B"></div></div><span style="font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums">168</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="flex:1;font-size:13px">Пётр Салимов</span><div style="width:70px;height:4px;background-image:repeating-linear-gradient(90deg,#D6D6D6 0 2px,transparent 2px 4px)"><div style="width:21%;height:4px;background:#DEF23B"></div></div><span style="font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums">81</span></div>
+          </div>
+          <div style="background:#F5FBCB;border-radius:16px;padding:12px 14px"><span style="font-size:11.5px;line-height:1.45;color:#2E2E2E">Аномалия подсвечена до конца месяца: 310 примерок за сутки — это трафик из канала, а не работа менеджеров.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ══════════ СЕТЬ ══════════ -->
+<sc-if value="{{ isNetwork }}" hint-placeholder-val="{{ false }}">
+<div style="width:1440px;background:#EFEFEF;border-radius:30px;padding:26px 28px 30px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <span style="font-size:10.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#9A9A9A">Контур 5 · панель сети</span>
+      <span style="font-size:30px;font-weight:500;letter-spacing:-0.03em">Пилот · 8 точек · 4-я неделя</span>
+    </div>
+    <span style="font-size:12.5px;color:#6E6E6E;max-width:380px;text-align:right;line-height:1.45">Три цифры, которыми директор франчайзинга защищает решение внутри сети. Показан разброс по точкам, а не среднее.</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:13px;color:#6E6E6E">Обращений точек в управляющую компанию</span>
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:44px;font-weight:500;letter-spacing:-0.04em;line-height:1">2</span><span style="font-size:13px;color:#9A9A9A">за первый месяц, на 8 точек</span></div>
+      <div style="display:flex;gap:3px;align-items:flex-end;height:44px">
+        <span style="flex:1;height:8px;background:#DEF23B;border-radius:2px"></span><span style="flex:1;height:8px;background:#DEF23B;border-radius:2px"></span>
+        <span style="flex:1;height:8px;background:#DEF23B;border-radius:2px"></span><span style="flex:1;height:26px;background:#EAF77E;border-radius:2px"></span>
+        <span style="flex:1;height:8px;background:#DEF23B;border-radius:2px"></span><span style="flex:1;height:8px;background:#DEF23B;border-radius:2px"></span>
+        <span style="flex:1;height:44px;background:#F0C9CB;border-radius:2px"></span><span style="flex:1;height:8px;background:#DEF23B;border-radius:2px"></span>
+      </div>
+      <span style="font-size:11.5px;color:#9A9A9A;line-height:1.45">Оба обращения — с одной точки, оба про повторную привязку WhatsApp после смены номера.</span>
+    </div>
+    <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:13px;color:#6E6E6E">Доля входящих с примеркой к 4-й неделе</span>
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:44px;font-weight:500;letter-spacing:-0.04em;line-height:1">61</span><span style="font-size:20px;color:#9A9A9A">%</span><span style="font-size:13px;color:#9A9A9A">разброс 18–84%</span></div>
+      <div style="display:flex;gap:3px;align-items:flex-end;height:44px">
+        <span style="flex:1;height:37px;background:#DEF23B;border-radius:2px"></span><span style="flex:1;height:31px;background:#DEF23B;border-radius:2px"></span>
+        <span style="flex:1;height:41px;background:#DEF23B;border-radius:2px"></span><span style="flex:1;height:26px;background:#DEF23B;border-radius:2px"></span>
+        <span style="flex:1;height:34px;background:#DEF23B;border-radius:2px"></span><span style="flex:1;height:9px;background:#F0C9CB;border-radius:2px"></span>
+        <span style="flex:1;height:44px;background:#DEF23B;border-radius:2px"></span><span style="flex:1;height:14px;background:#EAF77E;border-radius:2px"></span>
+      </div>
+      <span style="font-size:11.5px;color:#9A9A9A;line-height:1.45">Среднее скрыло бы главное: две точки почти не пользуются, и решать надо именно их, а не сеть целиком.</span>
+    </div>
+    <div style="background:#DEF23B;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:13px;opacity:.7">Точек с хотя бы одной сделкой через примерку за квартал</span>
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:44px;font-weight:500;letter-spacing:-0.04em;line-height:1">6</span><span style="font-size:20px;opacity:.6">из 8</span></div>
+      <div style="height:34px;border-radius:999px;background:rgba(255,255,255,.5);display:flex;align-items:center;overflow:hidden"><div style="width:75%;height:34px;border-radius:999px;background:#111111;display:flex;align-items:center;justify-content:flex-end;padding-right:14px"><span style="font-size:12.5px;font-weight:500;color:#DEF23B">75%</span></div></div>
+      <span style="font-size:11.5px;line-height:1.45;opacity:.7">Порог сети — 60%. Критерий выполнен на 4-й неделе, не по итогам квартала.</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start">
+    <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <span style="font-size:20px;font-weight:500;letter-spacing:-0.025em">Точки в одном срезе</span>
+        <span style="font-size:12px;color:#9A9A9A">сортировка по покрытию входящих</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:190px;font-size:13.5px;font-weight:500;flex:none">Кутузовский</span><div style="flex:1;height:26px;border-radius:999px;background:#F5F5F5;overflow:hidden"><div style="width:84%;height:26px;border-radius:999px;background:#DEF23B"></div></div><span style="width:48px;text-align:right;font-size:13px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">84%</span><span style="width:78px;text-align:right;font-size:12px;color:#6E6E6E;flex:none">3 сделки</span></div>
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:190px;font-size:13.5px;font-weight:500;flex:none">Ленинградское шоссе</span><div style="flex:1;height:26px;border-radius:999px;background:#F5F5F5;overflow:hidden"><div style="width:79%;height:26px;border-radius:999px;background:#DEF23B"></div></div><span style="width:48px;text-align:right;font-size:13px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">79%</span><span style="width:78px;text-align:right;font-size:12px;color:#6E6E6E;flex:none">4 сделки</span></div>
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:190px;font-size:13.5px;font-weight:500;flex:none">Казань, Вахитова</span><div style="flex:1;height:26px;border-radius:999px;background:#F5F5F5;overflow:hidden"><div style="width:71%;height:26px;border-radius:999px;background:#DEF23B"></div></div><span style="width:48px;text-align:right;font-size:13px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">71%</span><span style="width:78px;text-align:right;font-size:12px;color:#6E6E6E;flex:none">2 сделки</span></div>
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:190px;font-size:13.5px;font-weight:500;flex:none">Екатеринбург, Щорса</span><div style="flex:1;height:26px;border-radius:999px;background:#F5F5F5;overflow:hidden"><div style="width:64%;height:26px;border-radius:999px;background:#DEF23B"></div></div><span style="width:48px;text-align:right;font-size:13px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">64%</span><span style="width:78px;text-align:right;font-size:12px;color:#6E6E6E;flex:none">1 сделка</span></div>
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:190px;font-size:13.5px;font-weight:500;flex:none">Новосибирск, Гоголя</span><div style="flex:1;height:26px;border-radius:999px;background:#F5F5F5;overflow:hidden"><div style="width:58%;height:26px;border-radius:999px;background:#DEF23B"></div></div><span style="width:48px;text-align:right;font-size:13px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">58%</span><span style="width:78px;text-align:right;font-size:12px;color:#6E6E6E;flex:none">2 сделки</span></div>
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:190px;font-size:13.5px;font-weight:500;flex:none">Сочи, Донская</span><div style="flex:1;height:26px;border-radius:999px;background:#F5F5F5;overflow:hidden"><div style="width:44%;height:26px;border-radius:999px;background:#DEF23B"></div></div><span style="width:48px;text-align:right;font-size:13px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">44%</span><span style="width:78px;text-align:right;font-size:12px;color:#6E6E6E;flex:none">1 сделка</span></div>
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:190px;font-size:13.5px;font-weight:500;flex:none;color:#8A4448">Краснодар, Северная</span><div style="flex:1;height:26px;border-radius:999px;background:#F5F5F5;overflow:hidden"><div style="width:22%;height:26px;border-radius:999px;background:#EAF77E"></div></div><span style="width:48px;text-align:right;font-size:13px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">22%</span><span style="width:78px;text-align:right;font-size:12px;color:#8A4448;flex:none">0 сделок</span></div>
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:190px;font-size:13.5px;font-weight:500;flex:none;color:#8A4448">Самара, Мичурина</span><div style="flex:1;height:26px;border-radius:999px;background:#F5F5F5;background-image:repeating-linear-gradient(115deg,#E6E6E6 0 1px,transparent 1px 6px);overflow:hidden"><div style="width:18%;height:26px;border-radius:999px;background:#F0C9CB"></div></div><span style="width:48px;text-align:right;font-size:13px;font-weight:500;flex:none;font-variant-numeric:tabular-nums">18%</span><span style="width:78px;text-align:right;font-size:12px;color:#8A4448;flex:none">0 сделок</span></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="background:#FFFFFF;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:11px;background:#FBEEEF;display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#D93F45" stroke-width="1.9" stroke-linecap="round"><path d="M12 8v5M12 16.4v.5"/><circle cx="12" cy="12" r="8.5"/></svg>
+          </div>
+          <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Мертвы тихо</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:12px;background:#FBEEEF;border-radius:16px;padding:12px 14px"><span style="flex:1;font-size:13px;font-weight:500;color:#8A4448">Самара, Мичурина</span><span style="font-size:12px;color:#8A4448">96 ч без отправки</span></div>
+          <div style="display:flex;align-items:center;gap:12px;background:#F5FBCB;border-radius:16px;padding:12px 14px"><span style="flex:1;font-size:13px;font-weight:500">Краснодар, Северная</span><span style="font-size:12px;color:#6E6E6E">52 ч без отправки</span></div>
+        </div>
+        <span style="font-size:11.5px;color:#9A9A9A;line-height:1.45">Точка, не сделавшая первую отправку за 72 часа, не пишет и не жалуется — она просто не пользуется. Поэтому у неё отдельная пометка, а не общий алерт.</span>
+      </div>
+      <div style="background:#111111;border-radius:26px;padding:26px 28px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:10.5px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#6E6E6E">Контроль сети</span>
+        <p style="margin:0;font-size:13px;line-height:1.55;color:#DDDDDD;text-wrap:pretty">Сеть задаёт каталог и границы наценки. Над рабочим потоком менеджера контроля нет — ни одно требование сети не превращается в поле, которое он заполняет при живом клиенте.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">
+          <span style="font-size:11.5px;color:#DDDDDD;background:rgba(255,255,255,.1);border-radius:999px;padding:7px 13px">Каталог 214 SKU</span>
+          <span style="font-size:11.5px;color:#DDDDDD;background:rgba(255,255,255,.1);border-radius:999px;padding:7px 13px">Наценка 18–60%</span>
+          <span style="font-size:11.5px;color:#DDDDDD;background:rgba(255,255,255,.1);border-radius:999px;padding:7px 13px">Стоп по генерациям снят у 2 точек</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CDN = 'assets/renders/';
+const IMG = {
+  base:    CDN + 'render-08.png',
+  scDay:   CDN + 'render-01.png',
+  scCloud: CDN + 'render-09.png',
+  scPark:  CDN + 'render-10.png',
+  mgDay:   CDN + 'render-02.png',
+  mgCloud: CDN + 'render-11.png',
+  mgPark:  CDN + 'render-12.png',
+  ngDay:   CDN + 'render-03.png',
+  ngCloud: CDN + 'render-13.png',
+  ngPark:  CDN + 'render-14.png',
+  typical: CDN + 'render-07.png',
+  wheel:   CDN + 'render-05.png',
+  trim:    CDN + 'render-06.png',
+  demo:    CDN + 'render-04.png'
+};
+const SKU = {
+  sc: { name: 'Сатин-хром тёмный', code: 'KPMF K75407', price: '248 400', imgs: ['scDay','scCloud','scPark'] },
+  mg: { name: 'Матовый графит',    code: 'Oracal 970-070', price: '214 900', imgs: ['mgDay','mgCloud','mgPark'] },
+  ng: { name: 'Глянец «серый нардо»', code: 'Avery SW900-193', price: '231 500', imgs: ['ngDay','ngCloud','ngPark'] }
+};
+const LIGHTS = { day: 'День', cloud: 'Пасмурно', park: 'Крытый паркинг' };
+const STAGE_HINT = [
+  'Менеджер · диалог открыт. Выберите артикул и свет в панели справа, затем отправьте карточку.',
+  'Карточка ушла в WhatsApp. Нажмите «Ждём ответа» — клиент отреагирует.',
+  'Момент «ага»: клиент просит ещё вариант. Добирайте в том же диалоге.',
+  'Вариант добран. Дальше клиент фиксирует выбор сам.',
+  'Выбор подтверждён клиентом — теперь это объект, который увидит мастер у поста.',
+  'Замер назначен, наряд создан. Переключитесь на «Мастер», чтобы увидеть запись у поста.'
+];
+const CTA = [
+  'Отправить в WhatsApp', 'Ждём ответа клиента', 'Добрать вариант',
+  'Клиент подтвердил выбор', 'Назначить замер', 'Замер назначен'
+];
+
+class Component extends DCLogic {
+  state = { role: 'manager', sku: 'sc', light: 'day', stage: 0, gen: 1240, fromGarage: false,
+            gStep: 'landing', gCat: 'film', gSku: 'sc', gAlt: 'mg', gLight: 'day', gUsed: 0, gWheel: false, gTrim: false,
+            mStep: 'record', oStep: 'setup', tg: false, av: false };
+
+  set(patch) { this.setState(patch); }
+
+  next = () => {
+    const s = this.state.stage;
+    if (s === 0) this.setState({ stage: 1, gen: this.state.gen + 9 });
+    else if (s === 1) this.setState({ stage: 2 });
+    else if (s === 2) this.setState({ stage: 3, gen: this.state.gen + 3 });
+    else if (s === 3) this.setState({ stage: 4 });
+    else if (s === 4) this.setState({ stage: 5 });
+  };
+
+  renderVals() {
+    const st = this.state;
+    const sku = SKU[st.sku];
+    const heroKey = sku.imgs[{ day: 0, cloud: 1, park: 2 }[st.light]];
+    const pill = (on) => on ? '#111111' : 'transparent';
+    const sel = (k) => st.sku === k;
+    const role = st.role;
+    const tab = (r) => ({ bg: role === r ? '#DEF23B' : 'rgba(255,255,255,.1)', fg: role === r ? '#111111' : '#DDDDDD' });
+    const tm = tab('manager'), tc = tab('client'), tw = tab('master'), to = tab('owner'), tn = tab('network');
+
+    const artemStates = [
+      { last: 'Здравствуйте! Сколько будет обклеить X5 в сатин-хром?', state: 'Без примерки', chipBg: '#EFEFEF', chipFg: '#9A9A9A', time: '5 мин' },
+      { last: 'Карточка с тремя плёнками отправлена', state: 'Отправлена · ждём', chipBg: '#FFFFFF', chipFg: '#2E2E2E', time: '2 мин' },
+      { last: 'А можно ещё в этом, но матовый?', state: 'Просит ещё вариант', chipBg: '#DEF23B', chipFg: '#111111', time: 'сейчас' },
+      { last: 'Добрали матовый хром тёмный', state: 'Отправлена · ждём', chipBg: '#FFFFFF', chipFg: '#2E2E2E', time: 'сейчас' },
+      { last: 'Беру матовый хром. Когда на замер?', state: 'Выбор подтверждён', chipBg: '#111111', chipFg: '#FFFFFF', time: 'сейчас' },
+      { last: 'Записан на 29 августа, 11:00', state: 'Замер 29 авг, 11:00', chipBg: '#FFFFFF', chipFg: '#2E2E2E', time: 'сейчас' }
+    ][st.stage];
+
+    const PRICE = { sc: 248400, mg: 214900, ng: 231500 };
+    const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const li = { day: 0, cloud: 1, park: 2 }[st.gLight];
+    const gs = SKU[st.gSku], ga = SKU[st.gAlt];
+    const gTotalN = PRICE[st.gSku] + (st.gWheel ? 46000 : 0) + (st.gTrim ? 88000 : 0);
+    const cat = (k) => ({ bg: st.gCat === k ? '#111111' : '#F5F5F5', fg: st.gCat === k ? '#FFFFFF' : '#6E6E6E' });
+    const cf = cat('film'), cw = cat('wheel'), ct = cat('trim'), ck = cat('kit');
+    const gl = (k) => ({ bg: st.gLight === k ? '#111111' : 'transparent', fg: st.gLight === k ? '#FFFFFF' : '#6E6E6E' });
+    const gdl = gl('day'), gcl = gl('cloud'), gpl = gl('park');
+    const ring = (k) => st.gSku === k ? '0 0 0 3px #DEF23B' : 'inset 0 0 0 1px rgba(0,0,0,.07)';
+    const bump = (patch) => {
+      const u = st.gUsed + 1;
+      this.setState(Object.assign({}, patch, { gUsed: u }, u > 8 ? { gStep: 'limit' } : {}));
+    };
+    const summary = gs.name + (st.gWheel ? ' + диски' : '') + (st.gTrim ? ' + салон' : '');
+    const otab = (k) => ({ bg: st.oStep === k ? '#111111' : 'transparent', fg: st.oStep === k ? '#FFFFFF' : '#6E6E6E' });
+    const os = otab('setup'), op = otab('price'), ou = otab('summary');
+    const chDone = 1 + (st.tg ? 1 : 0) + (st.av ? 1 : 0);
+
+    return {
+      isManager: role === 'manager', isClient: role === 'client', isMaster: role === 'master',
+      isOwner: role === 'owner', isNetwork: role === 'network',
+      goManager: () => this.set({ role: 'manager' }), goClient: () => this.set({ role: 'client' }),
+      goMaster: () => this.set({ role: 'master' }), goOwner: () => this.set({ role: 'owner' }),
+      goNetwork: () => this.set({ role: 'network' }),
+      reset: () => this.setState({ role: 'manager', sku: 'sc', light: 'day', stage: 0, gen: 1240, fromGarage: false }),
+      tabManagerBg: tm.bg, tabManagerFg: tm.fg, tabClientBg: tc.bg, tabClientFg: tc.fg,
+      tabMasterBg: tw.bg, tabMasterFg: tw.fg, tabOwnerBg: to.bg, tabOwnerFg: to.fg,
+      tabNetworkBg: tn.bg, tabNetworkFg: tn.fg,
+      hint: role === 'manager' ? STAGE_HINT[st.stage]
+        : role === 'client' ? 'Клиент · гараж-примерочная. Результат виден до любого действия — загрузите фото, переключайте свет и категории.'
+        : role === 'master' ? 'Мастер · запись у поста. Сверьте рулон — покажу оба исхода, совпадение и блокировку.'
+        : role === 'owner' ? 'Владелец · запуск точки. Подключите Telegram и Avito, затем прайс и сводка на 7-й день.'
+        : 'Сеть · отчёт по пилоту. Три критерия плательщика и разброс по точкам вместо среднего.',
+
+      basePhoto: IMG.base, typical: IMG.typical, wheelImg: IMG.wheel, trimImg: IMG.trim, demoImg: IMG.demo,
+      scDay: IMG.scDay, scCloud: IMG.scCloud, scPark: IMG.scPark,
+      mgDay: IMG.mgDay, mgCloud: IMG.mgCloud, mgPark: IMG.mgPark,
+      ngDay: IMG.ngDay, ngCloud: IMG.ngCloud, ngPark: IMG.ngPark,
+      heroImg: IMG[heroKey], heroLabel: sku.name, heroLight: LIGHTS[st.light],
+      price: sku.price,
+
+      pickSc: () => this.set({ sku: 'sc' }), pickMg: () => this.set({ sku: 'mg' }), pickNg: () => this.set({ sku: 'ng' }),
+      skuScBg: sel('sc') ? '#DEF23B' : '#F7F7F7', skuScFg: '#111111', skuScSub: sel('sc') ? 'rgba(17,17,17,.55)' : '#9A9A9A',
+      skuMgBg: sel('mg') ? '#DEF23B' : '#F7F7F7', skuMgFg: '#111111', skuMgSub: sel('mg') ? 'rgba(17,17,17,.55)' : '#9A9A9A',
+      skuNgBg: sel('ng') ? '#DEF23B' : '#F7F7F7', skuNgFg: '#111111', skuNgSub: sel('ng') ? 'rgba(17,17,17,.55)' : '#9A9A9A',
+
+      lightDay: () => this.set({ light: 'day' }), lightCloud: () => this.set({ light: 'cloud' }), lightPark: () => this.set({ light: 'park' }),
+      lDayBg: pill(st.light === 'day'), lDayFg: st.light === 'day' ? '#FFFFFF' : '#6E6E6E',
+      lCloudBg: pill(st.light === 'cloud'), lCloudFg: st.light === 'cloud' ? '#FFFFFF' : '#6E6E6E',
+      lParkBg: pill(st.light === 'park'), lParkFg: st.light === 'park' ? '#FFFFFF' : '#6E6E6E',
+
+      notSent: st.stage === 0, sent: st.stage >= 1, asked: st.stage >= 2,
+      added: st.stage >= 3, confirmed: st.stage >= 4, booked: st.stage >= 5,
+      cardCount: 'три',
+      nextStep: this.next,
+      ctaLabel: CTA[st.stage],
+      ctaBg: st.stage === 5 ? '#F5F5F5' : (st.stage === 2 ? '#DEF23B' : '#111111'),
+      ctaFg: st.stage === 5 ? '#C4C4C4' : (st.stage === 2 ? '#111111' : '#FFFFFF'),
+      ctaIcon: st.stage === 5 ? '#C4C4C4' : (st.stage === 2 ? '#111111' : '#DEF23B'),
+      stepsLeft: st.stage === 0 ? '1 шаг до отправки' : 'отправлено',
+      genUsed: String(st.gen).replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+      genPct: Math.min(100, Math.round(st.gen / 20)) + '%',
+      genNote: st.stage === 0 ? '3 артикула × 3 света · 9 генераций · 54 ₽' : 'списано 54 ₽ · остаток ' + (2000 - st.gen),
+
+      inboxCount: st.fromGarage ? 8 : 7,
+      fromGarage: st.fromGarage,
+      openGarageLead: () => {},
+      openArtem: () => {},
+      artemLast: artemStates.last, artemState: artemStates.state, artemTime: artemStates.time,
+      artemChipBg: artemStates.chipBg, artemChipFg: artemStates.chipFg,
+      rowArtemBg: '#111111', rowArtemFg: '#FFFFFF', rowArtemMsgFg: '#DDDDDD',
+
+      gLanding: st.gStep === 'landing', gUpload: st.gStep === 'upload', gMain: st.gStep === 'main',
+      gCompare: st.gStep === 'compare', gLimit: st.gStep === 'limit', gSent: st.gStep === 'sent',
+      gStart: () => this.set({ gStep: 'upload' }), gStartTypical: () => this.set({ gStep: 'upload' }),
+      gBackLanding: () => this.set({ gStep: 'landing' }), gToMain: () => this.set({ gStep: 'main' }),
+      gToCompare: () => this.set({ gStep: 'compare' }),
+      gForceLimit: () => this.set({ gStep: 'limit', gUsed: 9 }),
+      gForceSent: () => this.setState({ gStep: 'sent', fromGarage: true }),
+      gSend: () => this.setState({ gStep: 'sent', fromGarage: true }),
+      goManagerFromGarage: () => this.setState({ role: 'manager', fromGarage: true }),
+      gPickSc: () => bump({ gSku: 'sc', gAlt: st.gSku === 'sc' ? st.gAlt : st.gSku }),
+      gPickMg: () => bump({ gSku: 'mg', gAlt: st.gSku === 'mg' ? st.gAlt : st.gSku }),
+      gPickNg: () => bump({ gSku: 'ng', gAlt: st.gSku === 'ng' ? st.gAlt : st.gSku }),
+      gSwap: () => this.set({ gAlt: st.gAlt === 'mg' ? 'ng' : (st.gAlt === 'ng' ? 'sc' : 'mg') }),
+      gLightDay: () => bump({ gLight: 'day' }), gLightCloud: () => bump({ gLight: 'cloud' }), gLightPark: () => bump({ gLight: 'park' }),
+      gCatFilm: () => this.set({ gCat: 'film' }), gCatWheel: () => this.set({ gCat: 'wheel' }),
+      gCatTrim: () => this.set({ gCat: 'trim' }), gCatKit: () => this.set({ gCat: 'kit' }),
+      gToggleWheel: () => this.set({ gWheel: !st.gWheel }), gToggleTrim: () => this.set({ gTrim: !st.gTrim }),
+      gIsFilm: st.gCat === 'film', gIsWheel: st.gCat === 'wheel', gIsTrim: st.gCat === 'trim', gIsKit: st.gCat === 'kit',
+      gCatFilmBg: cf.bg, gCatFilmFg: cf.fg, gCatWheelBg: cw.bg, gCatWheelFg: cw.fg,
+      gCatTrimBg: ct.bg, gCatTrimFg: ct.fg, gCatKitBg: ck.bg, gCatKitFg: ck.fg,
+      gLDayBg: gdl.bg, gLDayFg: gdl.fg, gLCloudBg: gcl.bg, gLCloudFg: gcl.fg, gLParkBg: gpl.bg, gLParkFg: gpl.fg,
+      gScRing: ring('sc'), gMgRing: ring('mg'), gNgRing: ring('ng'),
+      gScFg: st.gSku === 'sc' ? '#111111' : '#6E6E6E',
+      gMgFg: st.gSku === 'mg' ? '#111111' : '#6E6E6E',
+      gNgFg: st.gSku === 'ng' ? '#111111' : '#6E6E6E',
+      gWheelBg: st.gWheel ? '#DEF23B' : '#F7F7F7', gWheelSub: st.gWheel ? 'rgba(17,17,17,.6)' : '#9A9A9A',
+      gTrimBg: st.gTrim ? '#DEF23B' : '#F7F7F7', gTrimSub: st.gTrim ? 'rgba(17,17,17,.6)' : '#9A9A9A',
+      gHero: IMG[gs.imgs[li]], gHeroAlt: IMG[ga.imgs[li]],
+      gSkuName: gs.name, gSkuCode: gs.code, gSkuPrice: gs.price, gSkuShort: gs.name.split(' ')[0].toLowerCase(),
+      gAltName: ga.name, gAltCode: ga.code, gAltPrice: ga.price,
+      gLightLabel: LIGHTS[st.gLight],
+      gLeft: Math.max(0, 10 - st.gUsed),
+      gTotal: fmt(gTotalN), gSummary: summary,
+
+      mRecord: st.mStep === 'record', mScan: st.mStep === 'scan', mMismatch: st.mStep === 'mismatch',
+      mOk: st.mStep === 'ok', mHandover: st.mStep === 'handover',
+      mToRecord: () => this.set({ mStep: 'record' }), mToScan: () => this.set({ mStep: 'scan' }),
+      mToMismatch: () => this.set({ mStep: 'mismatch' }), mToOk: () => this.set({ mStep: 'ok' }),
+      mToHandover: () => this.set({ mStep: 'handover' }), mDone: () => this.set({ mStep: 'record' }),
+
+      oSetup: st.oStep === 'setup', oPrice: st.oStep === 'price', oSummary: st.oStep === 'summary',
+      oToSetup: () => this.set({ oStep: 'setup' }), oToPrice: () => this.set({ oStep: 'price' }),
+      oToSummary: () => this.set({ oStep: 'summary' }),
+      oSetupBg: os.bg, oSetupFg: os.fg, oPriceBg: op.bg, oPriceFg: op.fg, oSummaryBg: ou.bg, oSummaryFg: ou.fg,
+      chDone: chDone,
+      step1Bg: chDone === 3 ? '#DEF23B' : '#F5FBCB',
+      connectTg: () => this.set({ tg: true }), connectAv: () => this.set({ av: true }),
+      tgFg: '#111111',
+      tgNote: st.tg ? '@kutuzovsky_wrap · шлюз держит авторизацию' : 'два шага · около двух минут, без третьих лиц',
+      tgBtn: st.tg ? 'Работает' : 'Подключить',
+      tgBtnBg: st.tg ? '#DEF23B' : '#111111', tgBtnFg: st.tg ? '#111111' : '#FFFFFF',
+      avFg: '#111111',
+      avNote: st.av ? 'два объявления · Messenger API' : 'официальный Messenger API · входит в единое окно',
+      avBtn: st.av ? 'Работает' : 'Подключить',
+      avBtnBg: st.av ? '#DEF23B' : '#111111', avBtnFg: st.av ? '#111111' : '#FFFFFF'
+    };
+  }
+}
+</script>
+</body>
+</html>

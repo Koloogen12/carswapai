@@ -1,0 +1,214 @@
+-- CarSwap AI · посевные данные для разработки и демо.
+-- Проходит все инварианты схемы — это и проверка, что схемой можно
+-- пользоваться, а не только защищаться.
+
+insert into zones (code, name, sort_order) values
+  ('full_body','Кузов целиком',1), ('front_full','Полный перед',2),
+  ('hood','Капот',3), ('roof','Крыша',4), ('mirrors','Зеркала',5)
+on conflict do nothing;
+
+insert into networks (id, name, join_code, price_deviation_allowed_pct, brand)
+values ('a0000000-0000-4000-8000-000000000001','JETCAR','JETCAR-2026', 15,
+        '{"logo":"JETCAR","accent":"#DEF23B"}'::jsonb)
+on conflict do nothing;
+
+insert into points (id, network_id, name, address, public_slug) values
+  ('b0000000-0000-4000-8000-000000000001','a0000000-0000-4000-8000-000000000001',
+   'JETCAR Мытищи','Мытищи, Олимпийский пр-т, 29','jetcar-mytishchi'),
+  ('b0000000-0000-4000-8000-000000000002','a0000000-0000-4000-8000-000000000001',
+   'JETCAR Химки','Химки, Ленинградское ш., 5','jetcar-khimki')
+on conflict do nothing;
+
+insert into users (id, point_id, network_id, role, name, phone) values
+  ('c0000000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+   'a0000000-0000-4000-8000-000000000001','manager','Ирина Ковалёва','+79161112233'),
+  ('c0000000-0000-4000-8000-000000000002','b0000000-0000-4000-8000-000000000001',
+   'a0000000-0000-4000-8000-000000000001','master','Сергей Панов','+79161112244'),
+  ('c0000000-0000-4000-8000-000000000003','b0000000-0000-4000-8000-000000000001',
+   'a0000000-0000-4000-8000-000000000001','owner','Артём Лебедев','+79161112255'),
+  ('c0000000-0000-4000-8000-000000000004', null,
+   'a0000000-0000-4000-8000-000000000001','network_admin','Ольга Титова','+79161112266')
+on conflict do nothing;
+
+insert into vehicle_models (id, make, model, generation, body_type, year_from, aliases) values
+  ('d1000000-0000-4000-8000-000000000001','BMW','X5','G05','suv',2018,'{бмв,х5,x5}'),
+  ('d1000000-0000-4000-8000-000000000002','Kia','K5','DL3','sedan',2019,'{киа,к5}'),
+  ('d1000000-0000-4000-8000-000000000003','Lada','Vesta','I','sedan',2015,'{лада,веста}'),
+  ('d1000000-0000-4000-8000-000000000004','Volkswagen','Polo','VI','sedan',2020,'{фольксваген,поло}')
+on conflict do nothing;
+
+insert into vehicle_zone_metrage (vehicle_model_id, zone_code, running_meters, confidence) values
+  ('d1000000-0000-4000-8000-000000000001','full_body', 21.5,'measured'),
+  ('d1000000-0000-4000-8000-000000000001','front_full', 7.4,'measured'),
+  ('d1000000-0000-4000-8000-000000000002','full_body', 18.2,'measured'),
+  ('d1000000-0000-4000-8000-000000000003','full_body', 16.8,'estimated'),
+  ('d1000000-0000-4000-8000-000000000004','full_body', 17.1,'estimated')
+on conflict do nothing;
+
+insert into catalog_items (id, category, brand, sku, name, finish, light_response, default_class,
+                           lab_l, lab_a, lab_b, attrs) values
+  ('e1000000-0000-4000-8000-000000000001','film','KPMF','K75407','Сатин-хром тёмный','satin','satin','B',
+    38.0, -0.8, -1.4, '{"hex":"#43464A"}'),
+  ('e1000000-0000-4000-8000-000000000002','film','Oracal','970-070','Матовый графит','matte','solid','B',
+    31.0, -0.2, -1.0, '{"hex":"#3B3E42"}'),
+  ('e1000000-0000-4000-8000-000000000003','film','Hexis','HX20-LG','Глянец «лагуна»','gloss','solid','A',
+    41.0, -18.0, -14.0, '{"hex":"#1F6C80"}'),
+  ('e1000000-0000-4000-8000-000000000004','film','TeckWrap','GAL-OL','Глянец «хаки»','gloss','solid','A',
+    43.0, -6.0, 18.0, '{"hex":"#6E6E4C"}'),
+  ('e1000000-0000-4000-8000-000000000005','film','KPMF','K75400','Чёрный оникс сатин','satin','satin','B',
+    18.0, 0.2, -0.4, '{"hex":"#191A1C"}'),
+  ('e1000000-0000-4000-8000-000000000006','ppf','SunTek','PPF-PPF','Прозрачная PPF глянец','clear','solid','A',
+    null, null, null, '{"clear":true}'),
+  ('e1000000-0000-4000-8000-000000000007','ppf','SunTek','PPF-MATTE','PPF матовая','matte','solid','B',
+    null, null, null, '{"clear":true}'),
+  ('e1000000-0000-4000-8000-000000000008','tint','Llumar','ATR-20','Тонировка 20%','clear','solid','A',
+    null, null, null, '{"vlt":20}'),
+  ('e1000000-0000-4000-8000-000000000009','service','CarSwap','RM-OLD','Снятие старой плёнки','clear','solid','A',
+    null, null, null, '{"labour":true}')
+on conflict do nothing;
+
+insert into network_prices (network_id, catalog_item_id, zone_code, price_kopecks)
+select 'a0000000-0000-4000-8000-000000000001', id, 'full_body',
+       case sku when 'K75407' then 24840000 when '970-070' then 21490000
+                when 'HX20-LG' then 19900000 when 'GAL-OL' then 19900000
+                when 'K75400' then 23600000 when 'PPF-PPF' then 38000000
+                when 'PPF-MATTE' then 42000000 when 'ATR-20' then 1200000
+                else 900000 end
+  from catalog_items on conflict do nothing;
+
+insert into point_prices (point_id, catalog_item_id, zone_code, price_kopecks, in_stock)
+select 'b0000000-0000-4000-8000-000000000001', id, 'full_body',
+       case sku when 'K75407' then 24840000 when '970-070' then 21490000
+                when 'HX20-LG' then 19900000 when 'GAL-OL' then 19900000
+                when 'K75400' then 23600000 when 'PPF-PPF' then 38000000
+                when 'PPF-MATTE' then 42000000 when 'ATR-20' then 1200000
+                else 900000 end,
+       sku <> 'GAL-OL'
+  from catalog_items on conflict do nothing;
+
+insert into film_rolls (point_id, catalog_item_id, batch_number, barcode, meters_initial, meters_left) values
+  ('b0000000-0000-4000-8000-000000000001','e1000000-0000-4000-8000-000000000001',
+   'П-2026-041','4600001234567', 25, 21.5),
+  ('b0000000-0000-4000-8000-000000000001','e1000000-0000-4000-8000-000000000002',
+   'П-2026-077','4600007654321', 25, 9.0)
+on conflict do nothing;
+
+insert into channels (id, point_id, kind, provider, external_id, can_send_images, can_initiate) values
+  ('f1000000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+   'telegram','wazzup','tg-jetcar-myt', true, true),
+  ('f1000000-0000-4000-8000-000000000002','b0000000-0000-4000-8000-000000000001',
+   'whatsapp','wazzup','wa-79161112233', true, false),
+  ('f1000000-0000-4000-8000-000000000003','b0000000-0000-4000-8000-000000000001',
+   'avito','avito_direct','avito-jetcar', true, false),
+  ('f1000000-0000-4000-8000-000000000004','b0000000-0000-4000-8000-000000000001',
+   'max','i2crm','max-jetcar', true, false)
+on conflict do nothing;
+
+insert into clients (id, point_id, name, phone, vehicle, vehicle_model_id) values
+  ('11100000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+   'Дмитрий Реутов','+79031234501','{"make":"BMW","model":"X5","year":2021,"plate":"А432ОР77"}',
+   'd1000000-0000-4000-8000-000000000001'),
+  ('11100000-0000-4000-8000-000000000002','b0000000-0000-4000-8000-000000000001',
+   'Наталья Гурьева','+79031234502','{"make":"Kia","model":"K5","year":2022,"plate":"В274КМ750"}',
+   'd1000000-0000-4000-8000-000000000002'),
+  ('11100000-0000-4000-8000-000000000003','b0000000-0000-4000-8000-000000000001',
+   'Игорь Самойлов','+79031234503','{"make":"Volkswagen","model":"Polo","year":2020,"plate":"Е881АТ197"}',
+   'd1000000-0000-4000-8000-000000000004'),
+  ('11100000-0000-4000-8000-000000000004','b0000000-0000-4000-8000-000000000001',
+   'Марина Ветрова','+79031234504','{"make":"Lada","model":"Vesta","year":2019,"plate":"С748МН78"}',
+   'd1000000-0000-4000-8000-000000000003')
+on conflict do nothing;
+
+insert into consents (id, point_id, client_id, kind, document_version, granted) values
+  ('12200000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+   '11100000-0000-4000-8000-000000000001','photo_processing','v1', true),
+  ('12200000-0000-4000-8000-000000000002','b0000000-0000-4000-8000-000000000001',
+   '11100000-0000-4000-8000-000000000002','photo_processing','v1', true)
+on conflict do nothing;
+
+-- О-5: у диалога нет канала. Канал — свойство сообщения; иконка в строке
+-- инбокса берётся из последнего сообщения треда.
+insert into threads (id, point_id, client_id, status, last_message_at, assigned_to) values
+  ('13300000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+   '11100000-0000-4000-8000-000000000001','open',
+   now() - interval '4 minutes','c0000000-0000-4000-8000-000000000001'),
+  ('13300000-0000-4000-8000-000000000002','b0000000-0000-4000-8000-000000000001',
+   '11100000-0000-4000-8000-000000000002','open',
+   now() - interval '26 minutes','c0000000-0000-4000-8000-000000000001'),
+  ('13300000-0000-4000-8000-000000000003','b0000000-0000-4000-8000-000000000001',
+   '11100000-0000-4000-8000-000000000003','open',
+   now() - interval '2 hours', null),
+  ('13300000-0000-4000-8000-000000000004','b0000000-0000-4000-8000-000000000001',
+   '11100000-0000-4000-8000-000000000004','open',
+   now() - interval '1 day', null)
+on conflict do nothing;
+
+insert into messages (point_id, thread_id, channel_id, direction, body, external_message_id, sent_at) values
+  ('b0000000-0000-4000-8000-000000000001','13300000-0000-4000-8000-000000000001',
+   'f1000000-0000-4000-8000-000000000001','in',
+   'Добрый день! Сколько будет обклеить X5 в сатин-хром?','tg-1', now() - interval '9 minutes'),
+  ('b0000000-0000-4000-8000-000000000001','13300000-0000-4000-8000-000000000001',
+   'f1000000-0000-4000-8000-000000000001','in','Вот фото','tg-2', now() - interval '4 minutes'),
+  ('b0000000-0000-4000-8000-000000000001','13300000-0000-4000-8000-000000000002',
+   'f1000000-0000-4000-8000-000000000002','in',
+   'Здравствуйте, интересует матовый графит на K5','wa-1', now() - interval '26 minutes'),
+  ('b0000000-0000-4000-8000-000000000001','13300000-0000-4000-8000-000000000003',
+   'f1000000-0000-4000-8000-000000000003','in',
+   'Здравствуйте, ещё актуально?','av-1', now() - interval '2 hours'),
+  ('b0000000-0000-4000-8000-000000000001','13300000-0000-4000-8000-000000000004',
+   'f1000000-0000-4000-8000-000000000004','in',
+   'А тонировку делаете?','max-1', now() - interval '1 day')
+on conflict do nothing;
+
+-- Подтверждённая конфигурация и наряд для экрана мастера (фаза 4).
+-- Проходит О-2 и О-3: три света с пройденным QA на каждой позиции,
+-- артикул из прайса этой точки.
+insert into photos (id, point_id, client_id, storage_path, sha256, width, height, consent_id,
+                    vehicle_model_id)
+values ('14400000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+        '11100000-0000-4000-8000-000000000001','/renders/input-client-photo.jpg','seed-x5',
+        2400, 1792,'12200000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000001')
+on conflict do nothing;
+
+insert into configurations (id, point_id, thread_id, photo_id, vehicle_model_id, created_by, origin)
+values ('15500000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+        '13300000-0000-4000-8000-000000000001','14400000-0000-4000-8000-000000000001',
+        'd1000000-0000-4000-8000-000000000001','c0000000-0000-4000-8000-000000000001','manager')
+on conflict do nothing;
+
+insert into configuration_items (id, configuration_id, point_id, point_price_id, category,
+                                price_kopecks, meters_required)
+select '16600000-0000-4000-8000-000000000001','15500000-0000-4000-8000-000000000001',
+       'b0000000-0000-4000-8000-000000000001', pp.id, 'film', pp.price_kopecks, 21.5
+  from point_prices pp join catalog_items ci on ci.id = pp.catalog_item_id
+ where pp.point_id = 'b0000000-0000-4000-8000-000000000001' and ci.sku = 'K75407'
+on conflict do nothing;
+
+insert into renders (configuration_item_id, point_id, variant, storage_path, pipeline,
+                     render_class, qa_passed, cost_kopecks)
+select '16600000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001', v,
+       '/renders/light-black-'||(case v when 'day' then 'sun' when 'overcast' then 'cloud'
+                                       else 'park' end)||'.jpg',
+       '{"source":"seed"}'::jsonb,'B', true, 850
+  from unnest(enum_range(null::render_variant)) v
+on conflict do nothing;
+
+insert into outbound_cards (id, point_id, configuration_id, honesty_line, channel_kind, rendered_paths)
+values ('17700000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+        '15500000-0000-4000-8000-000000000001',
+        'Оттенок партии сверим с рулоном при вас на замере — образец приложим к записи.',
+        'telegram', array['/renders/light-black-sun.jpg','/renders/light-black-cloud.jpg',
+                          '/renders/light-black-park.jpg'])
+on conflict do nothing;
+
+insert into confirmations (id, point_id, configuration_id, outbound_card_id, confirmed_via,
+                           confirmed_at)
+values ('18800000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+        '15500000-0000-4000-8000-000000000001','17700000-0000-4000-8000-000000000001','link',
+        now() - interval '3 days')
+on conflict do nothing;
+
+insert into orders (id, point_id, confirmation_id, number, status, total_kopecks)
+values ('19900000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+        '18800000-0000-4000-8000-000000000001','ЗН-2026-0148','created', 24840000)
+on conflict do nothing;

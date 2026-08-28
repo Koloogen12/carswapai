@@ -1,0 +1,6 @@
+node_modules/
+.next/
+*.tsbuildinfo
+.env*.local
+app/worker/fixtures/dev-set/.preview/
+.DS_Store
