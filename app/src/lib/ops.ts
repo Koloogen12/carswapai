@@ -37,20 +37,49 @@ export async function followUps() {
 
 export async function schedule() {
   return withTenant(OWNER, async c => {
-    const bays = (await c.query(
-      `select id, name from bays where active order by name`)).rows;
+    const bays = (await c.query(`
+      select b.id, b.name,
+             (select u.name from shifts sh join users u on u.id = sh.user_id
+               where sh.point_id = b.point_id and sh.kind = 'work'
+                 and now() between sh.starts_at and sh.ends_at limit 1) as master
+        from bays b where b.active order by b.name`)).rows;
     const appts = (await c.query(`
       select ap.id, ap.bay_id, ap.kind::text, ap.status::text, ap.starts_at, ap.ends_at,
-             cl.name as client_name,
-             trim(coalesce(cl.vehicle->>'make','')||' '||coalesce(cl.vehicle->>'model','')) as vehicle
-        from appointments ap left join clients cl on cl.id = ap.client_id
-       where ap.starts_at > now() - interval '2 days'
+             cl.name as client_name, cl.vehicle->>'model' as model,
+             ci.name as item_name, o.number as order_number, fr.batch_number
+        from appointments ap
+        left join clients cl on cl.id = ap.client_id
+        left join configurations cfg on cfg.id = ap.configuration_id
+        left join configuration_items cit on cit.configuration_id = cfg.id
+        left join point_prices pp on pp.id = cit.point_price_id
+        left join catalog_items ci on ci.id = pp.catalog_item_id
+        left join confirmations cf on cf.configuration_id = cfg.id
+        left join orders o on o.confirmation_id = cf.id
+        left join film_rolls fr on fr.id = o.verified_roll_id
+       where ap.starts_at > now() - interval '1 day' and ap.status <> 'cancelled'
        order by ap.starts_at`)).rows;
-    return { bays, appts } as {
-      bays: { id: string; name: string }[];
+    // Ждут слот: подтвердили выбор, но записи нет. В макете они стоят
+    // в свободной части ленты — свободный пост и ждущий клиент рядом,
+    // чтобы накладка была видна раньше, чем случится.
+    const waiting = (await c.query(`
+      select cl.name, ci.name as item_name
+        from confirmations cf
+        join configurations cfg on cfg.id = cf.configuration_id
+        left join threads t on t.id = cfg.thread_id
+        left join clients cl on cl.id = t.client_id
+        join configuration_items cit on cit.configuration_id = cfg.id
+        join point_prices pp on pp.id = cit.point_price_id
+        join catalog_items ci on ci.id = pp.catalog_item_id
+       where not exists (select 1 from appointments ap
+                          where ap.configuration_id = cfg.id and ap.status <> 'cancelled')
+       limit 3`)).rows;
+    return { bays, appts, waiting } as {
+      bays: { id: string; name: string; master: string | null }[];
       appts: { id: string; bay_id: string | null; kind: string; status: string;
                starts_at: string; ends_at: string | null; client_name: string | null;
-               vehicle: string }[];
+               model: string | null; item_name: string | null;
+               order_number: string | null; batch_number: string | null }[];
+      waiting: { name: string | null; item_name: string }[];
     };
   });
 }
@@ -106,15 +135,98 @@ export async function billing() {
   });
 }
 
-/** Центр событий: то, что требует человека, а не уведомление в никуда. */
-export async function events() {
+/**
+ * Центр событий.
+ *
+ * Событие — доменный факт, а не строка аудит-лога. Лог отвечает на вопрос
+ * «что произошло», а владельцу нужен другой: «что требует меня прямо сейчас».
+ * Поэтому лента собирается из состояний, на которые можно ответить действием:
+ * заблокированный наряд, порог расхода с аномалией, подтверждённый выбор,
+ * запись через гараж без участия менеджера.
+ */
+export type PointEvent = {
+  kind: 'roll_mismatch' | 'budget' | 'confirmed' | 'self_booked' | 'channel';
+  tone: 'alert' | 'warm' | 'plain';
+  title: string; detail: string; at: string; read: boolean;
+};
+
+export async function events(): Promise<PointEvent[]> {
   return withTenant(OWNER, async c => {
-    const { rows } = await c.query(`
-      select al.at, al.action, al.entity, al.detail, u.name as actor
-        from audit_log al left join users u on u.id = al.actor_id
-       order by al.at desc limit 20`);
-    return rows as { at: string; action: string; entity: string;
-                     detail: Record<string, unknown>; actor: string | null }[];
+    const out: PointEvent[] = [];
+
+    const blocked = (await c.query(`
+      select o.number, ci.sku, al.at
+        from audit_log al
+        join orders o on o.id = al.entity_id
+        join confirmations cf on cf.id = o.confirmation_id
+        join configurations cfg on cfg.id = cf.configuration_id
+        join configuration_items cit on cit.configuration_id = cfg.id
+        join point_prices pp on pp.id = cit.point_price_id
+        join catalog_items ci on ci.id = pp.catalog_item_id
+       where al.action = 'order.roll_mismatch' order by al.at desc limit 3`)).rows;
+    for (const b of blocked) out.push({
+      kind: 'roll_mismatch', tone: 'alert', at: b.at, read: false,
+      title: 'Рулон не сошёлся',
+      detail: `Наряд ${b.number} · в записи ${b.sku}, на рулоне другой артикул. Наряд заблокирован`,
+    });
+
+    const [bud] = (await c.query(`select * from app.budget_state($1)`, [OWNER.point_id])).rows;
+    const pct = bud.hard_limit ? Math.round((bud.spent_kopecks / bud.hard_limit) * 100) : 0;
+    if (pct >= 60) {
+      const [spike] = (await c.query(`
+        select count(*)::int as n from generation_usage
+         where created_at > now() - interval '24 hours'`)).rows;
+      out.push({
+        kind: 'budget', tone: pct >= 100 ? 'alert' : 'warm', at: new Date().toISOString(),
+        read: false, title: `Генерации на ${pct}%`,
+        detail: spike.n > 100
+          ? `Аномалия: ${spike.n} примерок за сутки — проверьте гараж на накрутку`
+          : 'По текущему темпу расход укладывается в потолок',
+      });
+    }
+
+    const conf = (await c.query(`
+      select cf.confirmed_at, cl.name, ci.name as item, o.number
+        from confirmations cf
+        join configurations cfg on cfg.id = cf.configuration_id
+        left join threads t on t.id = cfg.thread_id
+        left join clients cl on cl.id = t.client_id
+        join configuration_items cit on cit.configuration_id = cfg.id
+        join point_prices pp on pp.id = cit.point_price_id
+        join catalog_items ci on ci.id = pp.catalog_item_id
+        left join orders o on o.confirmation_id = cf.id
+       order by cf.confirmed_at desc limit 4`)).rows;
+    for (const x of conf) out.push({
+      kind: 'confirmed', tone: 'plain', at: x.confirmed_at, read: true,
+      title: `${x.name ?? 'Клиент'} подтвердил выбор`,
+      detail: `${x.item}${x.number ? ` · наряд ${x.number} создан` : ' · наряд ещё не создан'}`,
+    });
+
+    // Запись через гараж без участия менеджера — отдельное событие: это
+    // подтверждение, что второе ядро работает само.
+    const self = (await c.query(`
+      select ap.starts_at, ap.created_at, cl.name
+        from appointments ap
+        join configurations cfg on cfg.id = ap.configuration_id
+        left join clients cl on cl.id = ap.client_id
+       where cfg.origin = 'garage' or cfg.thread_id is null
+       order by ap.created_at desc limit 3`)).rows;
+    for (const x of self) out.push({
+      kind: 'self_booked', tone: 'plain', at: x.created_at, read: true,
+      title: `${x.name ?? 'Клиент'} записался на ${new Date(x.starts_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`,
+      detail: 'через гараж, без участия менеджера',
+    });
+
+    const dead = (await c.query(
+      `select kind::text, last_error from channels where status <> 'connected'`)).rows;
+    for (const ch of dead) out.push({
+      kind: 'channel', tone: 'alert', at: new Date().toISOString(), read: false,
+      title: `Канал ${ch.kind} отвалился`,
+      detail: ch.last_error ?? 'Повторная привязка — внутри продукта, за три действия',
+    });
+
+    return out.sort((a, b) => (a.read === b.read ? +new Date(b.at) - +new Date(a.at)
+                                                 : a.read ? 1 : -1));
   });
 }
 

@@ -44,6 +44,15 @@ fi
 step "4 · связность интерфейса"
 python3 qa_consistency.py || FAIL=1
 
+step "5 · верность макету"
+# Связность отвечает «из чего собрано», верность — «то ли собрано».
+# Экран можно построить из правильных компонентов и наполнить выдуманным.
+if curl -s -o /dev/null --max-time 3 http://localhost:3000/inbox; then
+  python3 qa_fidelity.py || FAIL=1
+else
+  echo "  дев-сервер не отвечает — пропускаю"
+fi
+
 printf '\n'
 [ "$FAIL" = "0" ] && echo "QA ПРОЙДЕН" || echo "QA ПРОВАЛЕН"
 exit $FAIL

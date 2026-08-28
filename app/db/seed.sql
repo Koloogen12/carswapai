@@ -212,3 +212,121 @@ insert into orders (id, point_id, confirmation_id, number, status, total_kopecks
 values ('19900000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
         '18800000-0000-4000-8000-000000000001','ЗН-2026-0148','created', 24840000)
 on conflict do nothing;
+
+-- Состояния, которые нарисованы в макетах и без которых половина экранов
+-- показывает пустоту: заблокированный наряд, запись через гараж без
+-- менеджера, отвалившийся канал, расход у порога.
+
+update channels set status = 'disconnected',
+       last_error = 'Слетела привязка номера. Повторная привязка — три действия внутри продукта'
+ where kind = 'whatsapp';
+
+insert into bays (id, point_id, name) values
+  ('ba100000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001','Пост №1'),
+  ('ba100000-0000-4000-8000-000000000002','b0000000-0000-4000-8000-000000000001','Пост №2')
+on conflict do nothing;
+
+insert into subscriptions (point_id, plan, price_kopecks, period_start, period_end)
+values ('b0000000-0000-4000-8000-000000000001','point', 1000000,
+        date_trunc('month', now())::date, (date_trunc('month', now()) + interval '1 month')::date)
+on conflict do nothing;
+
+-- Расход у порога: без него шкала и прогноз показывают ноль.
+insert into generation_usage (point_id, render_class, category, cost_kopecks, model_used)
+select 'b0000000-0000-4000-8000-000000000001',
+       case when g % 4 = 0 then 'B' else 'A' end::render_class,
+       'film'::item_category,
+       case when g % 4 = 0 then 850 else 10 end,
+       case when g % 4 = 0 then 'gemini-3.1-flash-image' else null end
+  from generate_series(1, 620) g
+on conflict do nothing;
+
+-- Гараж привёл клиента сам: конфигурация без треда, запись без менеджера.
+insert into clients (id, point_id, name, phone, vehicle, vehicle_model_id)
+values ('11100000-0000-4000-8000-000000000005','b0000000-0000-4000-8000-000000000001',
+        'Егор Лапин','+79031234505','{"make":"Kia","model":"K5","year":2022,"plate":"Н623ВУ750"}',
+        'd1000000-0000-4000-8000-000000000002')
+on conflict do nothing;
+
+insert into configurations (id, point_id, vehicle_model_id, origin, session_id)
+values ('15500000-0000-4000-8000-000000000002','b0000000-0000-4000-8000-000000000001',
+        'd1000000-0000-4000-8000-000000000002','garage','sess-garage-1')
+on conflict do nothing;
+
+insert into appointments (point_id, client_id, configuration_id, bay_id, kind, starts_at, ends_at)
+values ('b0000000-0000-4000-8000-000000000001','11100000-0000-4000-8000-000000000005',
+        '15500000-0000-4000-8000-000000000002','ba100000-0000-4000-8000-000000000002',
+        'measure', now() + interval '1 day', now() + interval '1 day 20 minutes')
+on conflict do nothing;
+
+-- Наряд, заблокированный несовпавшим рулоном: событие и экран мастера.
+insert into audit_log (point_id, actor_id, actor_role, action, entity, entity_id, detail)
+values ('b0000000-0000-4000-8000-000000000001','c0000000-0000-4000-8000-000000000002','master',
+        'order.roll_mismatch','orders','19900000-0000-4000-8000-000000000001',
+        '{"expected":"K75407","scanned":"970-070"}'::jsonb)
+on conflict do nothing;
+
+-- Движение склада, чтобы список движений не был пуст.
+insert into stock_moves (point_id, roll_id, order_id, reason, delta_meters)
+select 'b0000000-0000-4000-8000-000000000001', fr.id,
+       '19900000-0000-4000-8000-000000000001','consume', -3.5
+  from film_rolls fr
+ where fr.point_id = 'b0000000-0000-4000-8000-000000000001'
+   and fr.batch_number = 'П-2026-077'
+   and not exists (select 1 from stock_moves sm where sm.roll_id = fr.id);
+
+-- Работа занимает пост на три дня — именно из-за этого возникают накладки,
+-- ради которых лента постов и нужна. В клетках по дням это не видно.
+insert into appointments (id, point_id, client_id, configuration_id, bay_id, kind,
+                          status, starts_at, ends_at)
+values ('ab100000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
+        '11100000-0000-4000-8000-000000000001','15500000-0000-4000-8000-000000000001',
+        'ba100000-0000-4000-8000-000000000001','work','planned',
+        date_trunc('day', now()) + interval '1 day 10 hours',
+        date_trunc('day', now()) + interval '4 days')
+on conflict do nothing;
+
+-- Клиент, подтвердивший цвет и ждущий слот: он стоит в свободной части ленты.
+insert into clients (id, point_id, name, phone, vehicle, vehicle_model_id)
+values ('11100000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-000000000001',
+        'Анна Величко','+79031234506','{"make":"Mini","model":"Countryman","year":2021,"plate":"К402РС199"}',
+        'd1000000-0000-4000-8000-000000000002')
+on conflict do nothing;
+insert into consents (id, point_id, client_id, kind, document_version, granted)
+values ('12200000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-000000000001',
+        '11100000-0000-4000-8000-000000000006','photo_processing','v1', true)
+on conflict do nothing;
+insert into threads (id, point_id, client_id, status, last_message_at)
+values ('13300000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-000000000001',
+        '11100000-0000-4000-8000-000000000006','open', now() - interval '6 days')
+on conflict do nothing;
+insert into configurations (id, point_id, thread_id, vehicle_model_id, created_by)
+values ('15500000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-000000000001',
+        '13300000-0000-4000-8000-000000000006','d1000000-0000-4000-8000-000000000002',
+        'c0000000-0000-4000-8000-000000000001')
+on conflict do nothing;
+insert into configuration_items (id, configuration_id, point_id, point_price_id, category,
+                                price_kopecks, meters_required)
+select '16600000-0000-4000-8000-000000000006','15500000-0000-4000-8000-000000000006',
+       'b0000000-0000-4000-8000-000000000001', pp.id, 'film', pp.price_kopecks, 17.4
+  from point_prices pp join catalog_items ci on ci.id = pp.catalog_item_id
+ where pp.point_id = 'b0000000-0000-4000-8000-000000000001' and ci.sku = '970-070'
+on conflict do nothing;
+insert into renders (configuration_item_id, point_id, variant, storage_path, pipeline,
+                     render_class, qa_passed, cost_kopecks)
+select '16600000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-000000000001', v,
+       '/renders/render-0'||(case v when 'day' then '2' when 'overcast' then '4' else '6' end)||'.png',
+       '{"source":"seed"}'::jsonb,'B', true, 850
+  from unnest(enum_range(null::render_variant)) v
+on conflict do nothing;
+insert into outbound_cards (id, point_id, configuration_id, honesty_line, channel_kind, rendered_paths)
+values ('17700000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-000000000001',
+        '15500000-0000-4000-8000-000000000006',
+        'Оттенок партии сверим с рулоном при вас на замере — образец приложим к записи.',
+        'telegram', array['/renders/render-02.png','/renders/render-04.png','/renders/render-06.png'])
+on conflict do nothing;
+insert into confirmations (id, point_id, configuration_id, outbound_card_id, confirmed_via, confirmed_at)
+values ('18800000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-000000000001',
+        '15500000-0000-4000-8000-000000000006','17700000-0000-4000-8000-000000000006','link',
+        now() - interval '6 days')
+on conflict do nothing;
