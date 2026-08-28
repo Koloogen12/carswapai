@@ -200,11 +200,6 @@ begin
 end $$;
 
 -- ── §13. Изоляция арендаторов проверяется попыткой ───────────
-create role app_tenant nologin;
-grant usage on schema public, app to app_tenant;
-grant select, insert, update, delete on all tables in schema public to app_tenant;
-grant execute on all functions in schema app to app_tenant;
-
 set local role app_tenant;
 set local request.jwt.claims = '{"app_role":"manager","point_id":"bbbbbbbb-0000-0000-0000-000000000002","network_id":"11111111-1111-1111-1111-111111111111"}';
 

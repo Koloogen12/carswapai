@@ -90,3 +90,29 @@ export async function closeWork(orderId: string) {
     return { ok: true as const };
   });
 }
+
+/** Наряды мастера: его смена, а не все наряды точки. */
+export async function myOrders() {
+  return withTenant(MASTER, async c => {
+    const { rows } = await c.query(`
+      select o.id, o.number, o.status, o.batch_verified_at,
+             cl.name as client_name, cl.vehicle->>'plate' as plate,
+             trim(coalesce(cl.vehicle->>'make','')||' '||coalesce(cl.vehicle->>'model','')) as vehicle,
+             ci.brand, ci.sku, ci.name as item_name, cit.meters_required::text as meters,
+             (select r.storage_path from renders r
+               where r.configuration_item_id = cit.id and r.variant = 'day') as thumb
+        from orders o
+        join confirmations cf on cf.id = o.confirmation_id
+        join configurations cfg on cfg.id = cf.configuration_id
+        left join threads t on t.id = cfg.thread_id
+        left join clients cl on cl.id = t.client_id
+        join configuration_items cit on cit.configuration_id = cfg.id
+        join point_prices pp on pp.id = cit.point_price_id
+        join catalog_items ci on ci.id = pp.catalog_item_id
+       order by array_position(array['in_work','created','done'], o.status), o.created_at desc`);
+    return rows as { id: string; number: string; status: string; batch_verified_at: string | null;
+                     client_name: string | null; plate: string | null; vehicle: string;
+                     brand: string; sku: string; item_name: string; meters: string | null;
+                     thumb: string | null }[];
+  });
+}

@@ -32,12 +32,13 @@ else
   OID=$(cd db && PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH" psql -h /tmp/cswdev -p 55432 \
         -U postgres -d carswap -tAc "select id from orders limit 1" 2>/dev/null)
   for u in /login /join /staff /inbox "/inbox/$TID" /g/jetcar-mytishchi "/bay/$OID" \
-           /owner /network /price /crm "/c/$CFG" \
+           /owner /network /price /crm "/c/$CFG" /bay \
+           /ops/followups /ops/schedule /ops/stock /ops/billing /ops/events /ops/managers \
            "/doc/order/$OID" "/doc/invoice/$OID" "/doc/warranty/$OID"; do
     C=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3000$u")
     [ "$C" = "200" ] || { printf '  %-44s %s\n' "$u" "$C"; FAIL=1; }
   done
-  echo "  проверено 16 маршрутов"
+  echo "  проверено 23 маршрута"
 fi
 
 step "4 · связность интерфейса"
