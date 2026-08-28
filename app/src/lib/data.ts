@@ -131,3 +131,49 @@ export async function channelHealth(claims = MANAGER) {
                      can_send_images: boolean; can_initiate: boolean; last_error: string | null }[];
   });
 }
+
+export type CardView = {
+  title: string;
+  variants: { name: string; sku: string; price: string;
+              day: string; overcast: string; parking: string }[];
+};
+
+/** Отправленные карточки треда с рендерами по трём светам. */
+export async function cardsOf(threadId: string, claims = MANAGER) {
+  return withTenant(claims, async c => {
+    const { rows } = await c.query(`
+      select oc.id as card_id, ci.name, ci.sku, ci.brand, cit.price_kopecks,
+             max(r.storage_path) filter (where r.variant = 'day')      as day,
+             max(r.storage_path) filter (where r.variant = 'overcast') as overcast,
+             max(r.storage_path) filter (where r.variant = 'parking')  as parking
+        from outbound_cards oc
+        join configurations cfg on cfg.id = oc.configuration_id
+        join configuration_items cit on cit.configuration_id = cfg.id
+        join point_prices pp on pp.id = cit.point_price_id
+        join catalog_items ci on ci.id = pp.catalog_item_id
+        join renders r on r.configuration_item_id = cit.id
+       where cfg.thread_id = $1
+       group by oc.id, ci.name, ci.sku, ci.brand, cit.price_kopecks, cit.id
+       order by oc.id`, [threadId]);
+    const out: Record<string, CardView> = {};
+    for (const r of rows) {
+      (out[r.card_id] ??= { title: 'Три плёнки · три света', variants: [] }).variants.push({
+        name: r.name, sku: `${r.brand} ${r.sku}`,
+        price: Math.round(r.price_kopecks / 100).toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽',
+        day: r.day, overcast: r.overcast, parking: r.parking,
+      });
+    }
+    return out;
+  });
+}
+
+/** Метраж плёнки под кузов клиента, если он известен (М-9). */
+export async function metersFor(vehicleModelId: string | null, claims = MANAGER) {
+  if (!vehicleModelId) return null;
+  return withTenant(claims, async c => {
+    const { rows } = await c.query(
+      `select running_meters::text from vehicle_zone_metrage
+        where vehicle_model_id = $1 and zone_code = 'full_body'`, [vehicleModelId]);
+    return rows[0]?.running_meters ?? null;
+  });
+}

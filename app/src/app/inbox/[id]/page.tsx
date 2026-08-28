@@ -1,22 +1,39 @@
 import { notFound } from 'next/navigation';
-import { Shell, NavLink } from '@/components/shell';
-import { thread, priceList, budget } from '@/lib/data';
-import { Dialog } from './dialog';
+import { AppBar, Frame } from '@/screens/chrome';
+import { DialogPane } from '@/screens/DialogPane';
+import { TryonPanel } from '@/screens/TryonPanel';
+import { InboxList } from '../InboxList';
+import { thread, priceList, budget, inbox, cardsOf, metersFor } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Экран «инбокс + диалог + панель» — три зоны в одном окне.
+ * Список слева остаётся на месте: менеджер не уходит из инбокса, чтобы
+ * ответить, и не возвращается в него, чтобы взять следующее обращение.
+ */
 export default async function ThreadPage({ params }: { params: { id: string } }) {
-  const [t, prices, b] = await Promise.all([thread(params.id), priceList(), budget()]);
+  const t = await thread(params.id);
   if (!t) notFound();
+  const [rows, prices, b, cards, meters] = await Promise.all([
+    inbox(), priceList(undefined, 'film'), budget(),
+    cardsOf(params.id), metersFor(t.vehicle_model_id),
+  ]);
+  const v = t.vehicle ?? {};
+  const channel = t.messages.at(-1)?.channel ?? 'web';
   return (
-    <Shell user="Ирина Ковалёва" role="Менеджер · JETCAR Мытищи"
-      nav={<>
-        <NavLink href="/inbox" active>Инбокс</NavLink>
-        <NavLink href="/crm">Клиенты</NavLink>
-        <NavLink href="/price">Прайс</NavLink>
-        <NavLink href="/owner">Точка</NavLink>
-      </>}>
-      <Dialog thread={t} prices={prices} budget={b} />
-    </Shell>
+    <Frame>
+      <AppBar pointName="JETCAR Мытищи" user="Ирина Ковалёва" role="Менеджер"
+        spent={b.spent_kopecks} cap={b.hard_limit} />
+      <div style={{ flex: "1", display: "flex", gap: "12px", minHeight: "0" }}>
+        <InboxList rows={rows} activeId={params.id} compact />
+        <DialogPane name={t.client_name} phone={t.phone} channel={channel}
+          note={v.make ? `${v.make} ${v.model ?? ''} ${v.year ?? ''} · ${v.plate ?? ''}`.replace(/\s+/g, ' ').trim() : 'авто не распознано'}
+          messages={t.messages} cards={cards} pointName="JETCAR Мытищи" />
+        <TryonPanel threadId={params.id} prices={prices} meters={meters}
+          blocked={b.hard_reached}
+          vehicle={v.make ? `${v.make} ${v.model ?? ''} ${v.year ?? ''}`.replace(/\s+/g, ' ').trim() : 'Кузов не распознан'} />
+      </div>
+    </Frame>
   );
 }
