@@ -267,3 +267,52 @@ export async function garageTryOnStatus(slug: string, itemId: string) {
     };
   }, sid);
 }
+
+/**
+ * «Написать точке» из гаража.
+ *
+ * Г-1 запрещает поля регистрации до первой примерки, поэтому телефон здесь не
+ * спрашивается. Вместо этого клиент уходит в мессенджер точки со своим
+ * собственным аккаунтом — тем же, которым он и так пользуется. Его опознание
+ * приходит из канала, ровно как у любого другого обращения: О-5, канал это
+ * свойство сообщения.
+ *
+ * Заготовленный текст несёт артикул и цену. Не ради удобства: менеджер должен
+ * увидеть в первом же сообщении, что человек уже выбрал, — иначе разговор
+ * начнётся с «здравствуйте, а сколько стоит», и вся примерка пропадёт зря.
+ */
+export async function contactLink(slug: string, pointPriceId: string | null) {
+  return withGarage(slug, async c => {
+    const ch = await c.query<{ kind: string; external_id: string }>(
+      `select ch.kind::text, ch.external_id
+         from channels ch join points p on p.id = ch.point_id
+        where p.public_slug = $1 and ch.status = 'active'
+        order by case ch.kind::text
+                   when 'whatsapp' then 1 when 'telegram' then 2 else 3 end
+        limit 1`, [slug]);
+    if (!ch.rows.length) {
+      return { ok: false as const,
+               error: 'У точки пока не подключён ни один канал — позвоните ей' };
+    }
+
+    let what = '';
+    if (pointPriceId) {
+      const p = await c.query<{ name: string; price_kopecks: number }>(
+        `select ci.name, pp.price_kopecks
+           from point_prices pp join catalog_items ci on ci.id = pp.catalog_item_id
+          where pp.id = $1`, [pointPriceId]);
+      if (p.rows.length) {
+        const r = Math.round(p.rows[0].price_kopecks / 100).toLocaleString('ru-RU');
+        what = ` Смотрю «${p.rows[0].name}» за ${r} ₽.`;
+      }
+    }
+    const text = encodeURIComponent(
+      `Здравствуйте! Примерял плёнку в вашей примерочной.${what} Подскажите по срокам и записи на замер.`);
+
+    const { kind, external_id } = ch.rows[0];
+    const url = kind === 'telegram'
+      ? `https://t.me/${external_id.replace(/^@/, '')}?text=${text}`
+      : `https://wa.me/${external_id.replace(/\D/g, '')}?text=${text}`;
+    return { ok: true as const, url };
+  });
+}
