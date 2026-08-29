@@ -93,13 +93,42 @@ export async function verifyRoll(orderId: string, rollId: string) {
         `update orders set status = 'in_work', verified_roll_id = $2, verified_by = $3
           where id = $1`, [orderId, rollId, who.user_id]);
       await c.query(
+        // $4::text — приведение обязательно. Без него Postgres отвечает
+        // «could not determine data type of parameter $4», исключение
+        // откатывает транзакцию целиком, и сверка НЕ ПРОХОДИЛА НИ РАЗУ,
+        // ни одним рулоном. Наружу уходил обычный отказ, а экран показывал
+        // его как «рулон не тот» — то есть продукт учил мастера, что сверка
+        // врёт, показывая два одинаковых артикула рядом с вердиктом
+        // «не сошлось».
+        //
+        // Роль берётся из сессии, а не литералом 'master': под сессией
+        // владельца в журнал уходила ложная роль, а журнал — доказательство.
         `insert into audit_log (point_id, actor_id, actor_role, action, entity, entity_id, detail)
-         values ($1,$2,'master','order.roll_verified','orders',$3, jsonb_build_object('roll',$4))`,
-        [who.point_id, who.user_id, orderId, rollId]);
+         values ($1,$2,$3,'order.roll_verified','orders',$4,
+                 jsonb_build_object('roll', $5::text))`,
+        [who.point_id, who.user_id, who.app_role, orderId, rollId]);
       revalidatePath(`/bay/${orderId}`);
       return { ok: true as const };
     } catch (e) {
-      return { ok: false as const, error: (e as Error).message };
+      // Расхождение записывается в журнал САМО, а не по кнопке: доказательство
+      // не должно зависеть от того, вспомнил ли мастер нажать. Оно же
+      // закрывает контур — сводка событий точки читает order.roll_mismatch.
+      const msg = (e as Error).message;
+      const mismatch = /23001|рулон|roll/i.test(msg);
+      if (mismatch) {
+        try {
+          await c.query(
+            `insert into audit_log (point_id, actor_id, actor_role, action, entity,
+                                    entity_id, detail)
+             values ($1,$2,$3,'order.roll_mismatch','orders',$4,
+                     jsonb_build_object('roll', $5::text, 'error', $6::text))`,
+            [who.point_id, who.user_id, who.app_role, orderId, rollId, msg.slice(0, 300)]);
+        } catch { /* журнал не должен маскировать исходную причину */ }
+      }
+      // Два разных исхода — две разные новости: «рулон не тот» мастер чинит
+      // сам, «сверка сломалась» чинить нечем, и подсказки у них разные.
+      return { ok: false as const, kind: mismatch ? 'mismatch' as const : 'broken' as const,
+               error: msg };
     }
   });
 }
