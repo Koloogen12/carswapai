@@ -41,6 +41,8 @@ MAP = [
     ('/ops/search',        '09-pass3-management',           2, [1]),
     ('/ops/catalog',       '09-pass3-management',           3, [1]),
     ('/measure/fc7c285a-bdad-4084-9918-183838973cd8', '10-pass4-measure-intake-mobile-crm', 1, [1, 0]),
+    ('/c/15500000-0000-4000-8000-000000000001',
+                           '10-pass4-measure-intake-mobile-crm', 2, [1, 0]),
     ('/crm/mobile',        '10-pass4-measure-intake-mobile-crm', 3, [1, 0]),
     ('/help',              '10-pass4-measure-intake-mobile-crm', 3, [1, 1]),
     ('/owner/mobile',      '09-pass3-management',           4, [1, 0]),

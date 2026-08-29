@@ -4,7 +4,8 @@
  * Мобильная рамка 390, шторка снизу с ручкой 38×4, тень 0 −22px 44px −26px.
  */
 import { useState, useTransition } from 'react';
-import { bookSlot, confirmChoice, payPrepay, type Journey } from '@/lib/journey';
+import { bookSlot, confirmChoice, payPrepay, decideChange, reschedule,
+         type Journey } from '@/lib/journey';
 
 const rub = (k: number) => Math.round(k / 100).toLocaleString('ru-RU').replace(/ /g, ' ');
 const DOW = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
@@ -27,9 +28,17 @@ export function ClientJourney({ j }: { j: Journey }) {
   const act = (fn: () => Promise<{ ok: boolean; error?: string }>) =>
     start(async () => { const r = await fn(); setErr(r.ok ? null : r.error ?? null); });
 
-  /* Какой шаг показать — решает состояние заказа, а не история навигации. */
-  const stage: 'confirm' | 'slot' | 'visit' | 'pay' | 'paid' | 'work' | 'accept' | 'done' =
-      j.warranty_number ? 'done'
+  const pendingChange = (j.changes ?? []).find(c => c.status === 'proposed');
+  const approved = (j.changes ?? []).filter(c => c.status === 'approved');
+  const extra = approved.reduce((a, c) => a + c.amount_kopecks, 0);
+
+  /* Какой шаг показать — решает состояние заказа, а не история навигации.
+     Согласование доплаты вклинивается вперёд всего: пока клиент не ответил,
+     работа не идёт, и показывать ему ход работ нечестно. */
+  const stage: 'confirm' | 'slot' | 'visit' | 'pay' | 'paid' | 'work' | 'accept' | 'done'
+             | 'approve' =
+      pendingChange ? 'approve'
+    : j.warranty_number ? 'done'
     : j.order_status === 'done' ? 'accept'
     : j.order_status === 'in_work' ? 'work'
     : paid > 0 ? 'paid'
@@ -74,6 +83,71 @@ export function ClientJourney({ j }: { j: Journey }) {
           </div>
         </Sheet>
       </>}
+
+      {stage === 'approve' && pendingChange && <Pad>
+        <Head title="Мастер обмерил вашу машину"
+          note="Плёнки нужно больше, чем по оценке, и есть царапина, которую надо подготовить. Иначе плёнка ляжет с дефектом." small />
+        {pendingChange.photo && (
+          <div style={{ borderRadius: "24px", overflow: "hidden", height: "150px", position: "relative" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={pendingChange.photo} alt="фото с замера"
+              style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
+            <span style={{ position: "absolute", left: "12px", bottom: "12px", fontSize: "10.5px", fontWeight: "500", background: "rgba(255,255,255,.94)", borderRadius: "999px", padding: "5px 11px" }}>
+              {pendingChange.reason}</span>
+          </div>
+        )}
+        <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "20px", display: "flex", flexDirection: "column", gap: "11px" }}>
+          <Line k="Было согласовано" v={`${rub(j.price_kopecks)} ₽`} />
+          {approved.map(c => (
+            <Line key={c.id} k={c.reason} v={`+ ${rub(c.amount_kopecks)} ₽`} bold />
+          ))}
+          <Line k={pendingChange.reason} v={`+ ${rub(pendingChange.amount_kopecks)} ₽`} bold />
+          <div style={{ height: "1px", background: "#F0F0F0" }}></div>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+            <span style={{ fontSize: "12.5px", fontWeight: "500" }}>Итого</span>
+            <div style={{ display: "flex", alignItems: "baseline", fontSize: "24px", fontWeight: "500", letterSpacing: "-0.035em", fontVariantNumeric: "tabular-nums" }}>
+              {rub(j.price_kopecks + extra + pendingChange.amount_kopecks)}
+              <span style={{ fontSize: "14px", color: "#9A9A9A", marginLeft: "3px" }}>₽</span></div>
+          </div>
+          <span style={{ fontSize: "11px", color: "#6E6E6E", lineHeight: "1.45" }}>
+            {paid > 0 ? `Предоплата ${rub(paid)} ₽ уже получена. Доплата — при выдаче.`
+                      : 'Доплата — при выдаче, предоплата не меняется.'}
+          </span>
+        </div>
+        <div style={{ background: "#F5FBCB", borderRadius: "20px", padding: "13px 15px" }}>
+          <span style={{ fontSize: "11px", lineHeight: "1.5", color: "#2E2E2E" }}>
+            От подготовки можно отказаться — сколы будут видны на просвет,
+            но плёнка ляжет нормально. Решать вам.
+          </span>
+        </div>
+
+        {err && <Err text={err} />}
+
+        {/* Отказ виден и не спрятан. Клиент, который передумал на замере,
+            дешевле клиента, который узнал о доплате при выдаче. */}
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
+          <button onClick={() => act(() => decideChange(j.configuration_id, pendingChange.id, true))}
+            disabled={pending}
+            style={{ background: "#DEF23B", borderRadius: "999px", padding: "18px 0", textAlign: "center", border: 0, cursor: "pointer", fontFamily: "inherit", width: "100%" }}>
+            <span style={{ fontSize: "15px", fontWeight: "500" }}>
+              {pending ? 'Секунду…' : 'Согласен, начинайте'}</span>
+          </button>
+          <div style={{ background: "#FFFFFF", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}>
+            <span style={{ fontSize: "13.5px", fontWeight: "500" }}>Обсудить с менеджером</span>
+          </div>
+          <button onClick={() => act(() => decideChange(j.configuration_id, pendingChange.id, false))}
+            disabled={pending}
+            style={{ padding: "6px 0", textAlign: "center", border: 0, background: "transparent", cursor: "pointer", fontFamily: "inherit", width: "100%" }}>
+            <span style={{ fontSize: "12.5px", color: "#9A9A9A" }}>Отказаться и вернуть предоплату</span>
+          </button>
+        </div>
+        <Note>Решение фиксируется с датой и не переписывается: на выдаче
+          оно предъявляется наравне с выбором цвета.</Note>
+      </Pad>}
+
+      {stage === 'visit' && j.appointment_at && (
+        <div style={{ display: "none" }} />
+      )}
 
       {stage === 'slot' && <Pad>
         <Head title="Когда вам удобно на замер"
@@ -125,6 +199,45 @@ export function ClientJourney({ j }: { j: Journey }) {
         <Honesty text={j.honesty_line} />
         <Note>Ваш выбор зафиксирован {new Date(j.confirmed_at!).toLocaleDateString('ru-RU')}.
           На замере мы приложим к нему образец рулона — сверите сами.</Note>
+
+        {/* Перенос — не «удалить визит». Отказ и возврат живут рядом, но
+            отдельной веткой: клиент, который переносит, и клиент, который
+            отказывается, находятся в разных состояниях сделки. */}
+        <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "20px", display: "flex", flexDirection: "column", gap: "13px" }}>
+          <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.024em", lineHeight: "1.2" }}>Перенести замер</span>
+          <div style={{ display: "flex", gap: "6px" }}>
+            {days.map((d, i) => (
+              <button key={i} onClick={() => setDay(i)}
+                style={{ flex: "1", background: day === i ? "#111111" : "#F7F7F7", borderRadius: "14px", padding: "11px 0", textAlign: "center", display: "flex", flexDirection: "column", gap: "2px", border: 0, cursor: "pointer", fontFamily: "inherit" }}>
+                <span style={{ fontSize: "10px", color: "#9A9A9A" }}>{DOW[d.getDay()]}</span>
+                <span style={{ fontSize: "16px", fontWeight: "500", color: day === i ? "#FFFFFF" : "#111111" }}>{d.getDate()}</span>
+              </button>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: "7px", flexWrap: "wrap" }}>
+            {times.map(t => {
+              const iso = (() => { const d = new Date(days[day]);
+                const [h, m] = t.split(':'); d.setHours(+h, +m, 0, 0); return d.toISOString(); })();
+              const on = slot === iso;
+              return (
+                <button key={t} onClick={() => setSlot(iso)}
+                  style={{ fontSize: "12px", fontWeight: "500", background: on ? "#DEF23B" : "#F7F7F7", borderRadius: "999px", padding: "9px 14px", border: 0, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+              );
+            })}
+          </div>
+          <div style={{ background: "#F5FBCB", borderRadius: "16px", padding: "12px 14px" }}>
+            <span style={{ fontSize: "11px", lineHeight: "1.45", color: "#2E2E2E" }}>
+              Перенос бесплатный. Рулон под ваш артикул остаётся забронированным —
+              на новую дату цвет тот же.
+            </span>
+          </div>
+          <Primary busy={pending} disabled={!slot}
+            onClick={() => slot && act(() => reschedule(j.configuration_id, j.appointment_id!, slot))}>
+            Перенести</Primary>
+          <span style={{ fontSize: "11px", color: "#9A9A9A", textAlign: "center", lineHeight: "1.45" }}>
+            Нужен возврат предоплаты — напишите в чат точки, вернём на ту же карту.
+          </span>
+        </div>
       </Pad>}
 
       {(stage === 'pay' || stage === 'paid') && <Pad>
@@ -217,6 +330,44 @@ export function ClientJourney({ j }: { j: Journey }) {
         </a>
         <Note>Сборка остаётся у вас: через год захотите другой цвет — откроете эту же ссылку,
           и точка увидит всю историю без пересказа.</Note>
+
+        {/* Гарантийное обращение — не форма поддержки, а продолжение той же
+            записи: материал, партия и дата сдачи уже известны, клиенту
+            остаётся сказать, что случилось. */}
+        <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "20px", display: "flex", flexDirection: "column", gap: "11px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "11px" }}>
+            <div style={{ width: "34px", height: "34px", borderRadius: "11px", background: "#DEF23B", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.8" strokeLinecap="round"><path d="M12 3l7.5 4v6c0 4.2-3.1 6.9-7.5 8-4.4-1.1-7.5-3.8-7.5-8V7z" /><path d="M9.2 12.2l2 2 3.6-3.9" /></svg>
+            </div>
+            <div style={{ flex: "1", minWidth: 0, display: "flex", flexDirection: "column", gap: "1px" }}>
+              <span style={{ fontSize: "15px", fontWeight: "500" }}>Гарантия активна</span>
+              <span style={{ fontSize: "11px", color: "#6E6E6E" }}>
+                {j.warranty_issued && j.warranty_months
+                  ? `до ${new Date(new Date(j.warranty_issued).setMonth(new Date(j.warranty_issued).getMonth() + j.warranty_months)).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })} · `
+                  : ''}талон {j.warranty_number}</span>
+            </div>
+          </div>
+          <div style={{ background: "#F7F7F7", borderRadius: "14px", padding: "11px 13px", display: "flex", flexDirection: "column", gap: "5px" }}>
+            <Line k="Материал" v={`${j.brand} ${j.sku}`} bold />
+            {j.batch_number && <Line k="Партия" v={j.batch_number} bold />}
+            {j.warranty_issued && (
+              <Line k="Работы сданы" v={new Date(j.warranty_issued).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })} bold />
+            )}
+          </div>
+          <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.024em", lineHeight: "1.2", marginTop: "2px" }}>Что случилось</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {['Плёнка отходит по кромке', 'Появились пузыри', 'Изменился оттенок'].map((t, i) => (
+              <div key={t} style={{ display: "flex", alignItems: "center", gap: "11px", background: i === 0 ? "#DEF23B" : "#F7F7F7", borderRadius: "15px", padding: "12px 14px" }}>
+                <span style={{ width: "19px", height: "19px", borderRadius: "999px", flex: "none",
+                  ...(i === 0 ? { background: "#111111" } : { boxShadow: "inset 0 0 0 1.5px #C4C4C4" }) }}></span>
+                <span style={{ flex: "1", fontSize: "12.5px", fontWeight: i === 0 ? "500" : "400", color: i === 0 ? "#111111" : "#6E6E6E" }}>{t}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: "#111111", borderRadius: "999px", padding: "15px 0", textAlign: "center", marginTop: "2px" }}>
+            <span style={{ fontSize: "13.5px", fontWeight: "500", color: "#FFFFFF" }}>Записаться на осмотр</span>
+          </div>
+        </div>
       </Pad>}
     </Phone>
   );
@@ -269,6 +420,12 @@ const Rows = ({ rows }: { rows: [string, string][] }) => (
 const Honesty = ({ text }: { text: string | null }) => (
   <div style={{ background: "#F5FBCB", borderRadius: "18px", padding: "13px 15px", fontSize: "11.5px", lineHeight: "1.5", color: "#2E2E2E" }}>
     {text ?? 'Оттенок партии сверяется с рулоном при вас на замере.'}
+  </div>
+);
+const Line = ({ k, v, bold }: { k: string; v: string; bold?: boolean }) => (
+  <div style={{ display: "flex", justifyContent: "space-between", gap: "14px" }}>
+    <span style={{ fontSize: "12.5px", color: "#6E6E6E" }}>{k}</span>
+    <span style={{ fontSize: bold ? "12px" : "13px", fontWeight: bold ? "500" : "400", fontVariantNumeric: "tabular-nums", textAlign: "right" }}>{v}</span>
   </div>
 );
 const Note = ({ children }: { children: React.ReactNode }) => (
