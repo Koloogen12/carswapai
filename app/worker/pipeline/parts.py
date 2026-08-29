@@ -114,19 +114,14 @@ def segment(img: np.ndarray) -> dict[str, np.ndarray]:
             continue
         masks[ours][mk[0].numpy() > 0.5] = 255
 
-    # Силуэт — объединение частей, а не отдельное предсказание: так он не
-    # может разойтись с частями, которые из него же и вырезаются.
-    car = np.zeros((h, w), np.uint8)
-    for k in OURS:
-        car[masks[k] > 0] = 255
-    car = cv2.morphologyEx(car, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
-
     # ── ГЛАВНАЯ машина, а не все машины в кадре ──────────────────────
     # Сеть частей не знает, где кончается одна машина и начинается другая:
     # она видит двери и капоты, а чьи они — не её задача. На кадре во дворе
-    # это дало перекрашенный автомобиль СОСЕДА. Ограничиваем всё силуэтом
-    # главной машины — его даёт silhouette.car(), которая выбирает
-    # крупнейший экземпляр, то есть ту машину, которую клиент фотографировал.
+    # это дало перекрашенный автомобиль СОСЕДА.
+    #
+    # Отбор идёт ПО ЧАСТЯМ, а не по их объединению. Первая попытка отсекала
+    # объединение целиком, и на кадре с тремя машинами оно оказалось одной
+    # связной областью: не прошло проверку и выбросилось всё, включая нужное.
     from . import silhouette
     main = silhouette.car(img) if silhouette.available() else None
     if main is not None and (main > 0).any():
@@ -134,20 +129,26 @@ def segment(img: np.ndarray) -> dict[str, np.ndarray]:
         # машины: обрезать по границе нельзя — края у двух сетей не совпадут
         # до пикселя, и по кузову пойдёт кайма чужого цвета.
         keep = cv2.dilate(main, np.ones((15, 15), np.uint8))
-        for k in list(OURS) + ['car']:
-            src = masks[k] if k in masks else car
+        for k in OURS:
             num, lbl, stats, _ = cv2.connectedComponentsWithStats(
-                (src > 0).astype(np.uint8), 8)
-            out_m = np.zeros_like(src)
+                (masks[k] > 0).astype(np.uint8), 8)
+            out_m = np.zeros_like(masks[k])
             for i in range(1, num):
                 comp = (lbl == i)
                 if (keep[comp] > 0).mean() > 0.5:
                     out_m[comp] = 255
-            if k == 'car':
-                car = out_m
-            else:
-                masks[k] = out_m
+            masks[k] = out_m
 
+    # Силуэт собирается ПОСЛЕ отбора — из того, что осталось.
+    car = np.zeros((h, w), np.uint8)
+    for k in OURS:
+        car[masks[k] > 0] = 255
+    car = cv2.morphologyEx(car, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
+    if main is not None and (main > 0).any():
+        # Независимый силуэт нужен и дальше: по нему меряется, какую долю
+        # машины сеть частей вообще объяснила. Своим объединением это мерить
+        # нельзя — получится сто процентов при любом качестве.
+        masks['car_ref'] = main
     masks['car'] = car
     # 'body' — то, во что ложится плёнка. Синоним paint, оставлен ради
     # совместимости с уже написанным пайплайном.

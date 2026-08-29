@@ -61,9 +61,13 @@ def coverage(m: dict) -> float:
     Всё, что не закрыто, — это кузов, который сеть не увидела, и он останется
     исходного цвета.
     """
-    car = m.get('car')
+    # Знаменатель — НЕЗАВИСИМЫЙ силуэт от другой сети. Считать по своему же
+    # объединению частей бессмысленно: доля всегда выйдет стопроцентной,
+    # какого бы качества части ни были. Первая версия этой мерки именно так
+    # и врала — показывала 98–99% на кадрах, где полмашины не покрашено.
+    car = m.get('car_ref')
     if car is None or (car > 0).sum() == 0:
-        return 0.0
+        return float('nan')
     known = np.zeros_like(car)
     for k in ('paint', 'glass', 'wheel', 'light', 'mirror', 'grille',
               'plate', 'body_other'):
@@ -110,8 +114,9 @@ def main() -> int:
             tiles.append(out)
 
         cov = coverage(m)
+        cov_s = '   н/д' if cov != cov else f'{100*cov:7.1f}%'
         print(f'{p.stem:30s} {100*(body>0).mean():6.1f}% {speckle(body):9.3f} '
-              f'{100*cov:8.1f}% {"ок" if outside_ok else "ПРОВАЛ":>10s} {plate_ok:>10s}')
+              f'{cov_s:>9s} {"ок" if outside_ok else "ПРОВАЛ":>10s} {plate_ok:>10s}')
         rows.append(np.hstack(tiles))
 
     out = pathlib.Path(a.out)
