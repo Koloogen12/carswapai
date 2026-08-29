@@ -88,4 +88,24 @@ select expect_fail($$
    where id = 'cccc0000-0000-4000-8000-000000000001'
 $$, 'Согласие остаётся неизменяемым: отзыв — новая запись, не правка старой');
 
+-- ── Согласие чужой точки основанием не является ──────────────
+-- Согласие даётся конкретному оператору. Взять чужое и приложить к своему
+-- снимку — это обработка без основания, чем бы оно ни выглядело в базе.
+\set P2 '''bbbbbbbb-aaaa-0000-0000-000000000002'''
+insert into networks (id, name, join_code, price_deviation_allowed_pct)
+  values ('11111111-aaaa-0000-0000-000000000002','Сеть Б','OFFER-B-2026', 10);
+select act_as(:P2::uuid, '11111111-aaaa-0000-0000-000000000002'::uuid);
+insert into points (id, network_id, name, public_slug)
+  values (:P2,'11111111-aaaa-0000-0000-000000000002','Точка Б','of-b');
+insert into consents (id, point_id, session_id, kind, document_version, granted, basis)
+  values ('cccc0000-0000-4000-8000-000000000009',:P2,'sess-b','photo_processing',
+          'garage-v1', true, 'explicit');
+
+select act_as(:P::uuid, :N::uuid);
+select expect_fail($$
+  insert into photos (point_id, storage_path, sha256, width, height, consent_id)
+  values ('aaaaaaaa-aaaa-0000-0000-000000000001','/p/чужое.jpg','h-чужое',100,100,
+          'cccc0000-0000-4000-8000-000000000009')
+$$, 'Согласие, данное другой точке, основанием для её снимка не является');
+
 rollback;
