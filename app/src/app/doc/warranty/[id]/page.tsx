@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import { bayRecord } from '@/lib/bay';
-import { sys } from '@/lib/db';
+import { bayRecord, warrantyFor } from '@/lib/bay';
 import { rub } from '@/screens/cabinet';
 
 export const dynamic = 'force-dynamic';
@@ -13,8 +12,9 @@ export const dynamic = 'force-dynamic';
 export default async function WarrantyDoc({ params }: { params: { id: string } }) {
   const r = await bayRecord(params.id);
   if (!r) notFound();
-  const w = (await sys<{ number: string; months: number; issued_at: string }>(
-    `select number, months, issued_at from warranties where order_id = $1`, [params.id]))[0];
+  // Талон читается в границах арендатора: `warranties` под RLS, и через
+  // `sys()` он на боевой роли молча оказался бы пустым.
+  const w = await warrantyFor(params.id);
 
   return (
     <>

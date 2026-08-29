@@ -42,8 +42,7 @@ MIGRATIONS_DIR="${MIGRATIONS_DIR:-$SCRIPT_DIR/migrations}"
 
 # Произвольная, но стабильная пара ключей для advisory-блокировки: два
 # одновременных деплоя не должны накатывать одно и то же.
-LOCK_A=4919
-LOCK_B=1
+LOCK_SQL='do $lock$ begin perform pg_advisory_xact_lock(4919, 1); end $lock$;'
 
 MODE=apply
 case "${1:-}" in
@@ -122,6 +121,7 @@ EOF
 
 # ── журнал накатов ────────────────────────────────────────────────────────
 psql_run <<'SQL'
+set client_min_messages = warning;
 create schema if not exists deploy;
 create table if not exists deploy.schema_migrations (
   filename    text primary key,
@@ -236,7 +236,7 @@ while IFS= read -r f; do
   # накатить эту же миграцию, insert упадёт и транзакция откатится —
   # лучше громкая ошибка, чем тихий двойной накат.
   if psql "$DATABASE_URL" -X -q -v ON_ERROR_STOP=1 --single-transaction \
-       -c "select pg_advisory_xact_lock($LOCK_A, $LOCK_B)" \
+       -c "$LOCK_SQL" \
        -f "$MIGRATIONS_DIR/$f" \
        -c "insert into deploy.schema_migrations (filename, checksum, duration_ms)
            values ('$f', '$sum',
@@ -247,6 +247,9 @@ while IFS= read -r f; do
   else
     echo "ПРОВАЛ"
     echo "migrate.sh: миграция $f не применена, изменения откачены" >&2
+    echo "  Частая причина на свежем сервере — прав роли не хватает на то," >&2
+    echo "  что делает миграция (создание роли, расширения). Разбор в" >&2
+    echo "  deploy/README.md, раздел «Роли в базе»." >&2
     exit 1
   fi
 done <<EOF

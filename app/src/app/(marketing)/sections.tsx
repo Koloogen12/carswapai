@@ -22,13 +22,15 @@ export function Nav(): ReactElement {
           <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em", color: "#FFFFFF" }}>CarSwap AI</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "26px" }}>
-          <a href="#how" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Как работает</a>
-          <a href="#card" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Что уходит клиенту</a>
-          <a href="#features" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Возможности</a>
-          <a href="#network" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Для сетей</a>
-          <a href="#pricing" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Тарифы</a>
+          <div className="cs-nav-links" style={{ display: "flex", alignItems: "center", gap: "26px" }}>
+            <a href="#how" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Как работает</a>
+            <a href="#card" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Что уходит клиенту</a>
+            <a href="#features" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Возможности</a>
+            <a href="#network" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Для сетей</a>
+            <a href="#pricing" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Тарифы</a>
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <a href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "12px 22px", fontSize: "13.5px", fontWeight: "500" }}>Записаться на демо</a>
+            <a className="cs-btn-primary" href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "12px 22px", fontSize: "13.5px", fontWeight: "500" }}>Записаться на демо</a>
             <div style={{ width: "42px", height: "42px", borderRadius: "999px", background: "rgba(255,255,255,.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "none" }}><circle cx="12" cy="9" r="3.4" /><path d="M5.5 20a6.5 6.5 0 0113 0" /></svg>
             </div>
@@ -609,7 +611,7 @@ export function Network(): ReactElement {
     <>
       <div id="network" style={{ padding: "96px 22px 0", background: "#EFEFEF" }}>
         <div style={{ maxWidth: "1360px", margin: "0 auto" }}>
-          <div style={{ background: "#0B0B0C", borderRadius: "40px", padding: "52px", display: "flex", flexDirection: "column", gap: "36px" }}>
+          <div className="cs-cta" style={{ background: "#0B0B0C", borderRadius: "40px", padding: "52px", display: "flex", flexDirection: "column", gap: "36px" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "40px", flexWrap: "wrap" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "700px" }}>
                 <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.09em", textTransform: "uppercase", color: "#DEF23B" }}>06 · Для сетей и франшиз</span>
@@ -646,7 +648,7 @@ export function Network(): ReactElement {
                   <div style={{ display: "flex", flexDirection: "column" }}><span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.03em", fontVariantNumeric: "tabular-nums" }}>14</span><span style={{ fontSize: "11px", color: "#9A9A9A" }}>сделок по примерке</span></div>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+              <div className="cs-scrollx" style={{ display: "flex", flexDirection: "column" }}>
                 <div className="cs-pointrow" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr)", gap: "16px", padding: "12px 0", borderBottom: "1px solid #F0F0F0" }}>
                   <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Точка</span>
                   <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Примерки</span>
@@ -688,7 +690,7 @@ export function Network(): ReactElement {
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px", flexWrap: "wrap" }}>
               <p style={{ margin: "0", maxWidth: "620px", fontSize: "14px", lineHeight: "1.55", color: "#9A9A9A", textWrap: "pretty" }}>Референсов в вашей отрасли у нас пока нет — и мы это проговариваем вслух, а не подставляем «студию из Москвы» без названия.</p>
-              <a href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500", flex: "none" }}>Обсудить пилот на 5 точках</a>
+              <a className="cs-btn-primary" href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500", flex: "none" }}>Обсудить пилот на 5 точках</a>
             </div>
           </div>
         </div>
@@ -812,7 +814,7 @@ export function Faq(): ReactElement {
             </details>
             <details style={{ borderBottom: "1px solid #F0F0F0" }}>
               <summary style={{ display: "flex", alignItems: "center", gap: "16px", padding: "22px 0" }}><span style={{ fontSize: "16px", fontWeight: "500", letterSpacing: "-0.02em", flex: "1", textWrap: "pretty" }}>Работает на Авито?</span><svg className="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="1.9" strokeLinecap="round" style={{ flex: "none", transition: "transform .22s" }}><path d="M7 10l5 5 5-5" /></svg></summary>
-              <p style={{ margin: "0", padding: "0 0 22px", fontSize: "14px", lineHeight: "1.55", color: "#6E6E6E", textWrap: "pretty" }}>Обращения приходят и ответ уходит обратно в Авито.</p>
+              <p style={{ margin: "0", padding: "0 0 22px", fontSize: "14px", lineHeight: "1.55", color: "#6E6E6E", textWrap: "pretty" }}>Да. Обращение приходит в тот же список, а ответ уходит обратно в Авито — вместе с картинкой примерки, артикулом и ценой. Заходить на Авито отдельно не нужно.</p>
             </details>
             <details style={{ borderBottom: "1px solid #F0F0F0" }}>
               <summary style={{ display: "flex", alignItems: "center", gap: "16px", padding: "22px 0" }}><span style={{ fontSize: "16px", fontWeight: "500", letterSpacing: "-0.02em", flex: "1", textWrap: "pretty" }}>Сколько машин можно померить?</span><svg className="csChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="1.9" strokeLinecap="round" style={{ flex: "none", transition: "transform .22s" }}><path d="M7 10l5 5 5-5" /></svg></summary>
@@ -835,13 +837,13 @@ export function FinalCta(): ReactElement {
     <>
       <div id="demo" style={{ padding: "96px 22px 0", background: "#EFEFEF" }}>
         <div style={{ maxWidth: "1360px", margin: "0 auto" }}>
-          <div className="cs-g2" style={{ background: "#0B0B0C", borderRadius: "40px", padding: "56px", display: "grid", gridTemplateColumns: "minmax(0,1.25fr) minmax(300px,.75fr)", gap: "44px", alignItems: "center" }}>
+          <div className="cs-g2 cs-cta" style={{ background: "#0B0B0C", borderRadius: "40px", padding: "56px", display: "grid", gridTemplateColumns: "minmax(0,1.25fr) minmax(300px,.75fr)", gap: "44px", alignItems: "center" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
               <h2 style={{ margin: "0", fontSize: "clamp(28px,3.3vw,48px)", lineHeight: "1.02", fontWeight: "500", letterSpacing: "-0.04em", color: "#FFFFFF", textWrap: "balance" }}>Покажем на вашей точке. Пришлите прайс — соберём примерку на вашей машине.</h2>
               <p style={{ margin: "0", maxWidth: "540px", fontSize: "15px", lineHeight: "1.55", color: "#9A9A9A", textWrap: "pretty" }}>Пятнадцать минут, без презентации. Показываем инбокс, собираем одну примерку из вашего прайса и отправляем в ваш же WhatsApp — дальше решаете сами.</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                <a href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500" }}>Записаться на демо</a>
-                <a href="#try" style={{ background: "rgba(255,255,255,.1)", color: "#FFFFFF", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500" }}>Сначала померить самому</a>
+                <a className="cs-btn-primary" href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500" }}>Записаться на демо</a>
+                <a className="cs-btn-ghost" href="#try" style={{ background: "rgba(255,255,255,.1)", color: "#FFFFFF", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500" }}>Сначала померить самому</a>
               </div>
             </div>
             <div style={{ background: "rgba(255,255,255,.06)", borderRadius: "28px", padding: "28px", display: "flex", flexDirection: "column", gap: "14px" }}>

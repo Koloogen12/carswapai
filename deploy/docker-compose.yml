@@ -1,0 +1,233 @@
+# CarSwap AI · контур на сервере Selectel (РФ).
+#
+# Весь контур с персональными данными живёт здесь и никуда не выезжает:
+# ст. 18 ч. 5 152-ФЗ требует, чтобы база с ПД граждан РФ была на территории
+# РФ. Фото чужих машин с читаемыми госномерами плюс имена и телефоны — это
+# персональные данные, поэтому Vercel и Supabase Cloud в этом контуре
+# исключены: и то и другое хранит данные вне РФ.
+#
+# Наружу смотрит только прокси. Postgres и приложение портов не публикуют —
+# они видны друг другу по внутренней сети compose и больше никому.
+#
+# Разворачивание с нуля, порядок и проверки — deploy/README.md.
+
+name: carswap
+
+services:
+
+  # ── база ────────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?задайте POSTGRES_SUPERUSER_PASSWORD в deploy/.env}
+      POSTGRES_DB: ${POSTGRES_DB:-carswap}
+      # Роли заводит init-скрипт при первой инициализации кластера.
+      CARSWAP_OWNER_PASSWORD: ${CARSWAP_OWNER_PASSWORD:?задайте CARSWAP_OWNER_PASSWORD в deploy/.env}
+      CARSWAP_APP_PASSWORD: ${CARSWAP_APP_PASSWORD:?задайте CARSWAP_APP_PASSWORD в deploy/.env}
+      # Локаль и сравнение строк фиксируются здесь: разъехавшаяся локаль
+      # между кластерами ломает порядок сортировки и индексы по тексту.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      TZ: ${TZ:-Europe/Moscow}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Отрабатывает ровно один раз — при пустом каталоге данных.
+      - ./postgres/initdb:/docker-entrypoint-initdb.d:ro
+    # Порт наружу не публикуется. Для админского доступа — туннель:
+    #   ssh -L 5432:127.0.0.1:5432 root@сервер
+    # и раскомментировать строку ниже (слушать только петлю, не 0.0.0.0).
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+    shm_size: 256m
+    command:
+      - postgres
+      - -c
+      - max_connections=100
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - work_mem=16MB
+      # Журнал запросов дольше секунды: разбор тормозов на живой точке
+      # без включения полного логирования, в котором были бы ПД.
+      - -c
+      - log_min_duration_statement=1000
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_SUPERUSER:-postgres} -d ${POSTGRES_DB:-carswap}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks: [carswap]
+
+  # ── накат миграций ──────────────────────────────────────────────────────
+  # Одноразовый контейнер, не поднимается вместе со стеком:
+  #   docker compose --profile tools run --rm migrate
+  # Идемпотентен, повторный запуск ничего не делает.
+  migrate:
+    image: postgres:16-bookworm
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Пароль отдельно от URL намеренно: migrate.sh передаёт URL аргументом
+      # psql, а аргументы видны в `ps`. PGPASSWORD читает libpq из окружения.
+      DATABASE_URL: postgresql://carswap_owner@db:5432/${POSTGRES_DB:-carswap}
+      PGPASSWORD: ${CARSWAP_OWNER_PASSWORD:?}
+    volumes:
+      # Миграции берутся из рабочей копии на сервере. Образ приложения и
+      # каталог db/ обязаны быть из одного коммита — иначе код читает не ту
+      # схему, которая накачена.
+      - ../app/db:/db:ro
+    working_dir: /db
+    entrypoint: ["/bin/bash", "/db/migrate.sh"]
+    networks: [carswap]
+
+  # ── посев ───────────────────────────────────────────────────────────────
+  # Отдельный сервис и отдельная роль. seed.sql пишет в таблицы, у которых
+  # force row level security, а force RLS действует и на владельца схемы —
+  # поэтому под carswap_owner посев падает. Обходит RLS только
+  # суперпользователь, и посев — единственное место, где это допустимо:
+  # он выполняется один раз при установке, а не на живом пути.
+  #   docker compose --profile tools run --rm seed
+  seed:
+    image: postgres:16-bookworm
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?}
+    volumes:
+      - ../app/db:/db:ro
+    entrypoint:
+      - psql
+      - postgresql://${POSTGRES_SUPERUSER:-postgres}@db:5432/${POSTGRES_DB:-carswap}
+      - -X
+      - -v
+      - ON_ERROR_STOP=1
+      - -f
+      - /db/seed.sql
+    networks: [carswap]
+
+  # ── приложение ──────────────────────────────────────────────────────────
+  app:
+    build:
+      context: ../app
+      dockerfile: Dockerfile
+    image: carswap-app:${APP_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Единственная переменная, которую читает код приложения
+      # (app/src/lib/db.ts). Остальное — окружение контейнера.
+      DATABASE_URL: postgresql://carswap_app:${CARSWAP_APP_PASSWORD:?}@db:5432/${POSTGRES_DB:-carswap}
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      TZ: ${TZ:-Europe/Moscow}
+      # Ключи каналов. Пустые допустимы: без них не работает отправка,
+      # но контур поднимается и экраны открываются.
+      WAZZUP_API_KEY: ${WAZZUP_API_KEY:-}
+      WAZZUP_CRM_KEY: ${WAZZUP_CRM_KEY:-}
+      WEBHOOK_SECRET_WAZZUP: ${WEBHOOK_SECRET_WAZZUP:-}
+      WAZZUP_API_BASE: ${WAZZUP_API_BASE:-}
+    volumes:
+      # Фото клиентов и рендеры. Том, а не слой образа: данные обязаны
+      # пережить пересборку и обновление приложения.
+      - storage:/var/lib/carswap/storage
+    # Портов наружу нет: снаружи доступен только прокси.
+    expose:
+      - "3000"
+    networks: [carswap]
+
+  # ── уничтожение персональных данных по сроку ────────────────────────────
+  # 152-ФЗ ст. 5 ч. 7 и ст. 21: по достижении цели обработки или по
+  # истечении объявленного срока данные обязаны быть уничтожены. Схема
+  # хранит срок (photos.retain_until, clients.retain_until), а исполняет
+  # его этот сервис: стирает строки в базе и удаляет файлы из тома.
+  #
+  # Почему отдельный сервис, а не cron внутри app: контейнер приложения —
+  # то, что масштабируется горизонтально, и cron в нём означал бы N
+  # параллельных проходов на N копиях плюс тихую смерть задания при каждом
+  # обновлении образа. Здесь копия одна по построению, и она поднимается
+  # вместе со стеком — обязанность по закону не должна зависеть от того,
+  # вспомнил ли админ дописать строчку в crontab на этом сервере.
+  #
+  # Роль carswap_app, не владелец и не superuser: вся работа идёт через
+  # security definer функции схемы app, и напрямую сервис не может ничего.
+  #   docker compose run --rm retention --once       один проход руками
+  #   docker compose run --rm retention --dry-run    показать, не удаляя
+  retention:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: carswap_app
+      PGDATABASE: ${POSTGRES_DB:-carswap}
+      PGPASSWORD: ${CARSWAP_APP_PASSWORD:?}
+      # Раз в час: срок хранения измеряется месяцами, чаще незачем,
+      # реже — лишние часы жизни просроченных данных.
+      RETENTION_INTERVAL: ${RETENTION_INTERVAL:-3600}
+      RETENTION_BATCH: ${RETENTION_BATCH:-500}
+      STORAGE_ROOT: /var/lib/carswap/storage
+      TZ: ${TZ:-Europe/Moscow}
+    volumes:
+      - ./retention.sh:/retention.sh:ro
+      # Том смонтирован на запись: здесь и удаляются файлы. Это
+      # единственный сервис, кроме приложения, которому нужен доступ
+      # к хранилищу не только на чтение.
+      - storage:/var/lib/carswap/storage
+    entrypoint: ["/bin/bash", "/retention.sh"]
+    networks: [carswap]
+
+  # ── обратный прокси ─────────────────────────────────────────────────────
+  proxy:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/carswap.conf:/etc/nginx/conf.d/default.conf:ro
+      # Сниппет заголовков подключается из каждого location: nginx не
+      # наследует add_header туда, где есть свой.
+      - ./nginx:/etc/nginx/carswap:ro
+      # Хранилище отдаётся с диска прокси, минуя Node: отдавать фото
+      # приложением — терять его воркеры на статике.
+      - storage:/var/lib/carswap/storage:ro
+      - certs:/etc/letsencrypt
+      - acme:/var/www/acme
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks: [carswap]
+
+networks:
+  carswap:
+    driver: bridge
+
+volumes:
+  # Имена заданы явно, без префикса проекта: deploy/backup.sh обращается
+  # к ним по имени, и переименование каталога не должно ломать бэкап.
+  pgdata:
+    name: carswap_pgdata
+  storage:
+    name: carswap_storage
+  certs:
+    name: carswap_certs
+  acme:
+    name: carswap_acme

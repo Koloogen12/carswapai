@@ -38,5 +38,5 @@ export const FILM_START = 4;
  *   Выключена: пилотов пока нет. Включить, когда появятся, — не раньше.
  * posterOnly — выключает видео героя и оставляет постер. Нужен для медленных
  *   сетей, печати и PDF-экспорта; сюда же уходит prefers-reduced-motion. */
-export const showPilotBadge = false;
-export const posterOnly = false;
+export const showPilotBadge: boolean = false;
+export const posterOnly: boolean = false;

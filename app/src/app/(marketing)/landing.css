@@ -1,0 +1,104 @@
+/* Лендинг CarSwap AI.
+ *
+ * Первая часть — то, что в хендоффе лежало в <helmet><style>: сброс, ссылки,
+ * нативные details/summary, чекбоксы. Всё под .cs-landing, чтобы не течь
+ * в кабинет: у кабинета своя система в tokens.css.
+ *
+ * Вторая часть — мобильные брейкпоинты. В хендоффе их нет сознательно
+ * («не заданы — это работа на вашей стороне»), пороги взяты оттуда же:
+ * repeat(3,…) и repeat(4,…) схлопываются около 720px, двухколоночные —
+ * около 600px. Инлайновые стили перебиваются только !important, поэтому он
+ * здесь не небрежность, а единственный способ.
+ *
+ * Шрифт Onest подключён локально в tokens.css (@font-face → /fonts/*.woff2).
+ * Google Fonts из хендоффа сюда не переносится: продукт держим в контуре РФ.
+ */
+
+.cs-landing {
+  font-family: var(--font);
+  color: #111111;
+  background: #EFEFEF;
+  text-rendering: optimizeLegibility;
+}
+
+.cs-landing img { display: block; }
+.cs-landing a { color: #111111; text-decoration: none; }
+.cs-landing a:hover { color: #6E6E6E; }
+
+.cs-landing summary { list-style: none; cursor: pointer; }
+.cs-landing summary::-webkit-details-marker { display: none; }
+.cs-landing details[open] .csChev { transform: rotate(180deg); }
+
+.cs-landing input[type=checkbox] {
+  accent-color: #DEF23B;
+  width: 19px;
+  height: 19px;
+  flex: none;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Hover-состояний кнопок в прототипе нет — хендоф прямо просит добавить их
+ * по паттернам системы и называет разумные значения. */
+.cs-btn-primary { transition: background .16s; }
+.cs-btn-primary:hover { background: #D2E62B !important; }
+.cs-btn-ghost { transition: background .16s; }
+.cs-btn-ghost:hover { background: rgba(255,255,255,.16) !important; }
+
+.cs-landing [role="button"]:focus-visible,
+.cs-landing [role="tab"]:focus-visible,
+.cs-landing a:focus-visible,
+.cs-landing summary:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+/* Примерочная: слои плёнок переключаются по opacity, чтобы смена была
+ * мгновенной и без мигания. */
+.cs-film-layer { transition: opacity .18s; }
+
+/* Таблицы света и точек на узком экране не сжимаются, а прокручиваются:
+ * сжимать сетку 118px+3 колонки картинок бессмысленно. */
+.cs-scrollx { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-film-layer, .cs-btn-primary, .cs-btn-ghost, .csChev { transition: none; }
+}
+
+/* ── ≤900px: навигация в шапке не помещается ─────────────────────────── */
+@media (max-width: 900px) {
+  .cs-nav-links { display: none !important; }
+}
+
+/* ── ≤720px: трёх- и четырёхколоночные сетки в одну колонку ──────────── */
+@media (max-width: 720px) {
+  .cs-g3, .cs-g4 { grid-template-columns: minmax(0, 1fr) !important; }
+  .cs-gfoot { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+
+  .cs-scrollx { margin: 0 -4px; padding: 0 4px; }
+  .cs-lightrow { min-width: 460px; }
+  .cs-pointrow { min-width: 560px; }
+
+  /* Хит-таргеты: 44px минимум для чипов и чекбоксов. */
+  .cs-landing input[type=checkbox] { width: 24px !important; height: 24px !important; }
+  .cs-chip { min-height: 44px; }
+  .cs-check { min-height: 44px; align-items: center !important; }
+
+  /* Герой: 100vh съедает низ панелью браузера, горизонтальный градиент
+   * на узком экране затемняет не ту половину. */
+  .cs-hero { height: 100svh !important; }
+  .cs-hero-shade { background: linear-gradient(180deg,rgba(11,11,12,.35) 0%,rgba(11,11,12,.62) 42%,rgba(11,11,12,.94) 100%) !important; }
+  .cs-hero-pad { padding: 92px 22px 108px !important; align-items: flex-end !important; }
+  .cs-hero-col { max-width: 100% !important; }
+  .cs-hero-foot { left: 22px !important; right: 22px !important; bottom: 22px !important; }
+
+  /* Тёмная карточка сети и финальный CTA: 52–56px внутреннего отступа
+   * на узком экране съедают строку. */
+  .cs-cta { padding: 32px 24px !important; }
+}
+
+/* ── ≤600px: двухколоночные сетки в одну колонку ─────────────────────── */
+@media (max-width: 600px) {
+  .cs-g2 { grid-template-columns: minmax(0, 1fr) !important; }
+  .cs-gfoot { grid-template-columns: minmax(0, 1fr) !important; }
+}

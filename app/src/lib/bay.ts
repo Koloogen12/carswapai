@@ -47,6 +47,22 @@ export async function bayRecord(orderId: string): Promise<BayRecord | null> {
   });
 }
 
+/**
+ * Гарантийный талон по наряду.
+ *
+ * Жил в самой странице документа и читался через `sys()` — то есть без
+ * претензии арендатора, хотя `warranties` стоит под RLS. На боевой роли это
+ * вернуло бы ноль строк, и талон печатался бы с прочерками вместо номера
+ * и срока. Читается в тех же границах, что и сам наряд рядом.
+ */
+export async function warrantyFor(orderId: string) {
+  return withTenant(MASTER, async c => {
+    const { rows } = await c.query<{ number: string; months: number; issued_at: string }>(
+      `select number, months, issued_at from warranties where order_id = $1`, [orderId]);
+    return rows[0] ?? null;
+  });
+}
+
 export async function rollsFor(orderId: string) {
   return withTenant(MASTER, async c => {
     const { rows } = await c.query(`

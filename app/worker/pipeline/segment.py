@@ -245,6 +245,12 @@ def paint(img: np.ndarray, car_mask: np.ndarray, k: int = 5) -> np.ndarray:
     lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.float32)
     feat = np.stack([lab[..., 0][sel] * 0.35, lab[..., 1][sel], lab[..., 2][sel]], 1)
     crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+    # Фиксированное зерно. Кластеризация стартует со случайных центров, и без
+    # этого один и тот же кадр даёт разный результат от прогона к прогону.
+    # §15 требует побитовой воспроизводимости класса A: рендер годовой давности
+    # обязан повторяться по сохранённому рецепту, иначе спор с клиентом о том,
+    # что ему показали, разрешить нечем.
+    cv2.setRNGSeed(20260829)
     _, lbl, cen = cv2.kmeans(feat, min(k, int(sel.sum())), None, crit, 3,
                              cv2.KMEANS_PP_CENTERS)
     lbl = lbl.ravel()
