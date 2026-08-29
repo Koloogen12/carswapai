@@ -98,3 +98,112 @@ function cacheKey(sku: string, light: string) {
   };
   return lightMap[sku]?.[light] ?? map[sku] ?? 'wrap-01-silver.jpg';
 }
+
+/**
+ * Живая примерка одного артикула на фотографии клиента.
+ *
+ * ПОЧЕМУ ЧЕРЕЗ ОЧЕРЕДЬ, А НЕ ПРЯМО ЗДЕСЬ. Генерация занимает 25 секунд на
+ * кадр — измерено на живом ответе модели. Держать на этом серверное действие
+ * нельзя: менеджер закроет вкладку, а деньги за начатую генерацию спишутся.
+ * Ставим три задания (по одному на свет) и отвечаем сразу.
+ *
+ * ПОЧЕМУ ОДИН АРТИКУЛ, А НЕ ТРИ. Примерка и карточка — разные моменты.
+ * Примерка это исследование: менеджер гоняет артикулы по одному и смотрит.
+ * Карточка (М-4, ровно три артикула) — уже предложение клиенту, и она
+ * складывается из УЖЕ отрендеренных примерок, повторно не платя. Поэтому
+ * стоимость равна числу реально примеренного, а не фиксированным девяти.
+ *
+ * ДЕДУПЛИКАЦИЯ. Ключ — «фото × артикул × свет». Повторное нажатие в пределах
+ * окна не создаёт второго задания и не тратит денег (§4.8, М-5).
+ */
+export async function startTryOn(configId: string, pointPriceId: string,
+                                 photoId: string) {
+  return withTenant(MANAGER, async c => {
+    try {
+      const price = await c.query(
+        `select pp.id, pp.price_kopecks, ci.category, ci.sku, ci.finish,
+                ci.lab_l, ci.lab_a, ci.lab_b
+           from point_prices pp join catalog_items ci on ci.id = pp.catalog_item_id
+          where pp.id = $1`, [pointPriceId]);
+      if (!price.rows.length) {
+        return { ok: false as const, error: 'О-3: артикула нет в прайсе этой точки' };
+      }
+      const p = price.rows[0];
+      if (p.lab_l === null) {
+        // Цвет артикула обязан быть измерен. Отправлять модели название вместо
+        // чисел — значит показать клиенту цвет, которого не будет на замере.
+        return { ok: false as const,
+                 error: 'у артикула нет измеренного цвета — примерка невозможна' };
+      }
+
+      const photo = await c.query(
+        `select storage_path from photos where id = $1 and erased_at is null`,
+        [photoId]);
+      if (!photo.rows.length) {
+        return { ok: false as const, error: 'фотография не найдена или уже удалена' };
+      }
+
+      const item = await c.query(
+        `insert into configuration_items
+           (configuration_id, point_id, point_price_id, category, price_kopecks)
+         values ($1,$2,$3,$4,$5)
+         on conflict do nothing
+         returning id`,
+        [configId, MANAGER.point_id, pointPriceId, p.category, p.price_kopecks]);
+      const itemId = item.rows[0]?.id
+        ?? (await c.query(
+              `select id from configuration_items
+                where configuration_id = $1 and point_price_id = $2`,
+              [configId, pointPriceId])).rows[0]?.id;
+      if (!itemId) return { ok: false as const, error: 'не удалось создать позицию' };
+
+      // Через app.enqueue_render, а не прямым insert: эта функция держит
+      // дедупликацию И жёсткий стоп по бюджету точки (С-5). Обойти её своим
+      // запросом значит обойти потолок расхода — то есть выпустить точку за
+      // деньги, которых у неё нет.
+      const ids: string[] = [];
+      for (const l of LIGHTS) {
+        const r = await c.query(
+          `select app.enqueue_render($1,$2,$3::render_variant,'B',$4,0::smallint,850,$5::jsonb) as id`,
+          [MANAGER.point_id, itemId, l.id,
+           `${photoId}:${pointPriceId}:${l.id}`,
+           JSON.stringify({
+             photo_path: photo.rows[0].storage_path,
+             sku_name: p.sku, finish: p.finish,
+             target_lab: [Number(p.lab_l), Number(p.lab_a), Number(p.lab_b)],
+             light: l.id, network_id: MANAGER.network_id,
+           })]);
+        ids.push(r.rows[0].id as string);
+      }
+
+      revalidatePath(`/inbox`);
+      // Повторное нажатие возвращает те же идентификаторы заданий: это не
+      // ошибка, а сработавшая дедупликация, и денег она не стоит.
+      return { ok: true as const, itemId, jobIds: ids };
+    } catch (e) {
+      return { ok: false as const, error: (e as Error).message };
+    }
+  });
+}
+
+/** Готовность примерки: сколько светов уже посчитано и что с отказами. */
+export async function tryOnStatus(itemId: string) {
+  return withTenant(MANAGER, async c => {
+    const done = await c.query(
+      `select variant, storage_path from renders
+        where configuration_item_id = $1 and qa_passed and erased_at is null`,
+      [itemId]);
+    const jobs = await c.query(
+      `select status, last_error from render_jobs
+        where configuration_item_id = $1`, [itemId]);
+    const failed = jobs.rows.filter(r => r.status === 'failed');
+    return {
+      ready: done.rows.length === LIGHTS.length,
+      done: done.rows,
+      pending: jobs.rows.filter(r => ['queued', 'running'].includes(r.status)).length,
+      // Причина отказа показывается менеджеру целиком: «не получилось» без
+      // причины он не сможет ни исправить, ни объяснить клиенту.
+      errors: failed.map(r => r.last_error as string),
+    };
+  });
+}
