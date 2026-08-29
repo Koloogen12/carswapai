@@ -42,7 +42,13 @@ export function DialogPane({ name, phone, note, channel, messages, cards, pointN
       </div>
 
       <div style={{ flex: "1", minHeight: "0", overflowY: "auto", padding: "16px 18px", display: "flex", flexDirection: "column", gap: "12px", background: "#F7F7F7" }}>
-        {messages.map(m => m.direction === 'in' ? (
+        {messages.map(m => m.body === 'Фото из диалога подхвачено автоматически' ? (
+          <div key={m.id} style={{ display: "flex", alignItems: "center", gap: "9px", alignSelf: "center", background: "#FFFFFF", borderRadius: "999px", padding: "7px 14px" }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" strokeWidth="1.9" strokeLinecap="round"><rect x="3" y="5" width="18" height="15" rx="3" /><circle cx="12" cy="12" r="3.5" /></svg>
+            <span style={{ fontSize: "11px", color: "#6E6E6E" }}>
+              Фото из диалога подхвачено автоматически · {hhmm(m.sent_at)}</span>
+          </div>
+        ) : m.direction === 'in' ? (
           <div key={m.id} style={{ display: "flex", flexDirection: "column", gap: "4px", alignItems: "flex-start", maxWidth: "74%" }}>
             <div style={{ background: "#FFFFFF", borderRadius: "20px 20px 20px 6px", padding: "13px 17px", fontSize: "14px", lineHeight: "1.45", color: "#2E2E2E", boxShadow: "0 1px 2px rgba(17,17,17,.04)" }}>{m.body}</div>
             <span style={{ fontSize: "10.5px", color: "#C4C4C4", paddingLeft: "6px" }}>{hhmm(m.sent_at)}</span>

@@ -28,7 +28,8 @@ export default async function ThreadPage({ params }: { params: { id: string } })
       <div style={{ flex: "1", display: "flex", gap: "12px", minHeight: "0" }}>
         <InboxList rows={rows} activeId={params.id} compact />
         <DialogPane name={t.client_name} phone={t.phone} channel={channel}
-          note={v.make ? `${v.make} ${v.model ?? ''} ${v.year ?? ''} · ${v.plate ?? ''}`.replace(/\s+/g, ' ').trim() : 'авто не распознано'}
+          note={[v.make ? `${v.make} ${v.model ?? ''} ${v.year ?? ''} · ${v.plate ?? ''}`.replace(/\s+/g, ' ').trim() : 'авто не распознано',
+                 (v as { note?: string }).note].filter(Boolean).join(' · ')}
           messages={t.messages} cards={cards} pointName="JETCAR Мытищи" />
         <TryonPanel threadId={params.id} prices={prices} meters={meters}
           blocked={b.hard_reached}

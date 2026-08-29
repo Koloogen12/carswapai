@@ -86,26 +86,55 @@ export async function schedule() {
 
 export async function stock() {
   return withTenant(OWNER, async c => {
-    const { rows } = await c.query(`
+    // Забронировано под подтверждённые выборы: именно оно превращает
+    // «есть 9,6 м» в «не хватит». Остаток без брони ничего не значит.
+    const rolls = (await c.query(`
       select fr.id, fr.batch_number, fr.barcode, fr.meters_initial, fr.meters_left,
-             fr.received_at, fr.depleted_at, ci.sku, ci.brand, ci.name,
-             coalesce((select sum(-sm.delta_meters) from stock_moves sm
-                        where sm.roll_id = fr.id and sm.reason = 'consume'), 0) as consumed,
-             (select count(*) from orders o
-               where o.verified_roll_id = fr.id and o.status = 'in_work')::int as booked
+             fr.received_at, fr.depleted_at, ci.sku, ci.brand, ci.name, ci.id as item_id,
+             coalesce((select sum(cit.meters_required) from configuration_items cit
+                        join point_prices pp2 on pp2.id = cit.point_price_id
+                        join confirmations cf on cf.configuration_id = cit.configuration_id
+                        left join orders o on o.confirmation_id = cf.id
+                       where pp2.catalog_item_id = ci.id
+                         and coalesce(o.status, 'created') <> 'done'), 0) as booked_meters,
+             (select cl.name from configuration_items cit
+                join point_prices pp2 on pp2.id = cit.point_price_id
+                join confirmations cf on cf.configuration_id = cit.configuration_id
+                join configurations cfg on cfg.id = cit.configuration_id
+                left join threads t on t.id = cfg.thread_id
+                left join clients cl on cl.id = t.client_id
+               where pp2.catalog_item_id = ci.id limit 1) as booked_for
         from film_rolls fr join catalog_items ci on ci.id = fr.catalog_item_id
-       order by fr.depleted_at nulls first, ci.sku`);
+       order by fr.depleted_at nulls first, ci.sku`)).rows;
+
+    // Артикулы прайса, под которые рулона нет вовсе: гаснут в панели
+    // и в гараже сами, а здесь видны как «заказать».
+    const missing = (await c.query(`
+      select ci.sku, ci.brand, ci.name,
+             coalesce((select sum(cit.meters_required) from configuration_items cit
+                        join point_prices pp2 on pp2.id = cit.point_price_id
+                        join confirmations cf on cf.configuration_id = cit.configuration_id
+                       where pp2.catalog_item_id = ci.id), 0) as need
+        from point_prices pp join catalog_items ci on ci.id = pp.catalog_item_id
+       where ci.category in ('film','ppf')
+         and not exists (select 1 from film_rolls fr
+                          where fr.catalog_item_id = ci.id and fr.depleted_at is null)
+       order by need desc limit 4`)).rows;
+
     const moves = (await c.query(`
       select sm.at, sm.reason::text, sm.delta_meters, ci.sku, o.number as order_number
         from stock_moves sm
         join film_rolls fr on fr.id = sm.roll_id
         join catalog_items ci on ci.id = fr.catalog_item_id
         left join orders o on o.id = sm.order_id
-       order by sm.at desc limit 12`)).rows;
-    return { rolls: rows, moves } as {
+       order by sm.at desc limit 8`)).rows;
+
+    return { rolls, missing, moves } as {
       rolls: { id: string; batch_number: string; barcode: string; meters_initial: string;
                meters_left: string; received_at: string; depleted_at: string | null;
-               sku: string; brand: string; name: string; consumed: string; booked: number }[];
+               sku: string; brand: string; name: string; booked_meters: string;
+               booked_for: string | null }[];
+      missing: { sku: string; brand: string; name: string; need: string }[];
       moves: { at: string; reason: string; delta_meters: string; sku: string;
                order_number: string | null }[];
     };

@@ -1,72 +1,113 @@
-import { myOrders } from '@/lib/bay';
+import { masterBoard } from '@/lib/bay';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Наряды мастера, модули 08–09 захода 2.
+ * Модуль 09 захода 2 · наряды мастера.
  *
- * Вход по ссылке из мессенджера, без пароля. Цели нажатия 64px и крупный
- * шрифт включаются атрибутом data-surface="bay" — у поста читают на солнце
- * и работают в перчатках, это не «покрупнее для красоты».
+ * Разметка из design/design/08-pass2-point-operations.dc.html, блок 5,
+ * рамка 1.2 — байт в байт: рамка 390×700, отбивка 28/14/18, gap 13,
+ * активный наряд чёрной карточкой, заблокированный на #FBEEEF,
+ * итог месяца прижат книзу через marginTop:auto.
+ *
+ * Порядок карточек — по цене ошибки, а не по дате: сначала то, что идёт
+ * прямо сейчас, потом то, что встало и ждёт человека, и только потом
+ * будущее. У поста смотрят одну секунду.
  */
-const STATUS: Record<string, { label: string; bg: string; fg: string }> = {
-  in_work: { label: 'В работе', bg: '#DEF23B', fg: '#111111' },
-  created: { label: 'Ждёт сверки рулона', bg: '#FBEEEF', fg: '#8A4448' },
-  done:    { label: 'Сдано', bg: '#111111', fg: '#FFFFFF' },
-};
-
 export default async function BayListPage() {
-  const orders = await myOrders();
-  const active = orders.filter(o => o.status !== 'done');
+  const b = await masterBoard();
+  const initials = b.master.split(' ').map(w => w[0]).slice(0, 2).join('');
 
   return (
     <div data-surface="bay" style={{ background: "#2A2A2A", minHeight: "100vh", display: "flex", justifyContent: "center", padding: "16px" }}>
-      <div style={{ width: "100%", maxWidth: "390px", minHeight: "820px", background: "#EFEFEF", borderRadius: "42px", overflow: "hidden", display: "flex", flexDirection: "column", padding: "26px 14px 16px", gap: "14px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "0 4px" }}>
-          <span style={{ fontSize: "24px", fontWeight: "500", letterSpacing: "-0.03em" }}>Мои наряды</span>
-          <span style={{ fontSize: "13px", color: "#6E6E6E" }}>
-            Пост №2 · Сергей Панов · {active.length} в работе</span>
+      <div style={{ width: "100%", maxWidth: "390px", minHeight: "700px", background: "#EFEFEF", borderRadius: "42px", overflow: "hidden", display: "flex", flexDirection: "column", padding: "28px 14px 18px", gap: "13px" }}>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 4px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <span style={{ fontSize: "23px", fontWeight: "500", letterSpacing: "-0.03em" }}>Мои наряды</span>
+            <span style={{ fontSize: "11.5px", color: "#6E6E6E" }}>{b.bay} · {b.master}</span>
+          </div>
+          <div style={{ width: "36px", height: "36px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11.5px", fontWeight: "600", color: "#6E6E6E" }}>{initials}</div>
         </div>
 
-        {orders.length === 0 && (
-          <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "22px", display: "flex", flexDirection: "column", gap: "8px" }}>
-            <span style={{ fontSize: "18px", fontWeight: "500" }}>Пока пусто</span>
-            <span style={{ fontSize: "15px", lineHeight: "1.5", color: "#6E6E6E" }}>
-              Наряд появится здесь, когда менеджер закроет замер. Ссылка придёт
-              вам в мессенджер — пароля не нужно.
-            </span>
+        {b.active && (
+          <a href={`/bay/${b.active.id}`} style={{ background: "#111111", borderRadius: "24px", padding: "16px", display: "flex", flexDirection: "column", gap: "11px", textDecoration: "none" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: "11px", fontWeight: "500", background: "#DEF23B", borderRadius: "999px", padding: "4px 10px", color: "#111111" }}>сейчас в работе</span>
+              <span style={{ fontSize: "11px", color: "#9A9A9A" }}>
+                день {b.active.day_of ?? 1} из {b.active.days_total}</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <div style={{ width: "64px", height: "48px", borderRadius: "12px", overflow: "hidden", flex: "none", background: "#2E2E2E" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {b.active.thumb && <img src={b.active.thumb} alt="" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />}
+              </div>
+              <div style={{ flex: "1", minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
+                <span style={{ fontSize: "15px", fontWeight: "500", color: "#FFFFFF" }}>
+                  Наряд {b.active.number} · {b.active.client.split(' ')[0]}</span>
+                <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>
+                  {b.active.brand} {b.active.sku}
+                  {b.active.batch ? ` · партия ${b.active.batch}` : ''}
+                  {b.active.meters ? ` · ${b.active.meters} м` : ''}</span>
+              </div>
+            </div>
+            <div style={{ background: "#DEF23B", borderRadius: "999px", padding: "14px 0", textAlign: "center" }}>
+              <span style={{ fontSize: "13.5px", fontWeight: "500", color: "#111111" }}>Открыть</span>
+            </div>
+          </a>
+        )}
+
+        {b.blocked.map(o => (
+          <a key={o.id} href={`/bay/${o.id}`} style={{ background: "#FBEEEF", borderRadius: "24px", padding: "16px", display: "flex", flexDirection: "column", gap: "9px", textDecoration: "none" }}>
+            <span style={{ fontSize: "11px", fontWeight: "500", color: "#D93F45" }}>
+              заблокирован · рулон не сошёлся</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <div style={{ width: "64px", height: "48px", borderRadius: "12px", background: "#F0DADB", flex: "none" }}></div>
+              <div style={{ flex: "1", minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
+                <span style={{ fontSize: "14.5px", fontWeight: "500", color: "#8A4448" }}>
+                  Наряд {o.number} · {o.client.split(' ')[0]}</span>
+                <span style={{ fontSize: "11.5px", color: "#8A4448" }}>ждём ответа менеджера</span>
+              </div>
+            </div>
+          </a>
+        ))}
+
+        {b.upcoming.map(u => (
+          <div key={u.id} style={{ background: "#FFFFFF", borderRadius: "24px", padding: "16px", display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "64px", height: "48px", borderRadius: "12px", overflow: "hidden", flex: "none", background: "#EFEFEF" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {u.thumb && <img src={u.thumb} alt="" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />}
+            </div>
+            <div style={{ flex: "1", minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
+              <span style={{ fontSize: "14.5px", fontWeight: "500" }}>
+                {u.number ? `Наряд ${u.number} · ` : ''}{u.client.split(' ')[0]}</span>
+              <span style={{ fontSize: "11.5px", color: "#6E6E6E" }}>
+                замер {u.when}{u.vehicle ? ` · ${u.vehicle}` : ''}</span>
+            </div>
+          </div>
+        ))}
+
+        {!b.active && b.blocked.length === 0 && b.upcoming.length === 0 && (
+          <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "18px", display: "flex", flexDirection: "column", gap: "6px" }}>
+            <span style={{ fontSize: "16px", fontWeight: "500" }}>Пока пусто</span>
+            <span style={{ fontSize: "13px", lineHeight: "1.5", color: "#5A5A5A" }}>
+              Наряд появится, когда менеджер закроет замер. Ссылка придёт вам
+              в мессенджер — пароля не нужно.</span>
           </div>
         )}
 
-        {orders.map(o => {
-          const s = STATUS[o.status] ?? STATUS.created;
-          return (
-            <a key={o.id} href={`/bay/${o.id}`}
-              style={{ background: "#FFFFFF", borderRadius: "26px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px", textDecoration: "none", color: "inherit" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "13px" }}>
-                <div style={{ width: "64px", height: "48px", borderRadius: "14px", overflow: "hidden", flex: "none", background: "#EFEFEF" }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {o.thumb && <img src={o.thumb} alt="" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />}
-                </div>
-                <div style={{ flex: "1", minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "18px", fontWeight: "500", letterSpacing: "-0.02em" }}>Наряд {o.number}</span>
-                  <span style={{ fontSize: "14px", color: "#5A5A5A" }}>
-                    {o.client_name ?? '—'} · {o.vehicle}</span>
-                </div>
-              </div>
-              <div style={{ background: "#F7F7F7", borderRadius: "18px", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span style={{ fontSize: "13px", color: "#767676" }}>Артикул</span>
-                <span style={{ fontSize: "20px", fontWeight: "500", fontVariantNumeric: "tabular-nums" }}>{o.brand} {o.sku}</span>
-                <span style={{ fontSize: "14px", color: "#5A5A5A" }}>
-                  {o.item_name}{o.meters ? ` · ${o.meters} м` : ''}
-                  {o.batch_verified_at ? ' · рулон сверен' : ''}</span>
-              </div>
-              <div style={{ background: s.bg, color: s.fg, borderRadius: "999px", padding: "13px 0", textAlign: "center", fontSize: "15px", fontWeight: "500" }}>
-                {s.label}
-              </div>
-            </a>
-          );
-        })}
+        {/* Мастера меряют себя не числом нарядов, а числом переклеек.
+            Поэтому итог месяца — «сдано и переклеек», и он прижат книзу:
+            смотрят его в конце смены, а не в начале. */}
+        <div style={{ marginTop: "auto", background: "#FFFFFF", borderRadius: "22px", padding: "15px 17px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+            <span style={{ fontSize: "11px", color: "#9A9A9A" }}>За месяц</span>
+            <span style={{ fontSize: "15px", fontWeight: "500" }}>
+              {b.month.done} сдано · {b.month.redo} переклеек</span>
+          </div>
+          <span style={{ fontSize: "11.5px", fontWeight: "500", background: "#DEF23B", borderRadius: "999px", padding: "6px 11px", flex: "none" }}>
+            {b.month.verified}% со сверкой</span>
+        </div>
       </div>
     </div>
   );

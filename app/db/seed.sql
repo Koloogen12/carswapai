@@ -330,3 +330,39 @@ values ('18800000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-00000000
         '15500000-0000-4000-8000-000000000006','17700000-0000-4000-8000-000000000006','link',
         now() - interval '6 days')
 on conflict do nothing;
+
+-- Отправленная карточка в ленте диалога: без неё главный компонент продукта
+-- на экране не появляется вовсе — ни трёх светов, ни строки честности.
+insert into messages (point_id, thread_id, channel_id, direction, body,
+                      outbound_card_id, delivery, sent_at)
+select 'b0000000-0000-4000-8000-000000000001','13300000-0000-4000-8000-000000000001',
+       'f1000000-0000-4000-8000-000000000001','out',
+       'Ваш BMW X5 в трёх плёнках · три света. Оттенок партии сверим с рулоном при вас на замере — образец приложим.',
+       '17700000-0000-4000-8000-000000000001','delivered', now() - interval '3 minutes'
+ where not exists (select 1 from messages m
+                    where m.thread_id = '13300000-0000-4000-8000-000000000001'
+                      and m.direction = 'out');
+
+insert into messages (point_id, thread_id, channel_id, direction, body,
+                      external_message_id, sent_at)
+values ('b0000000-0000-4000-8000-000000000001','13300000-0000-4000-8000-000000000001',
+        'f1000000-0000-4000-8000-000000000001','in',
+        'А можно ещё в этом, но матовый?','tg-3', now() - interval '1 minute')
+on conflict do nothing;
+
+-- Фото подхвачено из ленты автоматически: системная отметка в диалоге.
+insert into messages (point_id, thread_id, channel_id, direction, body,
+                      external_message_id, attachments, sent_at)
+values ('b0000000-0000-4000-8000-000000000001','13300000-0000-4000-8000-000000000001',
+        'f1000000-0000-4000-8000-000000000001','in',
+        'Фото из диалога подхвачено автоматически','tg-photo',
+        '[{"kind":"image","url":"/renders/input-client-photo.jpg"}]'::jsonb,
+        now() - interval '5 minutes')
+on conflict do nothing;
+
+update threads set last_message_at = now() - interval '1 minute'
+ where id = '13300000-0000-4000-8000-000000000001';
+
+-- Повторное обращение: клиент был у нас раньше, и это видно в шапке диалога.
+update clients set vehicle = vehicle || '{"note":"Второе обращение · в марте смотрели матовый чёрный"}'::jsonb
+ where id = '11100000-0000-4000-8000-000000000001';

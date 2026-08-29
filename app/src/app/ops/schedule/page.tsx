@@ -111,18 +111,19 @@ export default async function SchedulePage() {
           </div>
 
           <div style={{ display: "flex", gap: "12px" }}>
-            <div style={{ flex: "1", background: "#F7F7F7", borderRadius: "18px", padding: "15px 17px", display: "flex", flexDirection: "column", gap: "4px" }}>
-              <span style={{ fontSize: "11.5px", color: "#9A9A9A" }}>Ждут слот</span>
-              <span style={{ fontSize: "20px", fontWeight: "500", letterSpacing: "-0.03em", fontVariantNumeric: "tabular-nums" }}>{s.waiting.length}</span>
-              <span style={{ fontSize: "11px", color: "#6E6E6E", lineHeight: "1.45" }}>
-                Подтвердили цвет и ждут, когда менеджер назначит замер.
+            <div style={{ flex: "1", display: "flex", alignItems: "center", gap: "11px", background: "#F5FBCB", borderRadius: "18px", padding: "14px 16px" }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.7" strokeLinecap="round" style={{ flex: "none" }}><circle cx="12" cy="12" r="8.5" /><path d="M12 8v.5M12 11.5v4.5" /></svg>
+              <span style={{ flex: "1", fontSize: "12.5px", lineHeight: "1.45", color: "#2E2E2E" }}>
+                Три дня работ и два поста — накладка неизбежна без этой сетки.
+                Слоты, которые видит клиент, берутся отсюда.
               </span>
             </div>
-            <div style={{ flex: "2", background: "#111111", borderRadius: "18px", padding: "15px 17px" }}>
-              <span style={{ fontSize: "11.5px", lineHeight: "1.5", color: "#DDDDDD" }}>
-                Три дня работ и два поста — накладка неизбежна, если назначать замеры
-                вслепую. Менеджер назначает, видя загрузку: свободные дни и ждущие
-                клиенты стоят в одной ленте.
+            <div style={{ flex: "1", display: "flex", alignItems: "center", gap: "11px", background: "#F7F7F7", borderRadius: "18px", padding: "14px 16px" }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6E6E6E" strokeWidth="1.7" strokeLinecap="round" style={{ flex: "none" }}><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M8 3v4M16 3v4M4 10h16" /></svg>
+              <span style={{ flex: "1", fontSize: "12.5px", lineHeight: "1.45", color: "#2E2E2E" }}>
+                {s.waiting[0]
+                  ? `${s.waiting[0].name ?? 'Клиент'} подтвердил цвет и ждёт слот. Свободные дни на посту — предложить ему в один клик.`
+                  : 'Все, кто подтвердил цвет, уже записаны на замер. Свободные дни можно отдать под новые обращения.'}
               </span>
             </div>
           </div>
