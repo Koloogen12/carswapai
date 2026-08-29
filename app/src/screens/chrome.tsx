@@ -6,6 +6,7 @@
  * Статические строки заменены пропсами, ни одно значение стиля не тронуто.
  */
 import type { ReactNode } from 'react';
+import { BRAND } from '@/lib/domain';
 
 export function AppBar({ pointName, user, role, spent, cap, active }: {
   pointName: string; user: string; role: string; spent: number; cap: number;
@@ -26,7 +27,7 @@ export function AppBar({ pointName, user, role, spent, cap, active }: {
         <div style={{ width: "28px", height: "28px", borderRadius: "9px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2.2" strokeLinecap="round"><path d="M12 4v16M4 12h16" /></svg>
         </div>
-        <span style={{ fontSize: "16px", fontWeight: "600", letterSpacing: "-0.02em" }}>CarSwap</span>
+        <span style={{ fontSize: "16px", fontWeight: "600", letterSpacing: "-0.02em" }}>{BRAND}</span>
         <span style={{ fontSize: "11.5px", color: "#9A9A9A", background: "#FFFFFF", borderRadius: "999px", padding: "5px 11px", marginLeft: "4px" }}>{pointName}</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

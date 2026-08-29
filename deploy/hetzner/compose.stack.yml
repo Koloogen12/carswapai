@@ -1,0 +1,105 @@
+# YOOMP · стек продукта на общем сервере.
+#
+# Правила общей машины, от которых здесь ничего не отступает:
+#   · name уникален — иначе compose соседа считает наши контейнеры своими;
+#   · ports наружу не публикуются вовсе — снаружи только Caddy;
+#   · в общую сеть edge подключено РОВНО одно: приложение. База, очередь и
+#     воркер видны только внутри стека. База, попавшая в edge, становится
+#     видна контейнерам всех остальных продуктов сервера.
+name: yoomp
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: yoomp
+      OWNER_PASSWORD: ${OWNER_PASSWORD}
+      APP_PASSWORD: ${APP_PASSWORD}
+      TZ: Europe/Moscow
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./deploy/hetzner/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d yoomp"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+    networks: [internal]
+
+  # Накат миграций отдельным разовым шагом, а не при старте приложения.
+  # Приложение, которое само мигрирует базу, при двух своих экземплярах
+  # накатывает миграцию дважды; здесь же накат идёт под владельцем схемы,
+  # а приложение под своей ролью — как того требует 005_grants.sql.
+  migrate:
+    image: postgres:16
+    working_dir: /db
+    volumes:
+      - ./app/db:/db:ro
+    environment:
+      DATABASE_URL: postgresql://carswap_owner:${OWNER_PASSWORD}@db:5432/yoomp
+    entrypoint: ["bash", "-lc"]
+    command: >
+      bash /db/migrate.sh &&
+      psql "$$DATABASE_URL" -v ON_ERROR_STOP=1
+        -c "grant app_tenant to carswap_app"
+    depends_on:
+      db: { condition: service_healthy }
+    restart: "no"
+    networks: [internal]
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    env_file:
+      - /etc/yoomp/secrets.env
+    environment:
+      DATABASE_URL: postgresql://carswap_app:${APP_PASSWORD}@db:5432/yoomp
+      STORAGE_ROOT: /var/lib/carswap/storage
+      PUBLIC_BASE_URL: ${PUBLIC_URL}
+      PUBLIC_ORIGIN: ${PUBLIC_URL}
+      NODE_ENV: production
+      TZ: Europe/Moscow
+    volumes:
+      - storage:/var/lib/carswap/storage
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    restart: unless-stopped
+    networks: [internal, edge]
+
+  # Воркер примерки. В edge НЕ подключён и портов не публикует: снаружи к нему
+  # обращаться нечем и незачем, задания он берёт из базы сам.
+  worker:
+    build:
+      context: ./app/worker
+      dockerfile: Dockerfile
+    env_file:
+      - /etc/yoomp/secrets.env
+    environment:
+      DATABASE_URL: postgresql://carswap_app:${APP_PASSWORD}@db:5432/yoomp
+      STORAGE_ROOT: /var/lib/carswap/storage
+      PYTHONUNBUFFERED: "1"
+      TZ: Europe/Moscow
+    volumes:
+      # Тот же том, что у приложения: приложение кладёт кадр, воркер его
+      # читает и кладёт рядом рендеры. Разные тома означали бы «кадр не
+      # найден» на каждой примерке.
+      - storage:/var/lib/carswap/storage
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    restart: unless-stopped
+    networks: [internal]
+
+volumes:
+  db-data:
+  storage:
+
+networks:
+  internal:
+  edge:
+    external: true

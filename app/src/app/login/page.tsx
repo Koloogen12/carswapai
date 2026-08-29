@@ -11,6 +11,7 @@
  */
 import { useState, useTransition } from 'react';
 import { actionRequestCode, actionVerifyCode } from './actions';
+import { BRAND } from '@/lib/domain';
 
 export default function LoginPage() {
   // Пустое поле, а не демонстрационный номер значением: раньше введённый
@@ -50,7 +51,7 @@ export default function LoginPage() {
             <div style={{ width: "30px", height: "30px", borderRadius: "10px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2.2" strokeLinecap="round"><path d="M12 4v16M4 12h16" /></svg>
             </div>
-            <span style={{ fontSize: "17px", fontWeight: "600", letterSpacing: "-0.02em" }}>CarSwap</span>
+            <span style={{ fontSize: "17px", fontWeight: "600", letterSpacing: "-0.02em" }}>{BRAND}</span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>

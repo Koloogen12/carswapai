@@ -1,8 +1,9 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { BRAND } from '@/lib/domain';
 
 export const metadata: Metadata = {
-  title: 'CarSwap AI',
+  title: BRAND,
   description: 'Примерочная плёнок для детейлинг-студий',
 };
 

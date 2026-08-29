@@ -1,4 +1,4 @@
-/* Лендинг CarSwap AI. Разметка перенесена из design/design/landing.dc.html
+/* Лендинг YOOMP. Разметка перенесена из design/design/landing.dc.html
  * через app/src/design/ported/landing.tsx: пиксели, порядок свойств и
  * вложенность — из хендоффа, править их наугад нельзя.
  *
@@ -21,7 +21,7 @@ export function Nav(): ReactElement {
           <div style={{ width: "30px", height: "30px", borderRadius: "10px", background: "#DEF23B", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.8" strokeLinecap="round" style={{ flex: "none" }}><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="4.2" /></svg>
           </div>
-          <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em", color: "#FFFFFF" }}>CarSwap AI</span>
+          <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em", color: "#FFFFFF" }}>YOOMP</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "26px" }}>
           <div className="cs-nav-links" style={{ display: "flex", alignItems: "center", gap: "26px" }}>
@@ -79,7 +79,7 @@ export function Audience(): ReactElement {
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "40px", flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px", maxWidth: "660px" }}>
               <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.09em", textTransform: "uppercase", color: "#9A9A9A" }}>01 · Для кого это</span>
-              <h2 style={{ margin: "0", fontSize: "clamp(28px,3.4vw,50px)", lineHeight: "1.02", fontWeight: "500", letterSpacing: "-0.04em", textWrap: "balance" }}>Три ситуации, в которых CarSwap забирает работу целиком</h2>
+              <h2 style={{ margin: "0", fontSize: "clamp(28px,3.4vw,50px)", lineHeight: "1.02", fontWeight: "500", letterSpacing: "-0.04em", textWrap: "balance" }}>Три ситуации, в которых YOOMP забирает работу целиком</h2>
             </div>
             <p style={{ margin: "0", maxWidth: "400px", fontSize: "14.5px", lineHeight: "1.55", color: "#6E6E6E", textWrap: "pretty" }}>Найди свою — дальше страница будет говорить с тобой.</p>
           </div>
@@ -196,7 +196,7 @@ export function ChatVsCarswap(): ReactElement {
       <div style={{ padding: "96px 22px 0", background: "#EFEFEF" }}>
         <div style={{ maxWidth: "1360px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "32px" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "40px", flexWrap: "wrap" }}>
-            <h2 style={{ margin: "0", maxWidth: "680px", fontSize: "clamp(28px,3.4vw,50px)", lineHeight: "1.02", fontWeight: "500", letterSpacing: "-0.04em", textWrap: "balance" }}>Чат рисует похожую машину. CarSwap перекрашивает его.</h2>
+            <h2 style={{ margin: "0", maxWidth: "680px", fontSize: "clamp(28px,3.4vw,50px)", lineHeight: "1.02", fontWeight: "500", letterSpacing: "-0.04em", textWrap: "balance" }}>Чат рисует похожую машину. YOOMP перекрашивает его.</h2>
             <p style={{ margin: "0", maxWidth: "430px", fontSize: "14.5px", lineHeight: "1.55", color: "#6E6E6E", textWrap: "pretty" }}>Загрузите одно и то же фото в бесплатный чат и сюда. В чате получится другая машина: пропадёт номер, изменятся диски, поедет форма фар — он рисует заново по описанию. У нас меняется только покрытие. Клиент должен узнать свою машину, иначе доказательства не существует.</p>
           </div>
 
@@ -224,7 +224,7 @@ export function ChatVsCarswap(): ReactElement {
                 <span style={{ position: "absolute", left: "14px", top: "14px", fontSize: "11px", fontWeight: "500", background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "7px 13px" }}>его машина</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "5px", padding: "0 6px 6px" }}>
-                <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.09em", textTransform: "uppercase", color: "#9A9A9A" }}>CarSwap AI</span>
+                <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.09em", textTransform: "uppercase", color: "#9A9A9A" }}>YOOMP</span>
                 <span style={{ fontSize: "14px", lineHeight: "1.45", color: "#2E2E2E" }}>Номер, диски и двор те же. Изменено только покрытие — плюс артикул и ваша цена.</span>
               </div>
             </div>
@@ -876,7 +876,7 @@ export function Footer(): ReactElement {
                 <div style={{ width: "30px", height: "30px", borderRadius: "10px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="1.8" strokeLinecap="round" style={{ flex: "none" }}><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="4.2" /></svg>
                 </div>
-                <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em" }}>CarSwap AI</span>
+                <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em" }}>YOOMP</span>
               </div>
               <p style={{ margin: "0", maxWidth: "280px", fontSize: "13px", lineHeight: "1.5", color: "#6E6E6E", textWrap: "pretty" }}>Рабочее место точки детейлинга: заявки из всех каналов в одном списке, примерка на машине клиента прямо в диалоге.</p>
             </div>
@@ -906,7 +906,7 @@ export function Footer(): ReactElement {
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "20px", borderTop: "1px solid #DCDCDC", paddingTop: "22px", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "12px", color: "#9A9A9A" }}>© 2026 CarSwap AI</span>
+            <span style={{ fontSize: "12px", color: "#9A9A9A" }}>© 2026 YOOMP</span>
             <div style={{ display: "flex", gap: "24px" }}>
               <a href="#" style={{ fontSize: "12px", color: "#9A9A9A" }}>О нас</a>
               <a href="#" style={{ fontSize: "12px", color: "#9A9A9A" }}>Контакты</a>
