@@ -29,15 +29,11 @@ import path from 'node:path';
 import type { PoolClient } from 'pg';
 import type { Attachment } from '../channel';
 
-/** Редакция текста оферты. Меняется — меняется и версия: клиент видел ту, а не эту. */
-export const OFFER_VERSION = 'offer-2026-08-1';
-
-export const OFFER_TEXT =
-  'Здравствуйте! Пришлите фото автомобиля — покажем, как на нём будет ' +
-  'выглядеть плёнка из нашего прайса. Отправляя фото, вы соглашаетесь на ' +
-  'обработку изображения автомобиля, включая читаемый госномер, для показа ' +
-  'примерки. Фото не публикуется без вашего отдельного согласия и удаляется ' +
-  'по истечении срока хранения.';
+// Текст и его признак живут в channel-text.ts: по этому же признаку
+// уведомление ищется в переписке. Две копии строки разошлись бы молча, и
+// основание перестало бы находиться.
+export { OFFER_TEXT, OFFER_VERSION } from '../channel-text';
+import { OFFER_MARKER, OFFER_VERSION as VERSION } from '../channel-text';
 
 const STORAGE = process.env.STORAGE_ROOT ?? '/var/lib/carswap/storage';
 const MAX_BYTES = Number(process.env.CSW_PHOTO_MAX_BYTES ?? 25 * 1024 * 1024);
@@ -52,7 +48,7 @@ export async function offerNotice(c: PoolClient, threadId: string) {
     `select id, sent_at from messages
       where thread_id = $1 and direction = 'out' and body like $2
       order by sent_at limit 1`,
-    [threadId, '%соглашаетесь на обработку изображения автомобиля%']);
+    [threadId, `%${OFFER_MARKER}%`]);
   return r.rows[0] ?? null;
 }
 
@@ -118,7 +114,7 @@ export async function ingestInboundPhoto(
                              basis, notice_message_id, evidence_message_id)
        values ($1,$2,'photo_processing',$3,true,'offer_notice',$4,$5)
        returning id`,
-      [pointId, clientId, OFFER_VERSION, notice.id, messageId]);
+      [pointId, clientId, VERSION, notice.id, messageId]);
 
     const photo = await c.query<{ id: string }>(
       `insert into photos (point_id, client_id, storage_path, sha256, width, height,
