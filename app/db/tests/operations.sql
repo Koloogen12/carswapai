@@ -13,6 +13,8 @@ begin;
 insert into zones (code, name) values ('full_body','Кузов целиком') on conflict do nothing;
 insert into networks (id, name, join_code)
 values ('11111111-4444-0000-0000-000000000001','Сеть','O-2026');
+-- Претензия арендатора: без неё RLS не пустит роль приложения никуда.
+select act_as('aaaaaaaa-4444-0000-0000-000000000001'::uuid, '11111111-4444-0000-0000-000000000001'::uuid);
 insert into points (id, network_id, name, public_slug)
 values ('aaaaaaaa-4444-0000-0000-000000000001','11111111-4444-0000-0000-000000000001','Точка','o-a');
 insert into users (id, point_id, network_id, role, name)

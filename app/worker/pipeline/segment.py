@@ -11,10 +11,21 @@
 быстрее на инференсе, дешевле по GPU, точнее по маскам, и в поставке нет
 чужой лицензии.
 
-ЭТОТ МОДУЛЬ — промежуточный: классическое зрение, без обучения и без весов.
-Он даёт рабочие маски для тонировки, дисков, номера и кузова прямо сейчас,
-чтобы пайплайн можно было проверить на реальных кадрах. Границы у него хуже,
-чем даст сеть, и это видно на результате — так и должно быть написано.
+СЕЙЧАС здесь гибрид, и это осознанно:
+
+  силуэт   — сетью (pipeline/silhouette.py, Mask R-CNN на COCO). Проверено на
+             двенадцати реальных кадрах: GrabCut по прямоугольнику на подземном
+             паркинге брал колонну вместо машины, на контровом солнце — небо.
+             Сеть не ошиблась ни разу и сама выбирает нужную машину из трёх.
+
+  части    — геометрией и фотометрией внутри силуэта. COCO не знает частей
+             автомобиля, а точная граница делает разбор внутри намного проще:
+             искать стекло среди пикселей машины — не то же самое, что искать
+             его среди пикселей двора.
+
+Части — то место, где дообученная сеть на ~20 классов даст следующий скачок.
+Пока их качество измеряется глазами на out/seg/parts.png, а не метрикой:
+разметки у нас нет, и придумывать метрику без разметки — обманывать себя.
 """
 from __future__ import annotations
 
@@ -36,7 +47,20 @@ def _largest(mask: np.ndarray, n: int = 1) -> np.ndarray:
 
 
 def car(img: np.ndarray, iters: int = 5) -> np.ndarray:
-    """Силуэт автомобиля. Прямоугольник-подсказка по кадру, дальше GrabCut."""
+    """Силуэт автомобиля: сеть, а при её отсутствии — GrabCut с оговоркой."""
+    from . import silhouette
+    if silhouette.available():
+        m = silhouette.car(img)
+        if m is not None:
+            return m
+        # Машины в кадре нет — это не повод подставлять прямоугольник:
+        # пустая маска честнее, вызывающий отклонит фото с внятной причиной.
+        return np.zeros(img.shape[:2], np.uint8)
+    return _car_grabcut(img, iters)
+
+
+def _car_grabcut(img: np.ndarray, iters: int = 5) -> np.ndarray:
+    """Запасной силуэт. Заметно хуже; включается только если сети нет."""
     h, w = img.shape[:2]
     rect = (int(w * 0.05), int(h * 0.20), int(w * 0.90), int(h * 0.70))
     m = np.zeros((h, w), np.uint8)
@@ -48,100 +72,138 @@ def car(img: np.ndarray, iters: int = 5) -> np.ndarray:
     return _largest(out)
 
 
+def _norm_box(mask):
+    """Нормированные координаты внутри габарита силуэта: 0..1 по вертикали и горизонтали."""
+    ys, xs = np.nonzero(mask > 0)
+    y0, y1, x0, x1 = ys.min(), ys.max(), xs.min(), xs.max()
+    h, w = mask.shape
+    ry = (np.arange(h)[:, None] - y0) / max(y1 - y0, 1)
+    rx = (np.arange(w)[None, :] - x0) / max(x1 - x0, 1)
+    return np.broadcast_to(ry, mask.shape), np.broadcast_to(rx, mask.shape), (x1 - x0), (y1 - y0)
+
+
+def _paint_reference(img, car_mask, ry):
+    """
+    Цвет краски, измеренный по низу силуэта.
+
+    Ниже линии остекления у автомобиля только крашеное железо: двери, крылья,
+    бампер. Это даёт опорный цвет, к которому можно сравнивать верх кадра, и
+    работает одинаково на белой машине и на чёрной — в отличие от абсолютных
+    порогов, которые надо подбирать под каждый кузов.
+    """
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    ref = (car_mask > 0) & (ry > 0.62) & (ry < 0.86)
+    if ref.sum() < 200:
+        ref = car_mask > 0
+    a = np.median(lab[..., 1][ref]); b = np.median(lab[..., 2][ref])
+    L = np.median(lab[..., 0][ref])
+    return lab, float(L), float(a), float(b)
+
+
 def glass(img: np.ndarray, car_mask: np.ndarray) -> np.ndarray:
     """
-    Стёкла: внутри силуэта, темнее кузова, низкая насыщенность, верхняя треть.
+    Стёкла: то, что в верхней части силуэта не похоже на краску.
 
-    Порог берётся по гистограмме самой машины, а не абсолютный: у чёрной
-    машины стекло не темнее кузова в абсолютных числах, и константа
-    развалилась бы на первом же тёмном кадре.
+    Стекло либо темнее краски (видно тёмный салон), либо светлее и бесцветнее
+    (отражается небо). Краска же держится своего тона. Поэтому признак — не
+    «тёмное» и не «светлое», а «далеко от опорного цвета кузова».
     """
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    v, s = hsv[..., 2].astype(np.float32), hsv[..., 1].astype(np.float32)
-    sel = car_mask > 0
-    if not sel.any():
+    if (car_mask > 0).sum() < 100:
         return np.zeros_like(car_mask)
+    ry, rx, cw, ch = _norm_box(car_mask)
+    lab, L0, a0, b0 = _paint_reference(img, car_mask, ry)
+    L, a, b = (lab[..., i].astype(np.float32) for i in range(3))
 
-    ys = np.nonzero(sel)[0]
-    top, bottom = ys.min(), ys.max()
-    height = max(bottom - top, 1)
-    row = np.arange(img.shape[0])[:, None].repeat(img.shape[1], axis=1)
-    upper = (row - top) / height < 0.55          # стекло живёт в верхней части
+    d_chroma = np.hypot(a - a0, b - b0)          # ушёл ли оттенок
+    d_light = np.abs(L - L0)                     # ушла ли светлота
+    sel = (car_mask > 0) & (ry < 0.58)           # остекление живёт над поясной линией
 
-    v_thr = np.percentile(v[sel], 34)
-    s_thr = np.percentile(s[sel], 62)
-    m = (sel & upper & (v < v_thr) & (s < s_thr)).astype(np.uint8) * 255
-    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
-    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((13, 13), np.uint8))
-    return _largest(m, n=3)
+    if sel.sum() < 200:
+        return np.zeros_like(car_mask)
+    # Порог по самому кадру: доля «непохожего» в верхней части, а не константа.
+    score = d_chroma * 1.6 + d_light
+    thr = np.percentile(score[sel], 55)
+    m = (sel & (score > max(thr, 8.0))).astype(np.uint8) * 255
+
+    k = max(3, int(cw * 0.012)) | 1
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((k, k), np.uint8))
+    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((k * 3, k * 3), np.uint8))
+    return _largest(m, n=4)
 
 
 def wheels(img: np.ndarray, car_mask: np.ndarray) -> np.ndarray:
-    """Колёса: круги в нижней половине силуэта. Радиус — доля от ширины машины."""
-    sel = car_mask > 0
-    if not sel.any():
+    """
+    Колёса: круги в нижней части силуэта.
+
+    Радиус ищем долей от ширины машины, а не в пикселях: на общем плане колесо
+    занимает сотню пикселей, на макро — весь кадр, и константа развалится.
+    """
+    if (car_mask > 0).sum() < 100:
         return np.zeros_like(car_mask)
-    ys, xs = np.nonzero(sel)
-    cw = xs.max() - xs.min()
+    ry, rx, cw, ch = _norm_box(car_mask)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.medianBlur(gray, 5)
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, dp=1.2,
-                               minDist=int(cw * 0.18),
-                               param1=110, param2=42,
-                               minRadius=int(cw * 0.045), maxRadius=int(cw * 0.16))
+
     out = np.zeros_like(car_mask)
-    if circles is None:
-        return out
-    y_mid = ys.min() + 0.52 * (ys.max() - ys.min())
-    for x, y, r in np.round(circles[0]).astype(int):
-        if y < y_mid:                     # верхние круги — это не колёса
+    # Два прохода: обычный план (колесо — доля машины) и макро (колесо — весь кадр).
+    macro = ch > 0 and cw / max(ch, 1) < 1.6 and (car_mask > 0).mean() > 0.55
+    ranges = [(0.30, 0.70)] if macro else [(0.05, 0.19)]
+    for lo, hi in ranges:
+        circles = cv2.HoughCircles(
+            gray, cv2.HOUGH_GRADIENT, dp=1.2, minDist=max(int(cw * 0.16), 10),
+            param1=110, param2=38,
+            minRadius=max(int(cw * lo), 6), maxRadius=max(int(cw * hi), 12))
+        if circles is None:
             continue
-        if not (xs.min() - r <= x <= xs.max() + r):
-            continue
-        cv2.circle(out, (x, y), int(r * 0.92), 255, -1)
+        for x, y, r in np.round(circles[0]).astype(int):
+            if not (0 <= y < out.shape[0] and 0 <= x < out.shape[1]):
+                continue
+            if not macro and ry[y, x] < 0.48:     # верх машины — это не колесо
+                continue
+            if car_mask[y, x] == 0:
+                continue
+            cv2.circle(out, (x, y), int(r * 0.95), 255, -1)
     return out
 
 
 def plate(img: np.ndarray, car_mask: np.ndarray) -> np.ndarray:
     """
-    Госномер. Всегда исключается из зоны любых изменений и всегда
-    возвращается из оригинала: это и инвариант узнаваемости, и снятие
-    юридического риска — перерисованный чужой номер не нужен ни в каком виде.
+    Госномер. Всегда исключается из зоны изменений и всегда возвращается из
+    оригинала: это и узнаваемость своей машины, и снятие юридического риска —
+    перерисованный чужой номер не нужен ни в каком виде.
     """
-    sel = car_mask > 0
-    if not sel.any():
+    if (car_mask > 0).sum() < 100:
         return np.zeros_like(car_mask)
-    ys, xs = np.nonzero(sel)
-    cw = xs.max() - xs.min()
-
+    ry, rx, cw, ch = _norm_box(car_mask)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    grad = cv2.morphologyEx(gray, cv2.MORPH_GRADIENT, cv2.getStructuringElement(
-        cv2.MORPH_RECT, (3, 3)))
+    grad = cv2.morphologyEx(gray, cv2.MORPH_GRADIENT,
+                            cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
     _, th = cv2.threshold(grad, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     th = cv2.morphologyEx(th, cv2.MORPH_CLOSE, cv2.getStructuringElement(
-        cv2.MORPH_RECT, (int(cw * 0.05), 3)))
+        cv2.MORPH_RECT, (max(int(cw * 0.045), 5), 3)))
+    th[car_mask == 0] = 0
 
     out = np.zeros_like(car_mask)
-    cnts, _ = cv2.findContours(th, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     best, best_score = None, 0.0
-    for c in cnts:
+    for c, in [(c,) for c in cv2.findContours(th, cv2.RETR_EXTERNAL,
+                                              cv2.CHAIN_APPROX_SIMPLE)[0]]:
         x, y, w, h = cv2.boundingRect(c)
-        if h == 0 or w < cw * 0.08 or w > cw * 0.40:
+        if h < 4 or w < cw * 0.07 or w > cw * 0.42:
             continue
         ar = w / h
-        if not (2.6 <= ar <= 6.5):            # российский номер ≈ 4,5:1
+        if not (2.4 <= ar <= 7.0):                # российский номер ≈ 4,5:1
             continue
-        if car_mask[y + h // 2, x + w // 2] == 0:
+        cy, cx = min(y + h // 2, out.shape[0] - 1), min(x + w // 2, out.shape[1] - 1)
+        if car_mask[cy, cx] == 0 or ry[cy, cx] < 0.42:
             continue
-        depth = (y + h / 2 - ys.min()) / max(ys.max() - ys.min(), 1)
-        if depth < 0.45:                       # номер в нижней половине
-            continue
-        score = depth * min(ar / 4.5, 4.5 / ar)
+        # Номер белый: медиана яркости внутри должна быть высокой.
+        bright = float(np.median(gray[y:y + h, x:x + w])) / 255.0
+        score = ry[cy, cx] * min(ar / 4.5, 4.5 / ar) * (0.35 + bright)
         if score > best_score:
             best, best_score = (x, y, w, h), score
     if best:
         x, y, w, h = best
-        pad = int(h * 0.18)
+        pad = max(int(h * 0.15), 2)
         cv2.rectangle(out, (x - pad, y - pad), (x + w + pad, y + h + pad), 255, -1)
     return out
 

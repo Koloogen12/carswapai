@@ -15,7 +15,9 @@ step "1 · типы"
 if npx tsc --noEmit; then echo "  ok"; else echo "  ПРОВАЛ"; FAIL=1; fi
 
 step "2 · инварианты базы"
-OUT=$(cd db && ./test.sh 2>&1)
+# Свой сокет и порт: параллельные агенты тоже гоняют test.sh,
+# а он делает rm -rf своего каталога на старте.
+OUT=$(cd db && PGTMP=/tmp/cswpg-qa PGPORT=55440 ./test.sh 2>&1)
 GREEN=$(echo "$OUT" | grep -c 'ok  ·')
 BAD=$(echo "$OUT" | grep -cE 'ПРОВАЛ|ERROR')
 echo "  зелёных: $GREEN, падений: $BAD"

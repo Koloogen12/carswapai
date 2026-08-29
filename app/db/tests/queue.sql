@@ -11,6 +11,8 @@ begin;
 
 insert into networks (id, name, join_code)
 values ('11111111-2222-0000-0000-000000000001','Сеть','Q-2026');
+-- Претензия арендатора: без неё RLS не пустит роль приложения никуда.
+select act_as('aaaaaaaa-2222-0000-0000-000000000001'::uuid, '11111111-2222-0000-0000-000000000001'::uuid);
 insert into points (id, network_id, name, public_slug, soft_cap_kopecks, hard_cap_kopecks)
 values ('aaaaaaaa-2222-0000-0000-000000000001','11111111-2222-0000-0000-000000000001',
         'Точка','q-tochka', 90000, 180000);

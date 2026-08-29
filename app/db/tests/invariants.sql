@@ -10,26 +10,9 @@
 
 \set ON_ERROR_STOP on
 \pset tuples_only on
+-- expect_fail/expect_ok создаёт tests/_helpers.sql от имени владельца схемы.
 
-create or replace function expect_fail(stmt text, what text) returns void
-  language plpgsql as $$
-begin
-  execute stmt;
-  raise exception 'ПРОВАЛ: % — операция прошла, хотя обязана быть невозможной', what;
-exception
-  when restrict_violation or foreign_key_violation or check_violation
-     or unique_violation or not_null_violation or raise_exception then
-    raise notice 'ok  · %', what;
-end $$;
 
-create or replace function expect_ok(stmt text, what text) returns void
-  language plpgsql as $$
-begin
-  execute stmt;
-  raise notice 'ok  · %', what;
-exception when others then
-  raise exception 'ПРОВАЛ: % — операция не прошла: %', what, sqlerrm;
-end $$;
 
 -- ── стенд ────────────────────────────────────────────────────
 begin;
@@ -39,9 +22,15 @@ insert into zones (code, name) values ('full_body','Кузов целиком'),
 insert into networks (id, name, join_code, price_deviation_allowed_pct)
 values ('11111111-1111-1111-1111-111111111111','JETCAR','JETCAR-2026', 10);
 
+-- Каждая точка заводится под своей претензией: RLS не даст создать чужую,
+-- и приложение в бою делает ровно так же — сначала claim, потом вставка.
+select act_as('aaaaaaaa-0000-0000-0000-000000000001'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);
 insert into points (id, network_id, name, public_slug) values
-  ('aaaaaaaa-0000-0000-0000-000000000001','11111111-1111-1111-1111-111111111111','Точка А','tochka-a'),
+  ('aaaaaaaa-0000-0000-0000-000000000001','11111111-1111-1111-1111-111111111111','Точка А','tochka-a');
+select act_as('bbbbbbbb-0000-0000-0000-000000000002'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);
+insert into points (id, network_id, name, public_slug) values
   ('bbbbbbbb-0000-0000-0000-000000000002','11111111-1111-1111-1111-111111111111','Точка Б','tochka-b');
+select act_as('aaaaaaaa-0000-0000-0000-000000000001'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);   -- дальше работаем от точки А
 
 insert into users (id, point_id, network_id, role, name) values
   ('cccccccc-0000-0000-0000-000000000001','aaaaaaaa-0000-0000-0000-000000000001',
@@ -56,9 +45,12 @@ values ('11111111-1111-1111-1111-111111111111','dddddddd-0000-0000-0000-00000000
 
 insert into point_prices (id, point_id, catalog_item_id, zone_code, price_kopecks) values
   ('eeeeeeee-0000-0000-0000-000000000001','aaaaaaaa-0000-0000-0000-000000000001',
-   'dddddddd-0000-0000-0000-000000000001','full_body', 26000000),
+   'dddddddd-0000-0000-0000-000000000001','full_body', 26000000);
+select act_as('bbbbbbbb-0000-0000-0000-000000000002'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);
+insert into point_prices (id, point_id, catalog_item_id, zone_code, price_kopecks) values
   ('eeeeeeee-0000-0000-0000-000000000002','bbbbbbbb-0000-0000-0000-000000000002',
    'dddddddd-0000-0000-0000-000000000001','full_body', 24000000);
+select act_as('aaaaaaaa-0000-0000-0000-000000000001'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);
 
 insert into clients (id, point_id, name, phone)
 values ('ffffffff-0000-0000-0000-000000000001','aaaaaaaa-0000-0000-0000-000000000001','Клиент','+79990000001');
@@ -216,6 +208,63 @@ begin
   end if;
   raise notice 'ok  · §13: менеджер чужой точки не видит ни примерок, ни переписки';
 end $$;
+
+
+-- ── RLS на запись ────────────────────────────────────────────
+-- Эти проверки невозможно было выполнить, пока стенд шёл от суперпользователя:
+-- он обходит RLS всегда, и любой результат здесь был бы ложно-зелёным.
+-- Чтение чужого — утечка. Запись в чужого — порча данных у другого бизнеса,
+-- и она страшнее, поэтому проверяется отдельно и по каждому направлению.
+select act_as('aaaaaaaa-0000-0000-0000-000000000001'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);
+
+select expect_denied($$
+  insert into clients (point_id, name, phone)
+  values ('bbbbbbbb-0000-0000-0000-000000000002','Подсадной','+79990009999')
+$$, 'RLS: точка не может завести клиента в чужой точке');
+
+select expect_denied($$
+  insert into point_prices (point_id, catalog_item_id, zone_code, price_kopecks)
+  values ('bbbbbbbb-0000-0000-0000-000000000002','dddddddd-0000-0000-0000-000000000001','full_body', 1)
+$$, 'RLS: точка не может дописать строку в чужой прайс');
+
+select expect_empty($$
+  select 1 from point_prices where point_id = 'bbbbbbbb-0000-0000-0000-000000000002'
+$$, 'RLS: чужой прайс не виден на чтение');
+
+select expect_empty($$
+  select 1 from points where id = 'bbbbbbbb-0000-0000-0000-000000000002'
+$$, 'RLS: чужая точка не видна на чтение');
+
+-- Увести свою строку в чужую точку одним update — тот же пробой, другой путь.
+select expect_denied($$
+  update point_prices set point_id = 'bbbbbbbb-0000-0000-0000-000000000002'
+   where id = 'eeeeeeee-0000-0000-0000-000000000001'
+$$, 'RLS: свою строку нельзя переписать в чужую точку');
+
+-- Удалить чужое нельзя, но молча «удалить ноль строк» — не доказательство:
+-- проверяем, что строка на месте, встав под её арендатора.
+do $$
+declare n int;
+begin
+  delete from point_prices where id = 'eeeeeeee-0000-0000-0000-000000000002';
+  perform act_as('bbbbbbbb-0000-0000-0000-000000000002'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);
+  select count(*) into n from point_prices where id = 'eeeeeeee-0000-0000-0000-000000000002';
+  if n <> 1 then
+    raise exception 'ПРОВАЛ: строка чужой точки удалена через RLS';
+  end if;
+  perform act_as('aaaaaaaa-0000-0000-0000-000000000001'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);
+  raise notice 'ok  · RLS: удаление чужой строки не проходит, строка на месте';
+end $$;
+
+-- Мастер у поста: только чтение. Политика master_read_only — restrictive,
+-- значит она режет поверх арендаторской, а не вместо неё.
+select act_as('aaaaaaaa-0000-0000-0000-000000000001'::uuid, '11111111-1111-1111-1111-111111111111'::uuid, 'master');
+select expect_denied($$
+  insert into configurations (point_id, thread_id, created_by)
+  values ('aaaaaaaa-0000-0000-0000-000000000001','88888888-0000-0000-0000-000000000001',
+          'cccccccc-0000-0000-0000-000000000001')
+$$, 'RLS: мастер у поста не создаёт примерок, только читает');
+select act_as('aaaaaaaa-0000-0000-0000-000000000001'::uuid, '11111111-1111-1111-1111-111111111111'::uuid);
 
 set local request.jwt.claims = '{"app_role":"network_admin","network_id":"11111111-1111-1111-1111-111111111111"}';
 do $$

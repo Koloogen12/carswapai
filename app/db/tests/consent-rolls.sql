@@ -12,9 +12,14 @@ begin;
 insert into zones (code, name) values ('full_body','Кузов целиком');
 insert into networks (id, name, join_code)
 values ('11111111-3333-0000-0000-000000000001','Сеть','R-2026');
+-- Претензия арендатора: без неё RLS не пустит роль приложения никуда.
+select act_as('aaaaaaaa-3333-0000-0000-000000000001'::uuid, '11111111-3333-0000-0000-000000000001'::uuid);
 insert into points (id, network_id, name, public_slug) values
-  ('aaaaaaaa-3333-0000-0000-000000000001','11111111-3333-0000-0000-000000000001','Точка А','r-a'),
+  ('aaaaaaaa-3333-0000-0000-000000000001','11111111-3333-0000-0000-000000000001','Точка А','r-a');
+select act_as('bbbbbbbb-3333-0000-0000-000000000002'::uuid, '11111111-3333-0000-0000-000000000001'::uuid);
+insert into points (id, network_id, name, public_slug) values
   ('bbbbbbbb-3333-0000-0000-000000000002','11111111-3333-0000-0000-000000000001','Точка Б','r-b');
+select act_as('aaaaaaaa-3333-0000-0000-000000000001'::uuid, '11111111-3333-0000-0000-000000000001'::uuid);   -- дальше от точки А
 insert into catalog_items (id, category, brand, sku, name, finish) values
   ('dddddddd-3333-0000-0000-000000000001','film','KPMF','K75401','Gloss Black','gloss'),
   ('dddddddd-3333-0000-0000-000000000002','film','Hexis','HX21','Gloss Red','gloss');
@@ -35,10 +40,16 @@ insert into consents (id, point_id, client_id, session_id, kind, document_versio
   ('cccccccc-3333-0000-0000-000000000001','aaaaaaaa-3333-0000-0000-000000000001',
    'ffffffff-3333-0000-0000-000000000001', null,'photo_processing','v1', false),
   ('cccccccc-3333-0000-0000-000000000002','aaaaaaaa-3333-0000-0000-000000000001',
-   'ffffffff-3333-0000-0000-000000000001', null,'photo_processing','v1', true),
-  -- согласие анонима в гараже другой точки: субъект — сессия, клиента ещё нет
+   'ffffffff-3333-0000-0000-000000000001', null,'photo_processing','v1', true);
+
+-- Согласие анонима в гараже ДРУГОЙ точки: субъект — сессия, клиента ещё нет.
+-- Одной вставкой с точкой А это не сделать — RLS не пустит, и правильно:
+-- приложение тоже не может писать в две точки одним запросом.
+select act_as('bbbbbbbb-3333-0000-0000-000000000002'::uuid, '11111111-3333-0000-0000-000000000001'::uuid);
+insert into consents (id, point_id, client_id, session_id, kind, document_version, granted) values
   ('cccccccc-3333-0000-0000-000000000003','bbbbbbbb-3333-0000-0000-000000000002',
    null,'sess-b','photo_processing','v1', true);
+select act_as('aaaaaaaa-3333-0000-0000-000000000001'::uuid, '11111111-3333-0000-0000-000000000001'::uuid);
 
 select expect_fail($$
   insert into consents (point_id, kind, document_version, granted)
