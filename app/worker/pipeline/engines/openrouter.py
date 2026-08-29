@@ -25,6 +25,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 import urllib.request
 
 import cv2
@@ -81,9 +82,25 @@ def _extract_image(body: dict) -> np.ndarray:
         if url:
             return _decode(url)
     content = msg.get('content')
+    # CometAPI отдаёт картинку ВНУТРИ текста, разметкой markdown:
+    # «![image](data:image/jpeg;base64,…)». Это не описано ни в одной
+    # документации, выяснилось живым запросом.
+    if isinstance(content, str):
+        m = re.search(r'data:image/[a-zA-Z0-9.+-]+;base64,([A-Za-z0-9+/=\s]+)', content)
+        if m:
+            return _decode(m.group(1).strip())
     if isinstance(content, list):
         for part in content:
+            if isinstance(part, str):
+                m = re.search(r'data:image/[a-zA-Z0-9.+-]+;base64,([A-Za-z0-9+/=\s]+)', part)
+                if m:
+                    return _decode(m.group(1).strip())
             if isinstance(part, dict):
+                if isinstance(part.get('text'), str):
+                    m = re.search(r'data:image/[a-zA-Z0-9.+-]+;base64,([A-Za-z0-9+/=\s]+)',
+                                  part['text'])
+                    if m:
+                        return _decode(m.group(1).strip())
                 url = (part.get('image_url') or {}).get('url')
                 if url:
                     return _decode(url)
