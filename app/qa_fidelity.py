@@ -64,6 +64,17 @@ MAP = [
     # рамка давала 44% — так же ниже порога, как и 34% на обёртке.
     ('/c/15500000-0000-4000-8000-000000000006',
                            '07-pass1-client-second-half', 2, [1, 0, 1]),
+    # Фаза 5. Нумерация в хендоффе и в карте экранов РАСХОДИТСЯ начиная
+    # с сорок девятого: в файле рамки подписаны 47 CRM, 48 карточка,
+    # 49 воронка, 50 формирование наряда, а карта считает 49 «историей
+    # примерок» — разделом, который в макете лежит внутри карточки, —
+    # и сдвигает воронку на 50. Привязка идёт к РАМКАМ файла:
+    #   блок 1 — «47 CRM · клиенты точки»  → /crm
+    #   блок 3 — «48 Карточка клиента»     → /crm/{CID}
+    # Воронка отдельного маршрута не имеет: она живёт на том же /crm,
+    # и её словарь проверке только помогает, а не мешает.
+    ('/crm',               '05-phase5-crm-workorder',       1, [1]),
+    ('/crm/{CID}',         '05-phase5-crm-workorder',       3, [1]),
     ('/crm/mobile',        '10-pass4-measure-intake-mobile-crm', 3, [1, 0]),
     ('/help',              '10-pass4-measure-intake-mobile-crm', 3, [1, 1]),
     ('/owner/mobile',      '09-pass3-management',           4, [1, 0]),
@@ -200,8 +211,15 @@ def main() -> int:
     ap = sql1("select ap.id from appointments ap "
               "join configuration_items cit on cit.configuration_id = ap.configuration_id "
               "where ap.kind='measure' limit 1")
+    # Карточка клиента сравнивается с кадром 48, а на нём человек с
+    # подтверждённым выбором и нарядом. Клиент без единой примерки дал бы
+    # честно пустой экран — и проверка сочла бы верную страницу выдуманной.
+    cid = sql1("select t.client_id from confirmations cf "
+               "join configurations cfg on cfg.id = cf.configuration_id "
+               "join threads t on t.id = cfg.thread_id "
+               "join orders o on o.confirmation_id = cf.id limit 1")
     for route, src, block, path in MAP:
-        route = route.replace('{TID}', tid).replace('{AP}', ap)
+        route = route.replace('{TID}', tid).replace('{AP}', ap).replace('{CID}', cid)
         data = json.loads((ROOT / 'tools' / 'out' / f'{src}.json').read_text(encoding='utf-8'))
         try:
             have = vocab(words(fetch_auth(BASE + route)))

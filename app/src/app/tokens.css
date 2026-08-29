@@ -86,13 +86,14 @@
   --tap: var(--tap-bay);
 }
 
-@font-face { font-family: 'Onest'; src: url('/fonts/Onest-Light.woff2') format('woff2');
-             font-weight: 300; font-display: swap; }
-@font-face { font-family: 'Onest'; src: url('/fonts/Onest-Regular.woff2') format('woff2');
-             font-weight: 400; font-display: swap; }
-@font-face { font-family: 'Onest'; src: url('/fonts/Onest-Medium.woff2') format('woff2');
-             font-weight: 500; font-display: swap; }
-@font-face { font-family: 'Onest'; src: url('/fonts/Onest-SemiBold.woff2') format('woff2');
-             font-weight: 600; font-display: swap; }
-@font-face { font-family: 'Onest'; src: url('/fonts/Onest-Bold.woff2') format('woff2');
-             font-weight: 700; font-display: swap; }
+/* Начертания Onest объявлены в /fonts/onest.css: они разбиты по алфавитам,
+   как отдаёт первоисточник, и каждому нужен свой unicode-range. Держать
+   двадцать объявлений здесь значило бы засорить файл токенов тем, что к
+   токенам отношения не имеет.
+
+   До этого здесь стояло пять объявлений на файлы, которых в каталоге не
+   было: на каждом экране по пять 404, и весь продукт рисовался системным
+   шрифтом — при том, что кегли и трекинг −0.03em считались под метрики
+   Onest. Проверка верности макету это не ловит: она сравнивает слова,
+   а не начертание. */
+
