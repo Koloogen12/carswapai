@@ -67,18 +67,24 @@ else
         -U postgres -d carswap -tAc "select ap.id from appointments ap join configuration_items cit on cit.configuration_id = ap.configuration_id where ap.kind='measure' limit 1" 2>/dev/null)
   OID=$(cd db && PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH" psql -h /tmp/cswdev -p 55432 \
         -U postgres -d carswap -tAc "select id from orders limit 1" 2>/dev/null)
+  CID=$(cd db && PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH" psql -h /tmp/cswdev -p 55432 \
+        -U postgres -d carswap -tAc "select id from clients limit 1" 2>/dev/null)
+  N=0
   for u in /login /join /staff /inbox "/inbox/$TID" /g/jetcar-mytishchi "/bay/$OID" \
            /owner /network /price /crm "/c/$CFG" /bay \
            /ops/followups /ops/schedule /ops/stock /ops/billing /ops/events /ops/managers \
            /ops/cash /ops/search /ops/catalog /owner/mobile /g/consent /g/prepurchase \
-           /crm/mobile /help "/measure/$AP" \
+           "/crm/$CID" /crm/mobile /help "/measure/$AP" \
            "/doc/order/$OID" "/doc/invoice/$OID" "/doc/warranty/$OID"; do
     # Кука обязательна: без неё страж входа отдаёт 307 на каждый закрытый
     # экран, и проверка маршрутов измеряет редирект, а не продукт.
     C=$(curl -s -o /dev/null -w '%{http_code}' -b "csw_s=$SESS" "http://localhost:3000$u")
+    N=$((N + 1))
     [ "$C" = "200" ] || { printf '  %-44s %s\n' "$u" "$C"; FAIL=1; }
   done
-  echo "  проверено 32 маршрута"
+  # Счёт считается, а не пишется руками: зашитое «32 маршрута» разошлось со
+  # списком на первом же добавленном экране и стало сообщать неправду.
+  echo "  проверено $N маршрутов, все отвечают 200"
 fi
 
 step "5 · связность интерфейса"
