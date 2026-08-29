@@ -12,9 +12,10 @@ import type { InboxRow as Row } from '@/lib/data';
  * а горячее»), и она означает поведение, а не оформление.
  */
 
-const ORDER: RowState[] = ['more', 'undelivered', 'sent', 'none', 'confirmed', 'booked', 'cold'];
+const ORDER: RowState[] = ['warranty', 'more', 'undelivered', 'sent', 'none', 'confirmed', 'booked', 'cold'];
 
 function toState(r: Row): RowState {
+  if (r.state === 'warranty') return 'warranty';
   if (r.state === 'undelivered') return 'undelivered';
   if (r.state === 'confirmed') return 'confirmed';
   if (r.state === 'sent') return 'sent';

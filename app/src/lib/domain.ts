@@ -19,5 +19,13 @@ export const HONESTY_LINE =
 
 export type ChannelId = 'whatsapp' | 'telegram' | 'max' | 'avito' | 'web';
 
+/**
+ * Состояние строки инбокса.
+ *
+ * warranty — жалоба на уже сданную работу. Стоит в этом же перечне, хотя к
+ * примерке отношения не имеет: у строки инбокса состояние одно, и «клиент
+ * вернулся с проблемой» обязано вытеснять всё остальное, а не показываться
+ * рядом с ним.
+ */
 export type TryonStateId =
-  'sent' | 'more' | 'confirmed' | 'booked' | 'undelivered' | 'channel_off';
+  'warranty' | 'sent' | 'more' | 'confirmed' | 'booked' | 'undelivered' | 'channel_off';

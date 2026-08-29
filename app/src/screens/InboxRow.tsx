@@ -18,7 +18,7 @@
  */
 import type { CSSProperties } from 'react';
 
-export type RowState = 'more' | 'sent' | 'none' | 'confirmed' | 'booked' | 'undelivered' | 'cold';
+export type RowState = 'warranty' | 'more' | 'sent' | 'none' | 'confirmed' | 'booked' | 'undelivered' | 'cold';
 
 /** Плашка канала: 15px кружок с двухбуквенным кодом. Цвета из макета. */
 const CHANNEL: Record<string, { short: string; bg: string; fg: string }> = {
@@ -31,6 +31,10 @@ const CHANNEL: Record<string, { short: string; bg: string; fg: string }> = {
 
 const LOOK: Record<RowState, { row: string; avatar: string; pill: string; text: string;
                                pillFg?: string; dim?: boolean }> = {
+  // Красная плашка на весь ряд, а не кислотная: кислота метит горячее, где
+  // ещё можно заработать, красный — то, что уже пошло не так.
+  warranty:    { row: '#FBEEEF', avatar: '#F0DAD7', pill: '#D93F45', text: 'Гарантийное обращение',
+                 pillFg: '#FFFFFF' },
   more:        { row: '#111111', avatar: '#DEF23B', pill: '#DEF23B', text: 'Просит ещё вариант' },
   sent:        { row: '#F7F7F7', avatar: '#EFEFEF', pill: '#FFFFFF', text: 'Отправлена · ждём' },
   none:        { row: '#F7F7F7', avatar: '#EFEFEF', pill: '#EFEFEF', text: 'Без примерки' },

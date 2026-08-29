@@ -18,6 +18,7 @@
  */
 import { revalidatePath } from 'next/cache';
 import { withTenant } from './db';
+import { claimsFor } from './session';
 import { requireOwner } from './session';
 
 export async function toggleSku(pointPriceId: string, inStock: boolean) {
@@ -171,5 +172,21 @@ export async function removeFromPrice(pointPriceId: string) {
     } catch (e) {
       return { ok: false as const, error: (e as Error).message };
     }
+  });
+}
+
+/**
+ * Начала ли точка работать.
+ *
+ * Нужно ровно одному месту — кнопке «Подтвердить прайс и начать». На точке,
+ * у которой уже есть переписка, эта кнопка не значит ничего: прайс правится
+ * по строке и сохраняется сразу. Постоянная кнопка без действия — та самая
+ * нарисованность, из-за которой пользователь считает продукт сломанным.
+ */
+export async function hasStarted() {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
+    const r = await c.query<{ n: string }>('select count(*)::text as n from threads');
+    return Number(r.rows[0]?.n ?? 0) > 0;
   });
 }

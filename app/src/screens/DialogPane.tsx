@@ -7,6 +7,7 @@
  * «его реплика» и «наш ответ» без подписи.
  */
 import { ImageSlot } from '@/design/ImageSlot';
+import { Composer } from './Composer';
 import type { ThreadMessage } from '@/lib/data';
 
 const CHANNEL: Record<string, { short: string; bg: string }> = {
@@ -19,8 +20,8 @@ function hhmm(iso: string) {
   return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
 
-export function DialogPane({ name, phone, note, channel, messages, cards, pointName }: {
-  name: string; phone: string | null; note: string; channel: string;
+export function DialogPane({ threadId, name, phone, note, channel, messages, cards, pointName }: {
+  threadId: string; name: string; phone: string | null; note: string; channel: string;
   messages: ThreadMessage[]; pointName: string;
   cards: Record<string, { title: string; variants: { name: string; sku: string;
     price: string; day: string; overcast: string; parking: string }[] }>;
@@ -99,14 +100,7 @@ export function DialogPane({ name, phone, note, channel, messages, cards, pointN
         ))}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "9px", padding: "13px 16px", borderTop: "1px solid #F0F0F0" }}>
-        <div style={{ flex: "1", display: "flex", alignItems: "center", gap: "9px", background: "#F5F5F5", borderRadius: "999px", padding: "11px 16px" }}>
-          <span style={{ fontSize: "13px", color: "#9A9A9A" }}>Ответить {name.split(' ')[0]}…</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "7px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1px #E2E2E2", borderRadius: "999px", padding: "11px 15px" }}>
-          <span style={{ fontSize: "12.5px", fontWeight: "500" }}>Добрать вариант</span>
-        </div>
-      </div>
+      <Composer threadId={threadId} name={name} />
     </div>
   );
 }

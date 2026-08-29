@@ -26,12 +26,12 @@ export default async function ThreadPage({ params }: { params: { id: string } })
   const v = t.vehicle ?? {};
   const channel = t.messages.at(-1)?.channel ?? 'web';
   return (
-    <Frame>
+    <Frame fill>
       <AppBar active="inbox" pointName={me.point} user={me.user} role={me.role}
         spent={b.spent_kopecks} cap={b.hard_limit} />
       <div style={{ flex: "1", display: "flex", gap: "12px", minHeight: "0" }}>
         <InboxList rows={rows} activeId={params.id} compact />
-        <DialogPane name={t.client_name} phone={t.phone} channel={channel}
+        <DialogPane threadId={params.id} name={t.client_name} phone={t.phone} channel={channel}
           note={[v.make ? `${v.make} ${v.model ?? ''} ${v.year ?? ''} · ${v.plate ?? ''}`.replace(/\s+/g, ' ').trim() : 'авто не распознано',
                  (v as { note?: string }).note].filter(Boolean).join(' · ')}
           messages={t.messages} cards={cards} pointName="JETCAR Мытищи" />

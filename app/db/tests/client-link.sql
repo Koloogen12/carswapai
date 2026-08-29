@@ -318,7 +318,10 @@ select set_config('request.jwt.claims', jsonb_build_object(
 do $$
 declare n int;
 begin
-  update change_orders set status = 'approved', client_acted_at = now()
+  -- decided_via обязателен с миграции 022: клиент нажал у себя в ссылке,
+  -- и наряд обязан отличать это от «мастер записал со слов».
+  update change_orders set status = 'approved', client_acted_at = now(),
+         decided_via = 'client_device'
    where id = 'a1a1a1a1-6666-0000-0000-000000000001' and status = 'proposed';
   get diagnostics n = row_count;
   if n <> 1 then
@@ -333,7 +336,8 @@ end $$;
 do $$
 declare n int; st text;
 begin
-  update change_orders set status = 'approved', client_acted_at = now()
+  update change_orders set status = 'approved', client_acted_at = now(),
+         decided_via = 'client_device'
    where id = 'a1a1a1a1-6666-0000-0000-000000000002';
   get diagnostics n = row_count;
   if n <> 0 then

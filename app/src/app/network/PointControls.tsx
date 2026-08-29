@@ -12,7 +12,8 @@
  * необратимом (архив), розовый на ошибке.
  */
 import { useState, useTransition } from 'react';
-import { setPointStatus, releaseBudgetStop, STATUS_MEANING, type PointStatus } from '@/lib/network';
+import { setPointStatus, releaseBudgetStop } from '@/lib/network';
+import { STATUS_MEANING, type PointStatus } from '@/lib/point-status';
 
 type P = {
   id: string; name: string; status: string;

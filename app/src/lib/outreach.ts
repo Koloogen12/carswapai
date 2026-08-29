@@ -30,15 +30,21 @@ import { OFFER_TEXT } from './adapters/channel-text';
 
 type Channel = {
   channel_id: string; kind: string; provider: string; external_id: string;
-  external_thread_id: string | null; can_initiate: boolean;
+  can_initiate: boolean;
 };
 
+/**
+ * Канал обращения — свойство последнего сообщения, а не самого обращения.
+ *
+ * Резолвер живёт в базе (миграция 021), а не здесь. Это не стилистика: копия
+ * правила в приложении уже один раз разошлась со схемой и стоила трёх
+ * действий, не работавших ни разу. Стенд проверяет ту же функцию, которую
+ * вызывает бой.
+ */
 async function threadChannel(c: import('pg').PoolClient, threadId: string) {
   const r = await c.query<Channel>(
-    `select ch.id as channel_id, ch.kind::text, ch.provider, ch.external_id,
-            t.external_thread_id, coalesce(ch.can_initiate, false) as can_initiate
-       from threads t join channels ch on ch.id = t.channel_id
-      where t.id = $1`, [threadId]);
+    `select channel_id, kind, provider, external_id, can_initiate
+       from app.thread_channel($1)`, [threadId]);
   return r.rows[0] ?? null;
 }
 
@@ -101,5 +107,41 @@ export async function sendGarageLink(threadId: string) {
     const messageId = await record(c, who.point_id!, threadId, ch.channel_id, body);
     revalidatePath(`/inbox/${threadId}`);
     return { ok: true as const, messageId, url };
+  });
+}
+
+/**
+ * Ответ менеджера своими словами.
+ *
+ * До этого действия поле ответа в диалоге было нарисованным: менеджер видел
+ * «Ответить Ивану…», нажимал и ничего не происходило. Отправка карточки
+ * работала, а простой ответ — нет, хотя переписка начинается именно с него.
+ *
+ * Канал не выбирается: он свойство обращения (О-5). Менеджер отвечает туда,
+ * откуда пришло последнее сообщение, и выбора «куда» у него нет — этот выбор
+ * был бы источником ошибок и ничего не давал бы взамен.
+ *
+ * ССЫЛКИ В АВИТО ОТКАЗЫВАЕМ И ЗДЕСЬ. sendGarageLink уже отказывает, но
+ * менеджер может вставить ту же ссылку руками — и получит бан канала, которого
+ * шаблон как раз избегал. Правило принадлежит каналу, а не одному действию.
+ */
+export async function reply(threadId: string, text: string) {
+  const body = text.trim();
+  if (!body) return { ok: false as const, error: 'пустое сообщение не отправляем' };
+  if (body.length > 4000) return { ok: false as const, error: 'сообщение длиннее 4000 знаков' };
+
+  const who = await claimsFor();
+  return withTenant(who, async c => {
+    const ch = await threadChannel(c, threadId);
+    if (!ch) return { ok: false as const, error: 'у обращения нет канала' };
+
+    if (ch.provider === 'avito_direct' && /https?:\/\/|\bwww\./i.test(body)) {
+      return { ok: false as const,
+               error: 'В Авито ссылки не отправляем — канал забанят. Попросите фото прямо здесь' };
+    }
+
+    const messageId = await record(c, who.point_id!, threadId, ch.channel_id, body);
+    revalidatePath(`/inbox/${threadId}`);
+    return { ok: true as const, messageId };
   });
 }

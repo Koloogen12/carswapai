@@ -3,6 +3,8 @@ import { AppBar } from '@/screens/chrome';
 import { OpsNav, rub } from '@/screens/ops';
 import { networkCatalog } from '@/lib/reports';
 import { budget } from '@/lib/data';
+import { inviteText } from '@/lib/network';
+import { InviteBlock } from '../InviteBlock';
 
 export const dynamic = 'force-dynamic';
 const THUMB: Record<string, string> = {
@@ -24,7 +26,7 @@ const THUMB: Record<string, string> = {
  */
 export default async function CatalogPage() {
   const me = await whoAmI();
-  const [n, b] = await Promise.all([networkCatalog(), budget()]);
+  const [n, b, invite] = await Promise.all([networkCatalog(), budget(), inviteText()]);
 
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
@@ -143,9 +145,7 @@ export default async function CatalogPage() {
                 </span>
               </div>
 
-              <div style={{ background: "#111111", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}>
-                <span style={{ fontSize: "13.5px", fontWeight: "500", color: "#FFFFFF" }}>Отправить приглашение</span>
-              </div>
+              {invite && <InviteBlock code={invite.code} url={invite.url} text={invite.text} />}
             </div>
 
             {/* Это не фича, а гипотеза, вынесенная на решение основателя:

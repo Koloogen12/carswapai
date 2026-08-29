@@ -1,8 +1,10 @@
 import { whoAmI } from '@/lib/session';
 import { AppBar } from '@/screens/chrome';
-import { OpsNav, rub } from '@/screens/ops';
+import { OpsNav } from '@/screens/ops';
 import { stock } from '@/lib/ops';
 import { budget } from '@/lib/data';
+import { openRequests } from '@/lib/material';
+import { RequestButton } from './RequestButton';
 
 export const dynamic = 'force-dynamic';
 const THUMB: Record<string, string> = {
@@ -26,14 +28,21 @@ const THUMB: Record<string, string> = {
  */
 export default async function StockPage() {
   const me = await whoAmI();
-  const [s, b] = await Promise.all([stock(), budget()]);
+  const [s, b, waiting] = await Promise.all([stock(), budget(), openRequests()]);
   const total = s.rolls.filter(r => !r.depleted_at)
     .reduce((a, r) => a + Number(r.meters_left), 0);
   const shortages = s.rolls.filter(r => Number(r.booked_meters) > Number(r.meters_left));
+  // Метраж заявки — ровно недостача, а не круглое «+25 м». Круглое число
+  // выглядело правдоподобно и было выдумано: заказать больше, чем не хватает,
+  // владелец может и сам, а система не должна решать это за него.
   const order = [...shortages.map(r => ({
+    itemId: r.item_id,
+    meters: Math.round((Number(r.booked_meters) - Number(r.meters_left)) * 10) / 10,
     title: `${r.brand} ${r.sku} · ${r.name.toLowerCase()}`,
     sub: `нужно ${Number(r.booked_meters).toFixed(1)} м · есть ${Number(r.meters_left).toFixed(1)} м` })),
     ...s.missing.filter(m => Number(m.need) > 0).map(m => ({
+      itemId: m.item_id,
+      meters: Math.round(Number(m.need) * 10) / 10,
       title: `${m.brand} ${m.sku} · ${m.name.toLowerCase()}`,
       sub: `нужно ${Number(m.need).toFixed(1)} м · нет на точке` }))];
 
@@ -152,14 +161,20 @@ export default async function StockPage() {
                     <span style={{ fontSize: "12.5px", fontWeight: "500" }}>{o.title}</span>
                     <span style={{ fontSize: "10.5px", color: "#6E6E6E" }}>{o.sub}</span>
                   </div>
-                  <span style={{ fontSize: "13px", fontWeight: "500", fontVariantNumeric: "tabular-nums", flex: "none" }}>+ 25 м</span>
+                  <span style={{ fontSize: "13px", fontWeight: "500", fontVariantNumeric: "tabular-nums", flex: "none" }}>+ {o.meters.toFixed(1)} м</span>
                 </div>
               ))}
             </div>
 
             <div style={{ background: "#F7F7F7", borderRadius: "18px", padding: "14px 16px", display: "flex", flexDirection: "column", gap: "8px" }}>
-              {[['Поставщик сети', 'Каталог JETCAR'], ['Срок поставки', '2 рабочих дня'],
-                ['Сумма закупки', `${rub(order.length * 12000000)} ₽`]].map(([k, v]) => (
+              {/* Суммы закупки здесь быть не может: закупочных цен мы не храним
+                  вовсе, ни в каталоге, ни в прайсе. Раньше на этом месте стояло
+                  order.length × 120 000 ₽ — число, похожее на правду и взятое из
+                  воздуха. Владелец принял бы по нему решение о деньгах.
+                  Срок поставки по той же причине называет сеть, а не мы. */}
+              {[['Поставщик сети', 'Каталог JETCAR'],
+                ['Метраж заявки', `${order.reduce((a, o) => a + o.meters, 0).toFixed(1)} м`],
+                ['Сумму и срок', 'называет сеть при подтверждении']].map(([k, v]) => (
                 <div key={k} style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ fontSize: "12px", color: "#6E6E6E" }}>{k}</span>
                   <span style={{ fontSize: "12.5px", fontWeight: "500", fontVariantNumeric: "tabular-nums" }}>{v}</span>
@@ -168,13 +183,7 @@ export default async function StockPage() {
             </div>
 
             <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ background: "#111111", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}>
-                <span style={{ fontSize: "13.5px", fontWeight: "500", color: "#FFFFFF" }}>Отправить заявку в сеть</span>
-              </div>
-              <span style={{ fontSize: "11px", color: "#9A9A9A", textAlign: "center", lineHeight: "1.45" }}>
-                Заявка собирается из подтверждённых выборов, а не из ощущения владельца,
-                что «плёнка заканчивается».
-              </span>
+              <RequestButton items={order} waiting={waiting.length} />
             </div>
           </div>
         </div>

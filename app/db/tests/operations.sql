@@ -57,10 +57,37 @@ insert into change_orders (id, point_id, order_id, reason, amount_kopecks)
 values ('a1a1a1a1-4444-0000-0000-000000000001','aaaaaaaa-4444-0000-0000-000000000001',
         '22222222-4444-0000-0000-000000000001','нужна подготовка кузова', 1800000);
 
-select expect_ok($$
+-- Основание обязательно (миграция 022): решение без него больше невозможно.
+-- Раньше «клиент подтвердил» и «мастер так запомнил» выглядели в наряде
+-- одинаково, и на выдаче спор о доплате упирался в память людей.
+select expect_fail($$
   update change_orders set status = 'approved', client_acted_at = now()
    where id = 'a1a1a1a1-4444-0000-0000-000000000001'
-$$, 'Клиент согласует доплату — предложение переходит в согласованное');
+$$, 'Доплата не согласуется без основания решения');
+
+select expect_fail($$
+  update change_orders set status = 'approved', client_acted_at = now(),
+         decided_via = 'verbal_at_bay'
+   where id = 'a1a1a1a1-4444-0000-0000-000000000001'
+$$, 'Устное согласие не записывается без того, кто его записал');
+
+select expect_fail($$
+  update change_orders set status = 'approved', client_acted_at = now(),
+         decided_via = 'client_device',
+         decided_by = (select id from users limit 1)
+   where id = 'a1a1a1a1-4444-0000-0000-000000000001'
+$$, 'За решением клиента с его устройства сотрудника быть не может');
+
+select expect_fail($$
+  update change_orders set decided_via = 'client_device'
+   where id = 'a1a1a1a1-4444-0000-0000-000000000001'
+$$, 'Основание не появляется раньше решения');
+
+select expect_ok($$
+  update change_orders set status = 'approved', client_acted_at = now(),
+         decided_via = 'client_device'
+   where id = 'a1a1a1a1-4444-0000-0000-000000000001'
+$$, 'Клиент согласует доплату сам — предложение переходит в согласованное');
 
 select expect_fail($$
   update change_orders set amount_kopecks = 5000000
@@ -105,6 +132,50 @@ select expect_ok($$
   insert into warranties (point_id, order_id, number)
   values ('aaaaaaaa-4444-0000-0000-000000000001','22222222-4444-0000-0000-000000000001','ГТ-1')
 $$, 'По закрытому наряду талон выдаётся');
+
+-- ── Гарантийное обращение клиента (миграция 023) ──────────────
+-- Кнопка «что случилось» на экране гарантии была нарисованной, а переключатели
+-- проблемы — тем более: первый отмечен всегда, нажатие не меняет ничего.
+-- Клиент с отходящей плёнкой нажимал и оставался наедине с проблемой.
+--
+-- Писать в warranty_claims клиентской роли нельзя и не будет можно. Проверяется
+-- именно это: действие есть, доступа к таблице нет.
+
+-- Сотрудник функцию не вызывает: у него в претензии нет конфигурации.
+select expect_denied($$select * from app.open_warranty_claim('пузыри')$$,
+  'Без ссылки клиента обращение не открывается');
+
+select set_config('request.jwt.claims', jsonb_build_object(
+  'point_id','aaaaaaaa-4444-0000-0000-000000000001',
+  'app_role','client',
+  'configuration_id','77777777-4444-0000-0000-000000000001')::text, false);
+
+select expect_fail($$select * from app.open_warranty_claim('   ')$$,
+  'Обращение без названной причины не открывается');
+
+select expect_ok($$select * from app.open_warranty_claim('Появились пузыри')$$,
+  'Клиент открывает обращение по своей гарантии');
+
+select expect_eq($$select reason from warranty_claims$$, 'Появились пузыри',
+  'Обращение записано с названной клиентом причиной');
+
+select expect_ok($$select * from app.open_warranty_claim('Появились пузыри')$$,
+  'Повторное нажатие проходит без ошибки');
+
+select expect_eq($$select count(*)::text from warranty_claims$$, '1',
+  'и не заводит второе обращение');
+
+-- Право на действие ≠ право на таблицу: клиент по-прежнему её не видит и не
+-- пишет напрямую. Иначе резолвер был бы украшением поверх открытого доступа.
+select expect_fail($$
+  insert into warranty_claims (point_id, warranty_id, reason)
+  select 'aaaaaaaa-4444-0000-0000-000000000001', id, 'напрямую' from warranties limit 1
+$$, 'Клиент не пишет в гарантийные обращения напрямую');
+
+select set_config('request.jwt.claims', jsonb_build_object(
+  'point_id','aaaaaaaa-4444-0000-0000-000000000001',
+  'network_id','11111111-4444-0000-0000-000000000001',
+  'app_role','owner')::text, false);
 
 -- ── Приглашения ──────────────────────────────────────────────
 insert into invites (id, point_id, code, role, expires_at) values

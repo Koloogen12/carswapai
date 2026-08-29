@@ -80,11 +80,26 @@ function fmt(kopecks: number) {
  * и это работа на нашей стороне. Поэтому ширина тянется, высота — по вьюпорту;
  * всё остальное (фон, радиус 30, отбивка 18, gap 14) из макета без изменений.
  */
-export function Frame({ children, pad = "18px", gap = "14px" }:
-  { children: ReactNode; pad?: string; gap?: string }) {
+/**
+ * fill — оболочка ровно в окно, прокрутка живёт внутри колонок.
+ *
+ * По умолчанию высота задана через minHeight, и это правильно для экранов,
+ * которые растут вниз: список клиентов, сотрудники, каналы. Но для диалога
+ * это было дырой. Колонки там объявляют собственную прокрутку, а прокрутка
+ * требует определённой высоты у предка — с minHeight её нет, колонки росли
+ * под содержимое, оболочка вылезала за окно, а overflow: hidden срезал низ.
+ *
+ * Стоило это поля ответа: оно приколото к низу колонки диалога и оказывалось
+ * ниже сгиба. Менеджер видел переписку и не видел, чем ответить.
+ */
+export function Frame({ children, pad = "18px", gap = "14px", fill = false }:
+  { children: ReactNode; pad?: string; gap?: string; fill?: boolean }) {
+  const h = fill
+    ? { height: "calc(100vh - 44px)" }
+    : { minHeight: "calc(100vh - 44px)" };
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
-      <div style={{ width: "100%", maxWidth: "1440px", minHeight: "calc(100vh - 44px)", margin: "0 auto", background: "#EFEFEF", borderRadius: "30px", padding: pad, display: "flex", flexDirection: "column", gap, overflow: "hidden" }}>
+      <div style={{ width: "100%", maxWidth: "1440px", ...h, margin: "0 auto", background: "#EFEFEF", borderRadius: "30px", padding: pad, display: "flex", flexDirection: "column", gap, overflow: "hidden" }}>
         {children}
       </div>
     </div>

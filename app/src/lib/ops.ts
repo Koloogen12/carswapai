@@ -113,7 +113,7 @@ export async function stock() {
     // Артикулы прайса, под которые рулона нет вовсе: гаснут в панели
     // и в гараже сами, а здесь видны как «заказать».
     const missing = (await c.query(`
-      select ci.sku, ci.brand, ci.name,
+      select ci.id as item_id, ci.sku, ci.brand, ci.name,
              coalesce((select sum(cit.meters_required) from configuration_items cit
                         join point_prices pp2 on pp2.id = cit.point_price_id
                         join confirmations cf on cf.configuration_id = cit.configuration_id
@@ -136,8 +136,8 @@ export async function stock() {
       rolls: { id: string; batch_number: string; barcode: string; meters_initial: string;
                meters_left: string; received_at: string; depleted_at: string | null;
                sku: string; brand: string; name: string; booked_meters: string;
-               booked_for: string | null }[];
-      missing: { sku: string; brand: string; name: string; need: string }[];
+               booked_for: string | null; item_id: string }[];
+      missing: { item_id: string; sku: string; brand: string; name: string; need: string }[];
       moves: { at: string; reason: string; delta_meters: string; sku: string;
                order_number: string | null }[];
     };

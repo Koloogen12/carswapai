@@ -5,7 +5,7 @@
  */
 import { useState, useTransition } from 'react';
 import { bookSlot, confirmChoice, payPrepay, decideChange, reschedule,
-         type Journey } from '@/lib/journey';
+         openWarrantyClaim, type Journey } from '@/lib/journey';
 
 const rub = (k: number) => Math.round(k / 100).toLocaleString('ru-RU').replace(/ /g, ' ');
 const DOW = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
@@ -22,6 +22,11 @@ const PICKUP_DAYS = 3;
 export function ClientJourney({ j }: { j: Journey }) {
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
+  // Переключатели проблемы были нарисованными: первый всегда отмечен,
+  // нажатие не меняло ничего. Ничего не выбрано по умолчанию — клиент
+  // называет проблему сам, а не соглашается с догадкой экрана.
+  const [claimReason, setClaimReason] = useState('');
+  const [claimDone, setClaimDone] = useState<{ ok: boolean; text: string } | null>(null);
   // Слот держим индексами, а не ISO-строкой: строку пришлось бы собирать
   // в рендере и сравнивать с собой же, а на сервере и в браузере она
   // получалась разной. Индекс одинаков всюду, ISO собирается в момент клика.
@@ -398,17 +403,43 @@ export function ClientJourney({ j }: { j: Journey }) {
           </div>
           <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.024em", lineHeight: "1.2", marginTop: "2px" }}>Что случилось</span>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {['Плёнка отходит по кромке', 'Появились пузыри', 'Изменился оттенок'].map((t, i) => (
-              <div key={t} style={{ display: "flex", alignItems: "center", gap: "11px", background: i === 0 ? "#DEF23B" : "#F7F7F7", borderRadius: "15px", padding: "12px 14px" }}>
-                <span style={{ width: "19px", height: "19px", borderRadius: "999px", flex: "none",
-                  ...(i === 0 ? { background: "#111111" } : { boxShadow: "inset 0 0 0 1.5px #C4C4C4" }) }}></span>
-                <span style={{ flex: "1", fontSize: "12.5px", fontWeight: i === 0 ? "500" : "400", color: i === 0 ? "#111111" : "#6E6E6E" }}>{t}</span>
-              </div>
-            ))}
+            {WARRANTY_REASONS.map(t => {
+              const on = claimReason === t;
+              return (
+                <button key={t} type="button" onClick={() => { setClaimReason(t); setClaimDone(null); }}
+                  aria-pressed={on}
+                  style={{ display: "flex", alignItems: "center", gap: "11px", width: "100%", textAlign: "left", border: 0, fontFamily: "inherit", cursor: "pointer", background: on ? "#DEF23B" : "#F7F7F7", borderRadius: "15px", padding: "12px 14px" }}>
+                  <span style={{ width: "19px", height: "19px", borderRadius: "999px", flex: "none",
+                    ...(on ? { background: "#111111" } : { boxShadow: "inset 0 0 0 1.5px #C4C4C4" }) }}></span>
+                  <span style={{ flex: "1", fontSize: "12.5px", fontWeight: on ? "500" : "400", color: on ? "#111111" : "#6E6E6E" }}>{t}</span>
+                </button>
+              );
+            })}
           </div>
-          <div style={{ background: "#111111", borderRadius: "999px", padding: "15px 0", textAlign: "center", marginTop: "2px" }}>
-            <span style={{ fontSize: "13.5px", fontWeight: "500", color: "#FFFFFF" }}>Записаться на осмотр</span>
-          </div>
+
+          {claimDone && (
+            <div style={{ background: claimDone.ok ? "#F5FBCB" : "#FBEEEF", borderRadius: "15px", padding: "12px 14px", fontSize: "11.5px", lineHeight: "1.45", color: claimDone.ok ? "#2E2E2E" : "#8A4448" }}>
+              {claimDone.text}
+            </div>
+          )}
+
+          {/* Надпись — из макета: «Отправить обращение». В коде стояло
+              «Записаться на осмотр» — обещание времени, которого никто не
+              подтверждал: слотов гарантийного осмотра в расписании нет, и
+              придумать их здесь значило бы заменить одну нарисованную кнопку
+              на другую. Хендофф в этом месте оказался точнее реализации. */}
+          <button type="button" disabled={pending || !claimReason}
+            onClick={() => start(async () => {
+              const r = await openWarrantyClaim(j.configuration_id, claimReason);
+              setClaimDone(r.ok
+                ? { ok: true, text: `Обращение открыто. ${j.point_name} свяжется, чтобы назначить осмотр — плёнку до него лучше не трогать.` }
+                : { ok: false, text: r.error ?? 'Не получилось открыть обращение' });
+            })}
+            style={{ background: claimReason ? "#111111" : "#C4C4C4", borderRadius: "999px", padding: "15px 0", textAlign: "center", marginTop: "2px", border: 0, fontFamily: "inherit", cursor: claimReason && !pending ? "pointer" : "default", width: "100%" }}>
+            <span style={{ fontSize: "13.5px", fontWeight: "500", color: "#FFFFFF" }}>
+              {pending ? 'Отправляем…' : 'Отправить обращение'}
+            </span>
+          </button>
         </div>
       </Pad>}
     </Phone>
@@ -534,3 +565,7 @@ const Secondary = ({ children }: { children?: React.ReactNode }) => (
     <span style={{ fontSize: "13.5px", fontWeight: "500" }}>{children}</span>
   </div>
 );
+
+
+/** Что клиент может назвать сам, без «опишите проблему» в свободной форме. */
+const WARRANTY_REASONS = ['Плёнка отходит по кромке', 'Появились пузыри', 'Изменился оттенок'];

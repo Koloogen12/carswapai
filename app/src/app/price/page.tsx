@@ -5,7 +5,7 @@ import { rub } from '@/screens/cabinet';
 import { sys } from '@/lib/db';
 import { Toggle } from './Toggle';
 import { AddFromCatalog, PriceCell } from './AddFromCatalog';
-import { catalogToAdd } from '@/lib/pricing';
+import { catalogToAdd, hasStarted } from '@/lib/pricing';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +29,8 @@ const THUMB: Record<string, string> = {
  */
 export default async function PricePage() {
   const me = await whoAmI();
-  const [rows, b, toAdd] = await Promise.all([priceList(), budget(), catalogToAdd()]);
+  const [rows, b, toAdd, started] = await Promise.all([
+    priceList(), budget(), catalogToAdd(), hasStarted()]);
   const [net] = await sys<{ markup: number }>(
     `select price_deviation_allowed_pct::int as markup from networks limit 1`);
 
@@ -93,9 +94,16 @@ export default async function PricePage() {
               <AddFromCatalog items={toAdd} />
             </div>
 
-            <div style={{ background: "#111111", borderRadius: "999px", padding: "16px 0", textAlign: "center" }}>
-              <span style={{ fontSize: "14px", fontWeight: "500", color: "#FFFFFF" }}>Подтвердить прайс и начать</span>
-            </div>
+            {/* Кнопка запуска — только пока точка не начала работать.
+                На точке с живой перепиской «подтвердить прайс и начать»
+                означает ровно ничего: прайс правится по строке и сохраняется
+                сразу, подтверждать нечего. Постоянная кнопка без действия —
+                это и есть та нарисованность, которую мы вычищаем. */}
+            {!started && (
+              <a href="/inbox" style={{ display: "block", background: "#111111", borderRadius: "999px", padding: "16px 0", textAlign: "center" }}>
+                <span style={{ fontSize: "14px", fontWeight: "500", color: "#FFFFFF" }}>Подтвердить прайс и начать</span>
+              </a>
+            )}
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

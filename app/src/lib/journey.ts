@@ -174,7 +174,9 @@ export async function payPrepay(configId: string, invoiceId: string, kopecks: nu
 export async function decideChange(configId: string, changeId: string, approve: boolean) {
   return act(configId, async c => {
     const upd = await c.query(
-      `update change_orders set status = $2::change_status, client_acted_at = now()
+      `update change_orders
+          set status = $2::change_status, client_acted_at = now(),
+              decided_via = 'client_device'
         where id = $1 and status = 'proposed'`,
       [changeId, approve ? 'approved' : 'declined']);
     // Ноль строк здесь значит либо «уже решена», либо «чужая доработка,
@@ -197,6 +199,22 @@ export async function reschedule(configId: string, appointmentId: string, iso: s
               $2::timestamptz, $2::timestamptz + interval '20 minutes', a.id
          from appointments a where a.id = $1`, [appointmentId, iso]);
     if (!ins.rowCount) return { ok: false, error: 'Новый визит не записан' };
+    return { ok: true };
+  });
+}
+
+/**
+ * Клиент сообщает о проблеме по гарантии.
+ *
+ * Осмотр не назначается здесь: слотов гарантийного осмотра в расписании нет,
+ * и обещать клиенту время, которого никто не подтверждал, — тот же обман, что
+ * и нарисованная кнопка, только вежливее. Обращение открыто, точка звонит.
+ */
+export async function openWarrantyClaim(configId: string, reason: string) {
+  return act(configId, async c => {
+    const r = await c.query<{ claim_id: string; point_name: string }>(
+      'select claim_id, point_name from app.open_warranty_claim($1)', [reason]);
+    if (!r.rows.length) return { ok: false, error: 'Обращение не удалось открыть' };
     return { ok: true };
   });
 }

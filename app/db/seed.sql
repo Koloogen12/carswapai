@@ -92,6 +92,7 @@ select 'a0000000-0000-4000-8000-000000000001', id, 'full_body',
                 when 'HX20-LG' then 19900000 when 'GAL-OL' then 19900000
                 when 'K75400' then 23600000 when 'PPF-PPF' then 38000000
                 when 'PPF-MATTE' then 42000000 when 'ATR-20' then 1200000
+                when 'RM-OLD' then 3400000
                 else 900000 end
   from catalog_items on conflict do nothing;
 
@@ -101,6 +102,7 @@ select 'b0000000-0000-4000-8000-000000000001', id, 'full_body',
                 when 'HX20-LG' then 19900000 when 'GAL-OL' then 19900000
                 when 'K75400' then 23600000 when 'PPF-PPF' then 38000000
                 when 'PPF-MATTE' then 42000000 when 'ATR-20' then 1200000
+                when 'RM-OLD' then 3400000
                 else 900000 end,
        sku <> 'GAL-OL'
   from catalog_items
@@ -108,8 +110,14 @@ select 'b0000000-0000-4000-8000-000000000001', id, 'full_body',
  -- в прайс точки НЕ заводятся: каталог шире того, что держит точка, и
  -- именно на них показывается «добавить из каталога». Прежний `else 900000`
  -- подставлял им цену вне коридора сети и ронял посев.
+ --
+ -- RM-OLD «снятие старой плёнки» заведён сюда намеренно. Экран 37 «машина
+ -- уже оклеена» обязан ПОСЧИТАТЬ снятие, а не упомянуть его, и цену на это
+ -- он имеет право взять только из прайса ЭТОЙ точки (О-3). Без строки в
+ -- прайсе экран честно говорит «посчитаем на замере» — и весь смысл кадра,
+ -- «продукт сам поднимает цену, потому что спор на выдаче дороже», пропадает.
  where sku in ('K75407','970-070','HX20-LG','GAL-OL','K75400',
-               'PPF-PPF','PPF-MATTE','ATR-20')
+               'PPF-PPF','PPF-MATTE','ATR-20','RM-OLD')
  on conflict do nothing;
 
 insert into film_rolls (point_id, catalog_item_id, batch_number, barcode, meters_initial, meters_left) values
@@ -388,6 +396,72 @@ insert into confirmations (id, point_id, configuration_id, outbound_card_id, con
 values ('18800000-0000-4000-8000-000000000006','b0000000-0000-4000-8000-000000000001',
         '15500000-0000-4000-8000-000000000006','17700000-0000-4000-8000-000000000006','link',
         now() - interval '6 days')
+on conflict do nothing;
+
+-- ─────────────────────────────────────────────────────────────
+-- Сделка №7 · сдана, талон выдан
+-- ─────────────────────────────────────────────────────────────
+-- Третья сделка, а не переезд второй. Без закрытой сделки экран гарантии в
+-- клиентской ссылке недостижим: последний шаг пути показывал пустоту, а
+-- обращение «плёнка отходит» нельзя было ни открыть, ни проверить.
+--
+-- Почему не закрыть уже существующую: у сделки №1 наряд стоит на посту, у
+-- №6 клиент ещё выбирает время замера. Закрыть любую из них значит опустошить
+-- экран мастера или сломать проверку достоверности, привязанную к шагу записи.
+-- Точке нужны все три состояния сразу — так она и выглядит в жизни.
+insert into clients (id, point_id, name, phone, vehicle, vehicle_model_id)
+values ('11100000-0000-4000-8000-000000000007','b0000000-0000-4000-8000-000000000001',
+        'Сергей Кравцов','+79031234507',
+        '{"make":"Audi","model":"Q7","year":2022,"plate":"Териал777"}',
+        'd1000000-0000-4000-8000-000000000002')
+on conflict do nothing;
+insert into consents (id, point_id, client_id, kind, document_version, granted)
+values ('12200000-0000-4000-8000-000000000007','b0000000-0000-4000-8000-000000000001',
+        '11100000-0000-4000-8000-000000000007','photo_processing','v1', true)
+on conflict do nothing;
+insert into threads (id, point_id, client_id, status, last_message_at)
+values ('13300000-0000-4000-8000-000000000007','b0000000-0000-4000-8000-000000000001',
+        '11100000-0000-4000-8000-000000000007','open', now() - interval '14 days')
+on conflict do nothing;
+insert into configurations (id, point_id, thread_id, vehicle_model_id, created_by)
+values ('15500000-0000-4000-8000-000000000007','b0000000-0000-4000-8000-000000000001',
+        '13300000-0000-4000-8000-000000000007','d1000000-0000-4000-8000-000000000002',
+        'c0000000-0000-4000-8000-000000000001')
+on conflict do nothing;
+insert into configuration_items (id, configuration_id, point_id, point_price_id, category,
+                                price_kopecks, meters_required)
+select '16600000-0000-4000-8000-000000000007','15500000-0000-4000-8000-000000000007',
+       'b0000000-0000-4000-8000-000000000001', pp.id, 'film', pp.price_kopecks, 19.6
+  from point_prices pp join catalog_items ci on ci.id = pp.catalog_item_id
+ where pp.point_id = 'b0000000-0000-4000-8000-000000000001' and ci.sku = 'K75400'
+on conflict do nothing;
+insert into renders (configuration_item_id, point_id, variant, storage_path, pipeline,
+                     render_class, qa_passed, cost_kopecks)
+select '16600000-0000-4000-8000-000000000007','b0000000-0000-4000-8000-000000000001', v,
+       '/renders/render-1'||(case v when 'day' then '2' when 'overcast' then '1' else '0' end)||'.png',
+       '{"source":"seed"}'::jsonb,'B', true, 850
+  from unnest(enum_range(null::render_variant)) v
+on conflict do nothing;
+insert into outbound_cards (id, point_id, configuration_id, honesty_line, channel_kind, rendered_paths)
+values ('17700000-0000-4000-8000-000000000007','b0000000-0000-4000-8000-000000000001',
+        '15500000-0000-4000-8000-000000000007',
+        'Оттенок партии сверим с рулоном при вас на замере — образец приложим к записи.',
+        'whatsapp', array['/renders/render-12.png','/renders/render-11.png','/renders/render-10.png'])
+on conflict do nothing;
+insert into confirmations (id, point_id, configuration_id, outbound_card_id, confirmed_via, confirmed_at)
+values ('18800000-0000-4000-8000-000000000007','b0000000-0000-4000-8000-000000000001',
+        '15500000-0000-4000-8000-000000000007','17700000-0000-4000-8000-000000000007','link',
+        now() - interval '14 days')
+on conflict do nothing;
+insert into orders (id, point_id, confirmation_id, number, status, total_kopecks,
+                    batch_number, created_at)
+values ('19900000-0000-4000-8000-000000000007','b0000000-0000-4000-8000-000000000001',
+        '18800000-0000-4000-8000-000000000007','ЗН-2026-0141','done', 21490000,
+        'П-2026-0341', now() - interval '12 days')
+on conflict do nothing;
+insert into warranties (point_id, order_id, number, months, issued_at)
+values ('b0000000-0000-4000-8000-000000000001','19900000-0000-4000-8000-000000000007',
+        'ГТ-2026-0141', 24, now() - interval '9 days')
 on conflict do nothing;
 
 -- Отправленная карточка в ленте диалога: без неё главный компонент продукта

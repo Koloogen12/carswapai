@@ -14,18 +14,7 @@ import { revalidatePath } from 'next/cache';
 import { withTenant } from './db';
 import { claimsFor } from './session';
 
-export type PointStatus = 'active' | 'readonly' | 'suspended' | 'archived';
-
-/**
- * Что значит каждый статус — словами, которые видит человек. Он отключает
- * чужой бизнес и должен понимать последствие до нажатия, а не после.
- */
-export const STATUS_MEANING: Record<PointStatus, string> = {
-  active: 'Работает как обычно',
-  readonly: 'Подписка на паузе: новых примерок нет, уже отправленное открывается',
-  suspended: 'Отключена: новых примерок нет, гараж снаружи не открывается',
-  archived: 'Закрыта навсегда',
-};
+import type { PointStatus } from './point-status';
 
 export async function setPointStatus(pointId: string, status: PointStatus) {
   const who = await claimsFor();
@@ -57,5 +46,36 @@ export async function releaseBudgetStop(pointId: string) {
     } catch (e) {
       return { ok: false as const, error: (e as Error).message };
     }
+  });
+}
+
+/**
+ * Код присоединения к сети — то, что на самом деле стоит за «пригласить точку».
+ *
+ * Кнопка «Отправить приглашение» была нарисованной, и подпись под ней врала
+ * дважды: отправлять нечем (провайдера рассылки нет) и отправлять нечего
+ * (кода на экране не было). Точка присоединяется сама по коду на /join —
+ * значит приглашение это код и ссылка, а не письмо от системы.
+ *
+ * Поэтому экран отдаёт готовый текст, который управляющая компания
+ * отправляет своим способом. Это честнее «Отправлено», за которым не
+ * происходит ничего, и не ждёт провайдера, которого ещё нет.
+ */
+export async function inviteText() {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
+    const r = await c.query<{ name: string; join_code: string }>(
+      `select n.name, n.join_code from networks n
+        join points p on p.network_id = n.id where p.id = $1`, [who.point_id]);
+    const row = r.rows[0];
+    if (!row) return null;
+    const base = process.env.PUBLIC_BASE_URL ?? '';
+    return {
+      code: row.join_code,
+      url: `${base}/join`,
+      text: `Приглашаем точку в сеть «${row.name}».\n` +
+            `Откройте ${base}/join и введите код ${row.join_code}.\n` +
+            `Дальше точка запускается сама: каналы, прайс, сотрудники.`,
+    };
   });
 }

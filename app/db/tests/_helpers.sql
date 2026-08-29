@@ -29,6 +29,29 @@ end $$;
 grant execute on function expect_fail(text, text) to app_tenant;
 grant execute on function expect_ok(text, text) to app_tenant;
 
+-- Сравнение результата запроса с ожиданием.
+--
+-- Появился, когда понадобилось проверить не «прошло/не прошло», а КУДА уйдёт
+-- ответ. expect_ok на такой вопрос отвечает «ок» даже когда канал выбран
+-- неверно: запрос-то отработал. Отдельный помощник нужен ровно затем, чтобы
+-- расхождение значения не засчитывалось как пройденный инвариант.
+--
+-- NULL и строка сравниваются через is distinct from: ожидание «канала нет»
+-- обязано отличаться от ожидания «канал пуст».
+create or replace function expect_eq(query text, expected text, what text)
+  returns void language plpgsql as $$
+declare got text;
+begin
+  execute query into got;
+  if got is distinct from expected then
+    raise exception 'ПРОВАЛ: % — получили %, ждали %',
+      what, coalesce(quote_literal(got), 'NULL'), coalesce(quote_literal(expected), 'NULL');
+  end if;
+  raise notice 'ok  · %', what;
+end $$;
+
+grant execute on function expect_eq(text, text, text) to app_tenant;
+
 -- Претензия арендатора. Ровно то, что делает withTenant() в приложении:
 -- ставит request.jwt.claims, из которого политики RLS читают точку и роль.
 -- Без этого роль приложения не может ни прочитать, ни вставить ничего —

@@ -40,6 +40,17 @@ export async function inbox(claims?: Claims): Promise<InboxRow[]> {
              (select count(*) from messages m where m.thread_id = t.id and m.direction = 'in')::int
                as unread,
              case
+               -- Гарантийное обращение выше всего остального. Это жалоба на
+               -- уже сданную работу: клиент заплатил, забрал машину и вернулся
+               -- с проблемой. Всё, что ниже, — это ещё продажа, а здесь уже
+               -- репутация. Макет говорит то же: обращение приходит в инбокс
+               -- ОТДЕЛЬНЫМ типом, а не новой строкой переписки.
+               when exists (select 1 from warranty_claims wc
+                             join warranties w on w.id = wc.warranty_id
+                             join orders o     on o.id = w.order_id
+                             join confirmations cf2 on cf2.id = o.confirmation_id
+                             join configurations cfg2 on cfg2.id = cf2.configuration_id
+                            where cfg2.thread_id = t.id and wc.status = 'open') then 'warranty'
                when exists (select 1 from confirmations cf
                              join configurations cfg on cfg.id = cf.configuration_id
                             where cfg.thread_id = t.id) then 'confirmed'

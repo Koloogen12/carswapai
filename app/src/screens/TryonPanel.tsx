@@ -14,6 +14,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { ImageSlot } from '@/design/ImageSlot';
 import { sendCard, startTryOn, tryOnStatus } from '@/lib/actions';
 import { tryonDraft, type TryonState } from '@/lib/tryon';
+import { askForPhoto, sendGarageLink } from '@/lib/outreach';
 import type { PriceRow } from '@/lib/data';
 
 const LIGHTS = [['day', 'День'], ['overcast', 'Пасмурно'], ['parking', 'Паркинг']] as const;
@@ -171,7 +172,7 @@ export function TryonPanel({ threadId, vehicle, prices, meters, blocked, photo, 
   });
 
   return (
-    <div style={{ width: "356px", flex: "none", background: "#FFFFFF", borderRadius: "24px", padding: "18px 16px", display: "flex", flexDirection: "column", gap: "16px", minHeight: "0", overflowY: "auto" }}>
+    <div id="tryon" style={{ width: "356px", flex: "none", background: "#FFFFFF", borderRadius: "24px", padding: "18px 16px", display: "flex", flexDirection: "column", gap: "16px", minHeight: "0", overflowY: "auto" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
           <span style={{ fontSize: "16px", fontWeight: "500", letterSpacing: "-0.02em" }}>Панель примерки</span>
@@ -235,11 +236,7 @@ export function TryonPanel({ threadId, vehicle, prices, meters, blocked, photo, 
             </div>
           );
         })}
-        {!photo && (
-          <div style={{ background: "#F5FBCB", borderRadius: "14px", padding: "11px 13px", fontSize: "11.5px", lineHeight: "1.45", color: "#2E2E2E" }}>
-            Фото из диалога не подхвачено — примерить не на чем.
-          </div>
-        )}
+        {!photo && <NoPhoto threadId={threadId} />}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
@@ -363,4 +360,59 @@ function swatch(p: PriceRow) {
     K75400: '/renders/wrap-02-satin-black.jpg', 'ATR-20': '/renders/wrap-01-silver.jpg',
   };
   return map[p.sku];
+}
+
+
+/**
+ * Тупик «фото нет» с двумя выходами.
+ *
+ * До этого здесь стояла констатация — «примерить не на чем» — и всё. Менеджер
+ * читал её и уходил писать клиенту руками, а значит без оферты: снимок,
+ * присланный в ответ на «скиньте фотку», сохранять было бы не на чем.
+ *
+ * Оба сценария выбраны основателем и не спорят между собой:
+ *   гараж   — клиент сам перебирает артикулы и возвращается;
+ *   просьба — короче и продаётся лучше, оферта уезжает тем же сообщением.
+ *
+ * Отказ Авито приходит сюда, а не после отправки: в Авито ссылки запрещены
+ * нашим же правилом, и узнать об этом после отправки значит потерять канал.
+ */
+function NoPhoto({ threadId }: { threadId: string }) {
+  const [state, setState] = useState<{ ok: boolean; text: string } | null>(null);
+  const [busy, start] = useTransition();
+
+  function run(what: 'ask' | 'link') {
+    if (busy) return;
+    setState(null);
+    start(async () => {
+      const r = what === 'ask' ? await askForPhoto(threadId) : await sendGarageLink(threadId);
+      setState(r.ok
+        ? { ok: true, text: what === 'ask'
+            ? 'Просьба ушла вместе с офертой — снимок будет на чём хранить'
+            : 'Ссылка на гараж отправлена' }
+        : { ok: false, text: r.error });
+    });
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <div style={{ background: "#F5FBCB", borderRadius: "14px", padding: "11px 13px", fontSize: "11.5px", lineHeight: "1.45", color: "#2E2E2E" }}>
+        Фото из диалога не подхвачено — примерить не на чем. Попросите его
+        одним нажатием: оферта уедет тем же сообщением.
+      </div>
+      <button type="button" onClick={() => run('ask')} disabled={busy}
+        style={{ border: 0, fontFamily: "inherit", cursor: busy ? "default" : "pointer", background: "#111111", color: "#FFFFFF", borderRadius: "999px", padding: "12px 0", fontSize: "12.5px", fontWeight: "500" }}>
+        {busy ? 'Отправляем…' : 'Попросить фото'}
+      </button>
+      <button type="button" onClick={() => run('link')} disabled={busy}
+        style={{ border: 0, fontFamily: "inherit", cursor: busy ? "default" : "pointer", background: "#FFFFFF", boxShadow: "inset 0 0 0 1px #E2E2E2", color: "#111111", borderRadius: "999px", padding: "12px 0", fontSize: "12.5px", fontWeight: "500" }}>
+        Прислать ссылку на гараж
+      </button>
+      {state && (
+        <div style={{ background: state.ok ? "#F5FBCB" : "#FBEEEF", borderRadius: "14px", padding: "10px 13px", fontSize: "11.5px", lineHeight: "1.45", color: state.ok ? "#2E2E2E" : "#8A4448" }}>
+          {state.text}
+        </div>
+      )}
+    </div>
+  );
 }

@@ -68,11 +68,23 @@ export default async function FollowUpsPage() {
                     </div>
                     {r.silent_days >= 1 ? (
                       <div style={{ display: "flex", gap: "6px", flex: "none" }}>
-                        {cold && (
-                          <div style={{ background: "#111111", borderRadius: "999px", padding: "9px 14px" }}>
+                        {/* Телефонии у нас нет и не будет: звонит менеджер со
+                            своего аппарата. tel: открывает набор на телефоне и
+                            софтфон на десктопе — это настоящее действие, а не
+                            нарисованная кнопка. Без номера ссылки нет: пустой
+                            tel: молча ничего не делает, и менеджер решит, что
+                            сломано приложение, а не что телефон не оставили. */}
+                        {cold && (r.phone ? (
+                          <a href={`tel:${r.phone.replace(/[^+\d]/g, '')}`}
+                            style={{ background: "#111111", borderRadius: "999px", padding: "9px 14px" }}>
                             <span style={{ fontSize: "12px", fontWeight: "500", color: "#FFFFFF" }}>Позвонить</span>
-                          </div>
-                        )}
+                          </a>
+                        ) : (
+                          <span style={{ background: "#F0F0F0", borderRadius: "999px", padding: "9px 14px", fontSize: "12px", fontWeight: "500", color: "#9A9A9A" }}
+                            title="Клиент писал из мессенджера и телефон не оставлял">
+                            Телефона нет
+                          </span>
+                        ))}
                         <a href={`/c/${r.configuration_id}`} style={{ background: cold ? "#FFFFFF" : "#111111", borderRadius: "999px", padding: "9px 14px" }}>
                           <span style={{ fontSize: "12px", fontWeight: "500", color: cold ? "#111111" : "#FFFFFF" }}>
                             {cold ? 'Напомнить в чат' : 'Предложить слот'}</span>

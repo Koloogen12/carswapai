@@ -66,5 +66,7 @@ psql -h "$S" -p "$PORT" -U carswap_app -d carswap -v ON_ERROR_STOP=1 \
   -f tests/channels.sql \
   -f tests/staff.sql \
   -f tests/retention.sql \
-  -f tests/client-link.sql 2>&1 \
+  -f tests/client-link.sql \
+  -f tests/outbound-channel.sql \
+  -f tests/garage-tryon.sql 2>&1 \
   | grep -E 'ok  ·|ПРОВАЛ|ERROR'

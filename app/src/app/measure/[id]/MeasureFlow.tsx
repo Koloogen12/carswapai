@@ -11,7 +11,7 @@
  * дороже, чем кажется за столом.
  */
 import { useState, useTransition } from 'react';
-import { saveMeasurement, proposeChange, type MeasureView } from '@/lib/measure';
+import { saveMeasurement, proposeChanges, approveVerbally, type MeasureView } from '@/lib/measure';
 
 const rub = (k: number) => Math.round(k / 100).toLocaleString('ru-RU').replace(/ /g, ' ');
 const ZONES = [
@@ -29,11 +29,19 @@ export function MeasureFlow({ m }: { m: MeasureView }) {
       Number(m.zones.find(x => x.zone_code === z.code)?.meters ?? z.hint)])));
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
+  const [sent, setSent] = useState<string | null>(null);
+  // Что из найденного уходит клиенту. Обязательное отмечено, необязательное
+  // нет: полировка под сколы не должна попадать в счёт по умолчанию.
+  const [picked, setPicked] = useState<Record<string, boolean>>(
+    { meters: true, scratch: true, polish: false });
 
   const measured = ZONES.reduce((a, z) => a + (vals[z.code] || 0), 0) + SPARE;
   const est = Number(m.estimated_meters ?? 0);
   const diff = measured - est;
   const extra = Math.round(diff * 950000);     // доплата за метраж сверх оценки
+
+  const chosen = EXTRAS(measured, est, extra).filter(x => picked[x.key]);
+  const addUp = chosen.reduce((a, x) => a + x.kopecks, 0);
 
   const at = new Date(m.starts_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
@@ -222,12 +230,11 @@ export function MeasureFlow({ m }: { m: MeasureView }) {
           </div>
 
           <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "18px", display: "flex", flexDirection: "column", gap: "11px" }}>
-            <Line on title={`Метраж по факту ${measured.toFixed(1)} м`}
-              sub={`было ${est || '—'} м оценочно`} amount={extra} />
-            <Line on title="Подготовка царапины на двери"
-              sub="иначе плёнка ляжет с дефектом" amount={850000} />
-            <Line title="Полировка капота под сколы"
-              sub="необязательно · сколы видны на просвет" amount={1400000} />
+            {EXTRAS(measured, est, extra).map(x => (
+              <Line key={x.key} on={!!picked[x.key]} title={x.title} sub={x.sub}
+                amount={x.kopecks}
+                onToggle={() => setPicked(v => ({ ...v, [x.key]: !v[x.key] }))} />
+            ))}
           </div>
 
           <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "18px", display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -237,13 +244,13 @@ export function MeasureFlow({ m }: { m: MeasureView }) {
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <span style={{ fontSize: "12px", color: "#5A5A5A" }}>Доработки</span>
-              <span style={{ fontSize: "12.5px", fontWeight: "500", fontVariantNumeric: "tabular-nums" }}>+ {rub(extra + 850000)} ₽</span>
+              <span style={{ fontSize: "12.5px", fontWeight: "500", fontVariantNumeric: "tabular-nums" }}>+ {rub(addUp)} ₽</span>
             </div>
             <div style={{ height: "1px", background: "#F0F0F0" }}></div>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
               <span style={{ fontSize: "12.5px", fontWeight: "500" }}>Новая сумма</span>
               <div style={{ display: "flex", alignItems: "baseline", fontSize: "24px", fontWeight: "500", letterSpacing: "-0.035em", fontVariantNumeric: "tabular-nums" }}>
-                {rub(m.price_kopecks + extra + 850000)}<span style={{ fontSize: "14px", color: "#767676", marginLeft: "3px" }}>₽</span></div>
+                {rub(m.price_kopecks + addUp)}<span style={{ fontSize: "14px", color: "#767676", marginLeft: "3px" }}>₽</span></div>
             </div>
           </div>
 
@@ -261,13 +268,34 @@ export function MeasureFlow({ m }: { m: MeasureView }) {
 
           {/* Единственное место, где цена растёт. Согласование здесь, а не
               в счёте при выдаче — это разница между «понятно» и скандалом. */}
+          {!m.order_id && (
+            <div style={{ background: "#FBEEEF", borderRadius: "18px", padding: "12px 15px", fontSize: "12px", lineHeight: "1.45", color: "#8A4448" }}>
+              Наряда ещё нет — клиент не подтвердил выбор. Доработку предлагать не к чему.
+            </div>
+          )}
+          {sent && (
+            <div style={{ background: "#F5FBCB", borderRadius: "18px", padding: "12px 15px", fontSize: "12px", lineHeight: "1.45", color: "#2E2E2E" }}>{sent}</div>
+          )}
+
           <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div style={{ background: "#111111", borderRadius: "999px", padding: "19px 0", textAlign: "center" }}>
-              <span style={{ fontSize: "15px", fontWeight: "500", color: "#FFFFFF" }}>Отправить на согласование</span>
-            </div>
-            <div style={{ background: "#FFFFFF", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}>
-              <span style={{ fontSize: "13.5px", fontWeight: "500" }}>Клиент согласовал голосом</span>
-            </div>
+            <button type="button" disabled={pending || !chosen.length || !m.order_id}
+              onClick={() => { setErr(null); setSent(null); start(async () => {
+                const r = await proposeChanges(m.appointment_id, m.order_id!, chosen);
+                if (r.ok) setSent(`Ушло клиенту на согласование · ${r.count} ${r.count === 1 ? 'доработка' : 'доработки'}. Без его подтверждения наряд в работу не уйдёт.`);
+                else setErr(r.error);
+              }); }}
+              style={{ background: chosen.length && m.order_id ? "#111111" : "#C4C4C4", color: "#FFFFFF", borderRadius: "999px", padding: "19px 0", border: 0, cursor: chosen.length && !pending ? "pointer" : "default", fontFamily: "inherit", fontSize: "15px", fontWeight: "500", width: "100%" }}>
+              {pending ? 'Отправляем…' : 'Отправить на согласование'}
+            </button>
+            <button type="button" disabled={pending || !chosen.length || !m.order_id}
+              onClick={() => { setErr(null); setSent(null); start(async () => {
+                const r = await approveVerbally(m.appointment_id, m.order_id!, chosen);
+                if (r.ok) setSent('Записано как согласие у поста. В наряде видно, что подтверждение устное, а не с телефона клиента.');
+                else setErr(r.error);
+              }); }}
+              style={{ background: "#FFFFFF", borderRadius: "999px", padding: "15px 0", border: 0, cursor: chosen.length && !pending ? "pointer" : "default", fontFamily: "inherit", fontSize: "13.5px", fontWeight: "500", color: "#111111", width: "100%" }}>
+              Клиент согласовал голосом
+            </button>
           </div>
         </>}
       </div>
@@ -275,11 +303,14 @@ export function MeasureFlow({ m }: { m: MeasureView }) {
   );
 }
 
-function Line({ title, sub, amount, on }: {
-  title: string; sub: string; amount: number; on?: boolean;
+function Line({ title, sub, amount, on, onToggle }: {
+  title: string; sub: string; amount: number; on?: boolean; onToggle?: () => void;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "12px", background: on ? "#DEF23B" : "#F7F7F7", borderRadius: "16px", padding: "12px 14px" }}>
+    <div role={onToggle ? 'checkbox' : undefined} aria-checked={onToggle ? !!on : undefined}
+      tabIndex={onToggle ? 0 : undefined} onClick={onToggle}
+      onKeyDown={onToggle ? e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onToggle(); } } : undefined}
+      style={{ display: "flex", alignItems: "center", gap: "12px", cursor: onToggle ? "pointer" : "default", background: on ? "#DEF23B" : "#F7F7F7", borderRadius: "16px", padding: "12px 14px" }}>
       <span style={{ width: "20px", height: "20px", borderRadius: "6px", flex: "none", display: "flex", alignItems: "center", justifyContent: "center",
         ...(on ? { background: "#111111" } : { boxShadow: "inset 0 0 0 1.5px #C4C4C4" }) }}>
         {on && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4.5 4.5L19 7" /></svg>}
@@ -298,4 +329,27 @@ function Err({ text }: { text: string }) {
   return (
     <div style={{ background: "#FBEEEF", borderRadius: "18px", padding: "13px 15px", fontSize: "12px", lineHeight: "1.45", color: "#D93F45" }}>{text}</div>
   );
+}
+
+
+/**
+ * Что предъявляется клиенту как доплата.
+ *
+ * Один список на экран и на отправку: раньше суммы в итоге складывались
+ * константами (extra + 850000), а строки рисовались отдельно. Стоило снять
+ * отметку — и итог не менялся. Список обязан быть один, иначе экран показывает
+ * не то, что уходит.
+ */
+function EXTRAS(measured: number, est: number, extra: number) {
+  return [
+    { key: 'meters',  title: `Метраж по факту ${measured.toFixed(1)} м`,
+      sub: `было ${est || '—'} м оценочно`, kopecks: extra,
+      reason: `Метраж по факту ${measured.toFixed(1)} м против ${est || '—'} м оценочно` },
+    { key: 'scratch', title: 'Подготовка царапины на двери',
+      sub: 'иначе плёнка ляжет с дефектом', kopecks: 850000,
+      reason: 'Подготовка царапины на правой двери' },
+    { key: 'polish',  title: 'Полировка капота под сколы',
+      sub: 'необязательно · сколы видны на просвет', kopecks: 1400000,
+      reason: 'Полировка капота под сколы' },
+  ];
 }

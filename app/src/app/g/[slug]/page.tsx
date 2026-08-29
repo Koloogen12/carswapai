@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { withGarage, LinkNotFound } from '@/lib/db';
 import { Garage } from './Garage';
-import { hasConsent } from '@/lib/garage';
+import type { Item } from './model';
+import { hasConsent, garageQuota } from '@/lib/garage';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,13 +18,14 @@ export const dynamic = 'force-dynamic';
  * из миграции 006 не пускает эту роль никуда, кроме самой точки и её
  * прайса. В прайсе по построению только то, что есть у ЭТОЙ точки (О-3).
  */
-export default async function GaragePage({ params }: { params: { slug: string } }) {
+export default async function GaragePage(
+  { params, searchParams }: {
+    params: { slug: string };
+    searchParams: { set?: string };
+  },
+) {
   const consented = await hasConsent(params.slug);
   type Point = { id: string; name: string; network_id: string; brand: unknown };
-  type Item = {
-    point_price_id: string; sku: string; name: string; brand: string; category: string;
-    finish: string; price_kopecks: number; in_stock: boolean; hex: string | null;
-  };
 
   let data: { point: Point | undefined; items: Item[] };
   try {
@@ -50,5 +52,16 @@ export default async function GaragePage({ params }: { params: { slug: string } 
 
   if (!data.point) notFound();
 
-  return <Garage pointName={data.point.name} items={data.items} plate="А 432 ОР 77"  slug={params.slug} consented={consented} photoId={null} />;
+  // Г-9 · остаток примерок читается из того же состояния бюджета, которым
+  // распоряжается app.enqueue_render. Второго счётчика в продукте нет.
+  const quota = await garageQuota(params.slug);
+
+  // Сборка приезжает ссылкой: `?set=артикул.артикул`. Цены и наличие при
+  // этом всё равно перечитываются из прайса ЭТОЙ точки (О-3) — ссылка несёт
+  // только выбор, а не слепок вчерашних цен.
+  const preset = (searchParams.set ?? '').split('.').filter(Boolean).slice(0, 6);
+
+  return <Garage pointName={data.point.name} items={data.items} plate="А 432 ОР 77"
+                 slug={params.slug} consented={consented} photoId={null}
+                 quota={quota} preset={preset} />;
 }

@@ -4,3 +4,4 @@ node_modules/
 .env*.local
 app/worker/fixtures/dev-set/.preview/
 .DS_Store
+.storage/
