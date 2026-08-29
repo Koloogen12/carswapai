@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { AppBar } from '@/screens/chrome';
 import { OpsNav, rub } from '@/screens/ops';
 import { networkCatalog } from '@/lib/reports';
@@ -22,12 +23,13 @@ const THUMB: Record<string, string> = {
  * при живом клиенте.
  */
 export default async function CatalogPage() {
+  const me = await whoAmI();
   const [n, b] = await Promise.all([networkCatalog(), budget()]);
 
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "28px", padding: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
-        <AppBar pointName="JETCAR · управляющая компания" user="Ольга Титова" role="Сеть"
+        <AppBar pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
         <OpsNav active="/ops/catalog" />
 

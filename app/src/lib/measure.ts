@@ -1,10 +1,11 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { withTenant } from './db';
-import { MANAGER } from './data';
+import { claimsFor } from './session';
 
-const MASTER = { ...MANAGER, app_role: 'master' as const,
-                 user_id: 'c0000000-0000-4000-8000-000000000002' };
+// Мастер у поста — та же сессия, что у всех: роль приходит из базы по
+// его пользователю. Раньше здесь была производная от зашитого менеджера,
+// то есть любой открывший экран становился мастером этой точки.
 
 /**
  * Контур замера, заход 4.
@@ -36,7 +37,8 @@ const ZONE_RU: Record<string, string> = {
 export async function zoneLabel(code: string) { return ZONE_RU[code] ?? code; }
 
 export async function measureView(id: string): Promise<MeasureView | null> {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(`
       select ap.id as appointment_id, ap.starts_at, ap.status::text, ap.configuration_id,
              coalesce(cl.name,'Клиент') as client,
@@ -78,13 +80,14 @@ export async function measureView(id: string): Promise<MeasureView | null> {
 /** Обмер: факт вытесняет оценку и попадает в справочник (М-9). */
 export async function saveMeasurement(appointmentId: string, vehicleModelId: string | null,
                                       zone: string, meters: number) {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     try {
       await c.query(
         `insert into measurements (point_id, appointment_id, vehicle_model_id, zone_code,
                                    measured_meters, measured_by)
          values ($1,$2,$3,$4,$5,$6)`,
-        [MASTER.point_id, appointmentId, vehicleModelId, zone, meters, MASTER.user_id]);
+        [who.point_id, appointmentId, vehicleModelId, zone, meters, who.user_id]);
       revalidatePath(`/measure/${appointmentId}`);
       return { ok: true as const };
     } catch (e) { return { ok: false as const, error: (e as Error).message }; }
@@ -94,12 +97,13 @@ export async function saveMeasurement(appointmentId: string, vehicleModelId: str
 /** Доработка предлагается на замере. Согласие клиента — отдельное действие. */
 export async function proposeChange(appointmentId: string, orderId: string,
                                     reason: string, kopecks: number) {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     try {
       await c.query(
         `insert into change_orders (point_id, order_id, reason, amount_kopecks, proposed_by)
          values ($1,$2,$3,$4,$5)`,
-        [MASTER.point_id, orderId, reason, kopecks, MASTER.user_id]);
+        [who.point_id, orderId, reason, kopecks, who.user_id]);
       revalidatePath(`/measure/${appointmentId}`);
       return { ok: true as const };
     } catch (e) { return { ok: false as const, error: (e as Error).message }; }

@@ -1,5 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import { claimsFor } from './session';
 import { withTenant } from './db';
 import { MANAGER } from './data';
 import { HONESTY_LINE, LIGHTS } from './domain';
@@ -17,7 +18,7 @@ export async function sendCard(threadId: string, pointPriceIds: string[]) {
   if (pointPriceIds.length !== 3) {
     return { ok: false as const, error: 'М-4: в карточке ровно три артикула' };
   }
-  return withTenant(MANAGER, async c => {
+  return withTenant(await claimsFor(), async c => {
     try {
       const cfg = await c.query(
         `insert into configurations (point_id, thread_id, created_by, origin)
@@ -118,7 +119,7 @@ function cacheKey(sku: string, light: string) {
  */
 export async function startTryOn(configId: string, pointPriceId: string,
                                  photoId: string) {
-  return withTenant(MANAGER, async c => {
+  return withTenant(await claimsFor(), async c => {
     try {
       const price = await c.query(
         `select pp.id, pp.price_kopecks, ci.category, ci.sku, ci.finish,
@@ -188,7 +189,7 @@ export async function startTryOn(configId: string, pointPriceId: string,
 
 /** Готовность примерки: сколько светов уже посчитано и что с отказами. */
 export async function tryOnStatus(itemId: string) {
-  return withTenant(MANAGER, async c => {
+  return withTenant(await claimsFor(), async c => {
     const done = await c.query(
       `select variant, storage_path from renders
         where configuration_item_id = $1 and qa_passed and erased_at is null`,

@@ -121,6 +121,35 @@ def thread_id() -> str:
                             'LC_ALL': 'C'})
     return r.stdout.strip()
 
+def session_cookie() -> str:
+    """
+    Сессия владельца посевной точки — для проверок.
+
+    Экраны теперь закрыты входом, и без сессии стенд видел бы страницу входа
+    вместо продукта. Сессия заводится прямо в базе: проверять надо экраны, а
+    не путь по SMS, и гонять код через журнал на каждом прогоне — лишнее.
+    """
+    # `sql1` возвращает весь вывод psql, включая строку «INSERT 0 1»:
+    # берём только первую строку, иначе в заголовок куки уедет перевод строки.
+    raw = sql1("insert into sessions (user_id, expires_at) "
+               "select u.id, now() + interval '1 hour' from users u "
+               "where u.role = 'owner' limit 1 returning id::text")
+    return raw.strip().splitlines()[0].strip()
+
+
+_COOKIE = None
+
+
+def fetch_auth(url: str) -> str:
+    global _COOKIE
+    if _COOKIE is None:
+        _COOKIE = session_cookie()
+    import urllib.request
+    rq = urllib.request.Request(url, headers={'Cookie': f'csw_s={_COOKIE}'})
+    with urllib.request.urlopen(rq, timeout=25) as r:
+        return r.read().decode('utf-8', 'ignore')
+
+
 def fetch(url: str) -> str:
     return urllib.request.urlopen(url, timeout=25).read().decode('utf-8', 'ignore')
 
@@ -135,7 +164,7 @@ def main() -> int:
         route = route.replace('{TID}', tid).replace('{AP}', ap)
         data = json.loads((ROOT / 'tools' / 'out' / f'{src}.json').read_text(encoding='utf-8'))
         try:
-            have = vocab(words(fetch(BASE + route)))
+            have = vocab(words(fetch_auth(BASE + route)))
         except Exception as e:
             print(f'{route:30s} — недоступен: {e}')
             fail = 1; continue

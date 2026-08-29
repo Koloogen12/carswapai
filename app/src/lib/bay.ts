@@ -1,10 +1,11 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { withTenant } from './db';
-import { MANAGER } from './data';
+import { claimsFor } from './session';
 
-const MASTER = { ...MANAGER, app_role: 'master' as const,
-                 user_id: 'c0000000-0000-4000-8000-000000000002' };
+// Мастер у поста — та же сессия, что у всех: роль приходит из базы по
+// его пользователю. Раньше здесь была производная от зашитого менеджера,
+// то есть любой открывший экран становился мастером этой точки.
 
 export type BayRecord = {
   order_id: string; number: string; status: string;
@@ -17,7 +18,8 @@ export type BayRecord = {
 };
 
 export async function bayRecord(orderId: string): Promise<BayRecord | null> {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(`
       select o.id as order_id, o.number, o.status, o.batch_number, o.batch_verified_at,
              cl.name as client_name, cl.vehicle->>'plate' as plate,
@@ -56,7 +58,8 @@ export async function bayRecord(orderId: string): Promise<BayRecord | null> {
  * и срока. Читается в тех же границах, что и сам наряд рядом.
  */
 export async function warrantyFor(orderId: string) {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query<{ number: string; months: number; issued_at: string }>(
       `select number, months, issued_at from warranties where order_id = $1`, [orderId]);
     return rows[0] ?? null;
@@ -64,7 +67,8 @@ export async function warrantyFor(orderId: string) {
 }
 
 export async function rollsFor(orderId: string) {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(`
       select fr.id, fr.barcode, fr.batch_number, fr.meters_left, ci.sku, ci.name
         from film_rolls fr join catalog_items ci on ci.id = fr.catalog_item_id
@@ -82,15 +86,16 @@ export async function rollsFor(orderId: string) {
  * ошибка. Так проверку нельзя обойти, поправив этот файл.
  */
 export async function verifyRoll(orderId: string, rollId: string) {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     try {
       await c.query(
         `update orders set status = 'in_work', verified_roll_id = $2, verified_by = $3
-          where id = $1`, [orderId, rollId, MASTER.user_id]);
+          where id = $1`, [orderId, rollId, who.user_id]);
       await c.query(
         `insert into audit_log (point_id, actor_id, actor_role, action, entity, entity_id, detail)
          values ($1,$2,'master','order.roll_verified','orders',$3, jsonb_build_object('roll',$4))`,
-        [MANAGER.point_id, MASTER.user_id, orderId, rollId]);
+        [who.point_id, who.user_id, orderId, rollId]);
       revalidatePath(`/bay/${orderId}`);
       return { ok: true as const };
     } catch (e) {
@@ -100,7 +105,8 @@ export async function verifyRoll(orderId: string, rollId: string) {
 }
 
 export async function closeWork(orderId: string) {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     await c.query(`update orders set status = 'done' where id = $1`, [orderId]);
     revalidatePath(`/bay/${orderId}`);
     return { ok: true as const };
@@ -131,7 +137,8 @@ export type MasterOrder = {
 };
 
 export async function masterBoard(): Promise<MasterBoard> {
-  return withTenant(MASTER, async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const orders = (await c.query(`
       select o.id, o.number, o.status, o.batch_number, o.created_at,
              coalesce(cl.name, 'Клиент') as client,

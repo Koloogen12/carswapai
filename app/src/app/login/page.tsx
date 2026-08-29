@@ -9,12 +9,38 @@
  *
  * Пароля нет по построению: у поста грязные руки, у менеджера смена.
  */
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { actionRequestCode, actionVerifyCode } from './actions';
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState('+7 926 418 55 02');
+  // Пустое поле, а не демонстрационный номер значением: раньше введённый
+  // телефон дописывался к нему, и человек видел «Отправили на
+  // +7 926 418 55 02+79031234501» — чужой номер рядом со своим.
+  const [phone, setPhone] = useState('');
   const [sent, setSent] = useState(false);
   const [code, setCode] = useState('');
+  const [err, setErr] = useState<string | null>(null);
+  // Код в разработке возвращается в ответе и показывается прямо здесь:
+  // провайдера SMS в контуре ещё нет, а войти надо. В бою этого поля нет.
+  const [devCode, setDevCode] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+
+  const go = () => start(async () => {
+    setErr(null);
+    if (!sent) {
+      const r = await actionRequestCode(phone);
+      if (!r.ok) { setErr(r.error); return; }
+      setDevCode(r.devCode ?? null);
+      setSent(true);
+      return;
+    }
+    const r = await actionVerifyCode(phone, code);
+    if (!r.ok) { setErr(r.error); return; }
+    // Возвращаем туда, куда человек шёл: менеджер, открывший ссылку на
+    // диалог, не должен терять её из-за входа.
+    const next = new URLSearchParams(location.search).get('next');
+    location.href = next && next.startsWith('/') ? next : '/inbox';
+  });
 
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px", display: "flex", justifyContent: "center" }}>
@@ -46,13 +72,23 @@ export default function LoginPage() {
                   onChange={e => sent ? setCode(e.target.value) : setPhone(e.target.value)}
                   aria-label={sent ? 'Код из SMS' : 'Телефон'}
                   inputMode={sent ? 'numeric' : 'tel'}
+                  placeholder={sent ? '' : '+7 926 418 55 02'}
+                  onKeyDown={e => { if (e.key === 'Enter') go(); }}
                   style={{ fontSize: "16px", fontWeight: "500", border: 0, background: "transparent", outline: "none", flex: 1, minWidth: 0, fontFamily: "inherit", letterSpacing: sent ? "0.3em" : undefined }} />
               </div>
             </div>
-            <button onClick={() => sent ? (location.href = '/inbox') : setSent(true)}
+            {err && (
+              <div style={{ background: "#FBEEEF", borderRadius: "14px", padding: "11px 13px", fontSize: "12px", lineHeight: "1.45", color: "#D93F45" }}>{err}</div>
+            )}
+            {devCode && (
+              <div style={{ background: "#F5FBCB", borderRadius: "14px", padding: "11px 13px", fontSize: "12px", lineHeight: "1.45", color: "#2E2E2E" }}>
+                Отправки SMS в контуре ещё нет. Код: <b>{devCode}</b>
+              </div>
+            )}
+            <button onClick={go} disabled={pending || (!sent && !phone.trim()) || (sent && !code.trim())}
               style={{ background: "#111111", borderRadius: "999px", padding: "18px 0", textAlign: "center", border: 0, cursor: "pointer", fontFamily: "inherit", width: "100%" }}>
               <span style={{ fontSize: "15px", fontWeight: "500", color: "#FFFFFF" }}>
-                {sent ? 'Войти' : 'Получить код'}</span>
+                {pending ? 'Секунду…' : sent ? 'Войти' : 'Получить код'}</span>
             </button>
           </div>
 

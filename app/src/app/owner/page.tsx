@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { AppBar } from '@/screens/chrome';
 import { ownerSummary } from '@/lib/reports';
 import { rub } from '@/screens/cabinet';
@@ -18,6 +19,7 @@ export const dynamic = 'force-dynamic';
  * прогноза «третий софт, который никто не заполняет».
  */
 export default async function OwnerPage() {
+  const me = await whoAmI();
   const [s, b] = await Promise.all([ownerSummary(), budget()]);
   const pct = s.cover.threads ? Math.round((s.cover.with_tryon / s.cover.threads) * 100) : 0;
   const sum = s.deals.reduce((a, d) => a + (d.price_kopecks as number), 0);
@@ -28,7 +30,7 @@ export default async function OwnerPage() {
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "30px", padding: "26px 28px 30px", display: "flex", flexDirection: "column", gap: "16px" }}>
-        <AppBar pointName="JETCAR Мытищи" user="Артём Лебедев" role="Владелец"
+        <AppBar pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: "16px" }}>

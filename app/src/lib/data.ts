@@ -1,3 +1,4 @@
+import { claimsFor } from './session';
 import { withTenant, type Claims } from './db';
 import type { ChannelId, TryonStateId } from './domain';
 
@@ -26,8 +27,8 @@ export type InboxRow = {
  * диалога: О-5 — канал это свойство сообщения. Вкладок по каналам нет,
  * и запрос устроен так, что построить их было бы неудобно.
  */
-export async function inbox(claims = MANAGER): Promise<InboxRow[]> {
-  return withTenant(claims, async c => {
+export async function inbox(claims?: Claims): Promise<InboxRow[]> {
+  return withTenant(await claimsFor(claims), async c => {
     const { rows } = await c.query(`
       select t.id as thread_id, cl.id as client_id, cl.name as client_name, cl.phone,
              cl.vehicle,
@@ -68,8 +69,8 @@ export type ThreadView = {
   messages: ThreadMessage[];
 };
 
-export async function thread(id: string, claims = MANAGER): Promise<ThreadView | null> {
-  return withTenant(claims, async c => {
+export async function thread(id: string, claims?: Claims): Promise<ThreadView | null> {
+  return withTenant(await claimsFor(claims), async c => {
     const head = await c.query(`
       select t.id as thread_id, cl.name as client_name, cl.phone, cl.vehicle,
              cl.vehicle_model_id
@@ -96,8 +97,8 @@ export type PriceRow = {
  * не может вернуть артикул, которого нет в прайсе этой точки — соединение
  * идёт от point_prices, а не от каталога.
  */
-export async function priceList(claims = MANAGER, category?: string): Promise<PriceRow[]> {
-  return withTenant(claims, async c => {
+export async function priceList(claims?: Claims, category?: string): Promise<PriceRow[]> {
+  return withTenant(await claimsFor(claims), async c => {
     const { rows } = await c.query(`
       select pp.id as point_price_id, ci.id as catalog_item_id, ci.sku, ci.name, ci.brand,
              ci.finish::text, ci.category::text, pp.price_kopecks, pp.in_stock,
@@ -111,10 +112,11 @@ export async function priceList(claims = MANAGER, category?: string): Promise<Pr
   });
 }
 
-export async function budget(claims = MANAGER) {
-  return withTenant(claims, async c => {
+export async function budget(claims?: Claims) {
+  const who = await claimsFor(claims);
+  return withTenant(who, async c => {
     const { rows } = await c.query(
-      `select * from app.budget_state($1)`, [claims.point_id]);
+      `select * from app.budget_state($1)`, [who.point_id]);
     return rows[0] as {
       spent_kopecks: number; soft_limit: number; hard_limit: number;
       soft_reached: boolean; hard_reached: boolean;
@@ -122,8 +124,8 @@ export async function budget(claims = MANAGER) {
   });
 }
 
-export async function channelHealth(claims = MANAGER) {
-  return withTenant(claims, async c => {
+export async function channelHealth(claims?: Claims) {
+  return withTenant(await claimsFor(claims), async c => {
     const { rows } = await c.query(`
       select kind::text, provider, status, can_send_images, can_initiate, last_error
         from channels order by kind`);
@@ -139,8 +141,8 @@ export type CardView = {
 };
 
 /** Отправленные карточки треда с рендерами по трём светам. */
-export async function cardsOf(threadId: string, claims = MANAGER) {
-  return withTenant(claims, async c => {
+export async function cardsOf(threadId: string, claims?: Claims) {
+  return withTenant(await claimsFor(claims), async c => {
     const { rows } = await c.query(`
       select oc.id as card_id, ci.name, ci.sku, ci.brand, cit.price_kopecks,
              max(r.storage_path) filter (where r.variant = 'day')      as day,
@@ -168,9 +170,9 @@ export async function cardsOf(threadId: string, claims = MANAGER) {
 }
 
 /** Метраж плёнки под кузов клиента, если он известен (М-9). */
-export async function metersFor(vehicleModelId: string | null, claims = MANAGER) {
+export async function metersFor(vehicleModelId: string | null, claims?: Claims) {
   if (!vehicleModelId) return null;
-  return withTenant(claims, async c => {
+  return withTenant(await claimsFor(claims), async c => {
     const { rows } = await c.query(
       `select running_meters::text from vehicle_zone_metrage
         where vehicle_model_id = $1 and zone_code = 'full_body'`, [vehicleModelId]);

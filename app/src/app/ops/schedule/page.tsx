@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { OpsNav } from '@/screens/ops';
 import { AppBar } from '@/screens/chrome';
 import { schedule } from '@/lib/ops';
@@ -18,6 +19,7 @@ const DOW = ['вс','пн','вт','ср','чт','пт','сб'];
  * рядом, чтобы накладку было видно раньше, чем она случится.
  */
 export default async function SchedulePage() {
+  const me = await whoAmI();
   const [s, b] = await Promise.all([schedule(), budget()]);
   const DAYS = 7;
   const start = new Date(); start.setHours(0, 0, 0, 0);
@@ -33,7 +35,7 @@ export default async function SchedulePage() {
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "28px", padding: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
-        <AppBar pointName="JETCAR Мытищи" user="Артём Лебедев" role="Владелец"
+        <AppBar pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
         <OpsNav active="/ops/schedule" />
 

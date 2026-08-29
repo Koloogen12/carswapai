@@ -1,4 +1,5 @@
 'use server';
+import { claimsFor } from './session';
 import { withTenant } from './db';
 import { MANAGER } from './data';
 
@@ -40,7 +41,7 @@ export type TryonState = {
  * задания; иначе экран показал бы пустой дубль вместо идущей примерки.
  */
 export async function tryonExisting(threadId: string): Promise<TryonState[]> {
-  return withTenant(MANAGER, async c => {
+  return withTenant(await claimsFor(), async c => {
     const { rows } = await c.query(`
       select cit.point_price_id, cit.id as item_id,
              coalesce(json_agg(distinct jsonb_build_object(
@@ -86,7 +87,7 @@ export async function tryonExisting(threadId: string): Promise<TryonState[]> {
 
 /** Фотография клиента, на которой считается примерка. Только чтение. */
 export async function tryonPhoto(threadId: string): Promise<string | null> {
-  return withTenant(MANAGER, async c => {
+  return withTenant(await claimsFor(), async c => {
     const { rows } = await c.query(
       `select p.storage_path
          from photos p
@@ -105,7 +106,7 @@ export async function tryonPhoto(threadId: string): Promise<string | null> {
  * находит уже заведённый черновик и второго не создаёт.
  */
 export async function tryonDraft(threadId: string) {
-  return withTenant(MANAGER, async c => {
+  return withTenant(await claimsFor(), async c => {
     try {
       const photo = await c.query(
         `select p.id from photos p

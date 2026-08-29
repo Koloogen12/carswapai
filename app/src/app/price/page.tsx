@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { AppBar } from '@/screens/chrome';
 import { priceList, budget } from '@/lib/data';
 import { rub } from '@/screens/cabinet';
@@ -24,6 +25,7 @@ const THUMB: Record<string, string> = {
  * а не возвращается запросом вовсе.
  */
 export default async function PricePage() {
+  const me = await whoAmI();
   const [rows, b] = await Promise.all([priceList(), budget()]);
   const [net] = await sys<{ markup: number }>(
     `select price_deviation_allowed_pct::int as markup from networks limit 1`);
@@ -38,7 +40,7 @@ export default async function PricePage() {
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "30px", padding: "26px 28px 30px", display: "flex", flexDirection: "column", gap: "16px" }}>
-        <AppBar pointName="JETCAR Мытищи" user="Артём Лебедев" role="Владелец"
+        <AppBar pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1.35fr 1fr", gap: "16px", alignItems: "start" }}>

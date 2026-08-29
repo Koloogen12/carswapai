@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { AppBar } from '@/screens/chrome';
 import { OpsNav, rub } from '@/screens/ops';
 import { followUps, schedule } from '@/lib/ops';
@@ -19,6 +20,7 @@ const THUMB = ['/renders/render-03.png','/renders/render-04.png','/renders/rende
  * за менеджера, а он для того и сделан.
  */
 export default async function FollowUpsPage() {
+  const me = await whoAmI();
   const [rows, b, sch] = await Promise.all([followUps(), budget(), schedule()]);
   const hot = rows.filter(r => r.silent_days >= 5);
   const lead = rows[0];
@@ -27,7 +29,7 @@ export default async function FollowUpsPage() {
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "28px", padding: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
-        <AppBar pointName="JETCAR Мытищи" user="Артём Лебедев" role="Владелец"
+        <AppBar pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
         <OpsNav active="/ops/followups" />
 

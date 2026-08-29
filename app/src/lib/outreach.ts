@@ -23,6 +23,7 @@
  * человека, который занят продажей.
  */
 import { revalidatePath } from 'next/cache';
+import { claimsFor } from './session';
 import { withTenant } from './db';
 import { MANAGER } from './data';
 import { OFFER_TEXT } from './adapters/channel-text';
@@ -60,7 +61,7 @@ async function record(c: import('pg').PoolClient, threadId: string,
 
 /** Сценарий 2 · «есть фото вашего авто?» вместе с офертой, одним сообщением. */
 export async function askForPhoto(threadId: string) {
-  return withTenant(MANAGER, async c => {
+  return withTenant(await claimsFor(), async c => {
     const ch = await threadChannel(c, threadId);
     if (!ch) return { ok: false as const, error: 'у обращения нет канала' };
     const messageId = await record(c, threadId, ch.channel_id, OFFER_TEXT);
@@ -73,7 +74,7 @@ export async function askForPhoto(threadId: string) {
 
 /** Сценарий 1 · ссылка на гараж: клиент перебирает артикулы сам. */
 export async function sendGarageLink(threadId: string) {
-  return withTenant(MANAGER, async c => {
+  return withTenant(await claimsFor(), async c => {
     const ch = await threadChannel(c, threadId);
     if (!ch) return { ok: false as const, error: 'у обращения нет канала' };
 

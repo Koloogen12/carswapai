@@ -49,6 +49,13 @@ else
 fi
 
 step "4 · маршруты"
+# Экраны закрыты входом — стенду нужна сессия, иначе он проверяет страницу
+# входа вместо продукта. Заводим её прямо в базе: проверяем экраны, а не
+# доставку SMS.
+SESS=$(PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH" psql -h /tmp/cswdev -p 55432 \
+  -U postgres -d carswap -tAc "insert into sessions (user_id, expires_at) \
+  select u.id, now() + interval '1 hour' from users u where u.role='owner' limit 1 \
+  returning id" 2>/dev/null)
 if ! curl -s -o /dev/null --max-time 3 http://localhost:3000/inbox; then
   echo "  дев-сервер не отвечает — пропускаю"
 else

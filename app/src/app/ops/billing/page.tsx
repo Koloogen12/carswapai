@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { OpsNav, rub } from '@/screens/ops';
 import { AppBar } from '@/screens/chrome';
 import { billing } from '@/lib/ops';
@@ -16,6 +17,7 @@ export const dynamic = 'force-dynamic';
  * неожиданный счёт: проблема весит вдвое против положительного события.
  */
 export default async function BillingPage() {
+  const me = await whoAmI();
   const { sub, budget: b, byCat } = await billing();
   const pct = b.hard_limit ? Math.round((b.spent_kopecks / b.hard_limit) * 100) : 0;
   const bar = pct >= 100 ? '#D93F45' : pct >= 80 ? '#EAF77E' : '#DEF23B';
@@ -42,7 +44,7 @@ export default async function BillingPage() {
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "28px", padding: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
-        <AppBar pointName="JETCAR Мытищи" user="Артём Лебедев" role="Владелец"
+        <AppBar pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
         <OpsNav active="/ops/billing" />
 

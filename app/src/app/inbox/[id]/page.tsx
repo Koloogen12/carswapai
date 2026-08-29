@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { notFound } from 'next/navigation';
 import { AppBar, Frame } from '@/screens/chrome';
 import { DialogPane } from '@/screens/DialogPane';
@@ -14,6 +15,7 @@ export const dynamic = 'force-dynamic';
  * ответить, и не возвращается в него, чтобы взять следующее обращение.
  */
 export default async function ThreadPage({ params }: { params: { id: string } }) {
+  const me = await whoAmI();
   const t = await thread(params.id);
   if (!t) notFound();
   const [rows, prices, b, cards, meters, photo, tried] = await Promise.all([
@@ -25,7 +27,7 @@ export default async function ThreadPage({ params }: { params: { id: string } })
   const channel = t.messages.at(-1)?.channel ?? 'web';
   return (
     <Frame>
-      <AppBar pointName="JETCAR Мытищи" user="Ирина Ковалёва" role="Менеджер"
+      <AppBar pointName={me.point} user={me.user} role={me.role}
         spent={b.spent_kopecks} cap={b.hard_limit} />
       <div style={{ flex: "1", display: "flex", gap: "12px", minHeight: "0" }}>
         <InboxList rows={rows} activeId={params.id} compact />

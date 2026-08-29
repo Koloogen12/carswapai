@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { AppBar } from '@/screens/chrome';
 import { OpsNav } from '@/screens/ops';
 import { globalSearch, auditTrail } from '@/lib/ops';
@@ -28,13 +29,14 @@ const ACTION: Record<string, string> = {
 export default async function SearchPage({ searchParams }: {
   searchParams: { q?: string };
 }) {
+  const me = await whoAmI();
   const q = searchParams.q ?? 'K75407';
   const [hits, log, b] = await Promise.all([globalSearch(q), auditTrail(), budget()]);
 
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "28px", padding: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
-        <AppBar pointName="JETCAR Мытищи" user="Артём Лебедев" role="Владелец"
+        <AppBar pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
         <OpsNav active="/ops/search" />
 

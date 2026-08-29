@@ -196,6 +196,14 @@ async function withPublicLink<T>(
  * прямо отсюда, поэтому список не может тихо протухнуть на следующей миграции.
  */
 export const RLS_FREE_TABLES = [
+  // Коды входа и сессии стоят вне RLS по построению: они нужны ДО того, как
+  // арендатор известен, и политике не на что опереться. Закрыты они жёстче —
+  // правами: `revoke all` в миграции 014 не даёт приложению читать их вовсе,
+  // ни запросом, ни через sys(). Единственный путь — функции app.*.
+  // В этом списке они значатся, чтобы сверка с базой сходилась, но обращение
+  // к ним всё равно упрётся в отсутствие привилегий.
+  'auth_codes',
+  'sessions',
   'catalog_items',
   'network_prices',
   'networks',
@@ -216,8 +224,12 @@ const NOT_A_TABLE = new Set(['lateral', 'only', 'select', 'values', 'unnest', 'g
  *  `from`/`join` означает вызов функции (`from unnest(...)`), а не таблицу;
  *  в `insert into t (...)` скобка после имени — это список колонок, и там
  *  такое отсечение как раз пропустило бы запись в таблицу под RLS. */
+// Схема `app` — это НАШИ функции, а не таблицы: `from app.session_claims($1)`
+// не обращение к таблице `app`. Прежняя версия видела здесь имя `app` и
+// роняла вход. Поэтому схема разбирается явно: `public.` отбрасывается как
+// подразумеваемая, `app.` целиком пропускается как вызов функции.
 const TABLE_REF =
-  /\b(from|join|into|update)\s+(?:only\s+)?(?:public\s*\.\s*)?"?([a-z_][a-z0-9_$]*)"?(\()?/gi;
+  /\b(from|join|into|update)\s+(?:only\s+)?(?:(public|app)\s*\.\s*)?"?([a-z_][a-z0-9_$]*)"?(\()?/gi;
 
 /**
  * `sys()` больше не грабли.
@@ -235,8 +247,10 @@ function assertRlsFree(sql: string): void {
   const guarded = new Set<string>();
   for (const m of bare.matchAll(TABLE_REF)) {
     const kw = m[1].toLowerCase();
-    const name = m[2].toLowerCase();
-    if (m[3] === '(' && (kw === 'from' || kw === 'join')) continue;
+    const schema = (m[2] ?? '').toLowerCase();
+    const name = m[3].toLowerCase();
+    if (schema === 'app') continue;                    // вызов нашей функции
+    if (m[4] === '(' && (kw === 'from' || kw === 'join')) continue;
     if (NOT_A_TABLE.has(name) || RLS_FREE.has(name)) continue;
     guarded.add(name);
   }

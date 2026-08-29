@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { AppBar } from '@/screens/chrome';
 import { OpsNav, rub } from '@/screens/ops';
 import { cashbox, replyTemplates } from '@/lib/ops';
@@ -16,12 +17,13 @@ export const dynamic = 'force-dynamic';
  * его в алерт значит приучить владельца не смотреть на красное.
  */
 export default async function CashPage() {
+  const me = await whoAmI();
   const [cash, tpl, b] = await Promise.all([cashbox(), replyTemplates(), budget()]);
 
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "28px", padding: "24px", display: "flex", flexDirection: "column", gap: "14px" }}>
-        <AppBar pointName="JETCAR Мытищи" user="Артём Лебедев" role="Владелец"
+        <AppBar pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
         <OpsNav active="/ops/cash" />
 

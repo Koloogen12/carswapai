@@ -1,3 +1,4 @@
+import { whoAmI } from '@/lib/session';
 import { AppBar, Frame } from '@/screens/chrome';
 import { Card, CardHead } from '@/screens/cabinet';
 import { staffList } from '@/lib/reports';
@@ -26,12 +27,15 @@ const ROLE_RU: Record<string, string> = {
 const ALL = ['инбокс', 'CRM', 'прайс', 'деньги'];
 
 export default async function StaffPage() {
+  const me = await whoAmI();
   const [staff, b] = await Promise.all([staffList(), budget()]);
-  const me = staff[0];
+  // «Это вы» определяется по вошедшему, а не по первой строке списка:
+  // раньше владельцем себя видел кто угодно, открывший экран.
+  const self = staff.find(s => s.name === me.user) ?? staff[0];
 
   return (
     <Frame pad="26px 28px 30px" gap="16px">
-      <AppBar pointName="JETCAR Мытищи" user="Артём Лебедев" role="Владелец"
+      <AppBar pointName={me.point} user={me.user} role={me.role}
         spent={b.spent_kopecks} cap={b.hard_limit} />
 
       <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "16px", alignItems: "start" }}>
@@ -39,7 +43,7 @@ export default async function StaffPage() {
           <CardHead title="Сотрудники точки" note={`${staff.length} человека · 2 поста`} />
           <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
             {staff.map(u => {
-              const mine = u.id === me?.id;
+              const mine = u.id === self?.id;
               const rights = RIGHTS[u.role] ?? [];
               return (
                 <div key={u.id} style={{ display: "flex", alignItems: "center", gap: "14px", background: mine ? "#DEF23B" : "#F7F7F7", borderRadius: "20px", padding: "15px 17px" }}>
