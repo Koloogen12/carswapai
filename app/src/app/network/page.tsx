@@ -1,4 +1,5 @@
 import { networkPanel } from '@/lib/reports';
+import { PointControls } from './PointControls';
 import { rub } from '@/screens/cabinet';
 
 export const dynamic = 'force-dynamic';
@@ -73,6 +74,11 @@ export default async function NetworkPage() {
               Среднее скрыло бы главное: часть точек почти не пользуется, и решать
               надо именно их, а не сеть целиком.
             </span>
+          </div>
+
+          <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "14px" }}>
+            <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Расход и статус точек</span>
+            <PointControls points={n.points} />
           </div>
 
           <div style={{ background: "#DEF23B", borderRadius: "26px", padding: "26px 28px", display: "flex", flexDirection: "column", gap: "14px" }}>
