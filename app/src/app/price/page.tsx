@@ -3,6 +3,7 @@ import { AppBar } from '@/screens/chrome';
 import { priceList, budget } from '@/lib/data';
 import { rub } from '@/screens/cabinet';
 import { sys } from '@/lib/db';
+import { Toggle } from './Toggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,9 +66,7 @@ export default async function PricePage() {
                       {r.brand} {r.sku} · база сети {rub(Math.round(r.price_kopecks / (1 + markup / 100)))}</span>
                   </div>
                   <span style={{ fontSize: "16px", fontWeight: "500", letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", flex: "none" }}>{rub(r.price_kopecks)}</span>
-                  <div style={{ width: "44px", height: "24px", borderRadius: "999px", background: "#111111", position: "relative", flex: "none" }}>
-                    <span style={{ position: "absolute", right: "3px", top: "3px", width: "18px", height: "18px", borderRadius: "999px", background: "#DEF23B" }}></span>
-                  </div>
+                  <Toggle id={r.point_price_id} on />
                 </div>
               ) : (
                 <div key={r.point_price_id} style={{ display: "flex", alignItems: "center", gap: "14px", background: "#FFFFFF", borderRadius: "18px", padding: "12px 15px", boxShadow: "inset 0 0 0 1px #EDEDED", backgroundImage: "repeating-linear-gradient(115deg,#F4F4F4 0 1px,transparent 1px 6px)" }}>
@@ -79,9 +78,7 @@ export default async function PricePage() {
                     <span style={{ fontSize: "11px", color: "#C4C4C4" }}>
                       погашен одним касанием · не существует ни в панели, ни в гараже</span>
                   </div>
-                  <div style={{ width: "44px", height: "24px", borderRadius: "999px", background: "#E2E2E2", position: "relative", flex: "none" }}>
-                    <span style={{ position: "absolute", left: "3px", top: "3px", width: "18px", height: "18px", borderRadius: "999px", background: "#FFFFFF" }}></span>
-                  </div>
+                  <Toggle id={r.point_price_id} on={false} />
                 </div>
               ))}
             </div>
