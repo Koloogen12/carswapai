@@ -48,6 +48,30 @@ def speckle(mask: np.ndarray) -> float:
     return holes / max(int(closed.sum()), 1)
 
 
+def coverage(m: dict) -> float:
+    """
+    Какую долю машины мы вообще объяснили.
+
+    Дырявость меряет дыры ВНУТРИ маски и молчит о главном: покрывает ли маска
+    весь кузов. На реальных кадрах вышло, что нет — перекрашивался перёд, а
+    зад оставался прежнего цвета, и машина выглядела двухцветной. Числом это
+    не ловилось, поймалось глазами.
+
+    Считаем так: сколько площади силуэта закрыто хоть каким-нибудь классом.
+    Всё, что не закрыто, — это кузов, который сеть не увидела, и он останется
+    исходного цвета.
+    """
+    car = m.get('car')
+    if car is None or (car > 0).sum() == 0:
+        return 0.0
+    known = np.zeros_like(car)
+    for k in ('paint', 'glass', 'wheel', 'light', 'mirror', 'grille',
+              'plate', 'body_other'):
+        if k in m:
+            known[m[k] > 0] = 255
+    return float(((known > 0) & (car > 0)).sum()) / max(int((car > 0).sum()), 1)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--scale', type=float, default=0.4)
@@ -58,9 +82,9 @@ def main() -> int:
     print('сеть частей:', 'есть' if parts.available() else 'НЕТ — идут эвристики')
 
     rows = []
-    print(f'\n{"кадр":30s} {"краска":>7s} {"дырявость":>10s} '
+    print(f'\n{"кадр":30s} {"краска":>7s} {"дырявость":>10s} {"покрытие":>9s} '
           f'{"вне маски":>10s} {"номер цел":>10s}')
-    print('-' * 72)
+    print('-' * 82)
 
     for p in sorted(pathlib.Path('fixtures/dev-set').glob('*.png')):
         img = cv2.imread(str(p))
@@ -85,8 +109,9 @@ def main() -> int:
                 plate_ok = 'да' if same else 'НЕТ'
             tiles.append(out)
 
+        cov = coverage(m)
         print(f'{p.stem:30s} {100*(body>0).mean():6.1f}% {speckle(body):9.3f} '
-              f'{"ок" if outside_ok else "ПРОВАЛ":>10s} {plate_ok:>10s}')
+              f'{100*cov:8.1f}% {"ок" if outside_ok else "ПРОВАЛ":>10s} {plate_ok:>10s}')
         rows.append(np.hstack(tiles))
 
     out = pathlib.Path(a.out)
@@ -95,6 +120,9 @@ def main() -> int:
     print(f'\nкартинка: {out}')
     print('оригинал | сатин чёрный | глянец синий | сатин медь')
     print('\nДырявость: 0,000 — сплошная поверхность; больше 0,05 — крап.')
+    print('Покрытие: доля силуэта, объяснённая хоть каким-то классом. Меньше 95% '
+          'означает, что часть кузова останется исходного цвета — и машина выйдет '
+          'двухцветной.')
     return 0
 
 

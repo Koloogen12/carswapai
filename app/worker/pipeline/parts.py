@@ -120,6 +120,34 @@ def segment(img: np.ndarray) -> dict[str, np.ndarray]:
     for k in OURS:
         car[masks[k] > 0] = 255
     car = cv2.morphologyEx(car, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
+
+    # ── ГЛАВНАЯ машина, а не все машины в кадре ──────────────────────
+    # Сеть частей не знает, где кончается одна машина и начинается другая:
+    # она видит двери и капоты, а чьи они — не её задача. На кадре во дворе
+    # это дало перекрашенный автомобиль СОСЕДА. Ограничиваем всё силуэтом
+    # главной машины — его даёт silhouette.car(), которая выбирает
+    # крупнейший экземпляр, то есть ту машину, которую клиент фотографировал.
+    from . import silhouette
+    main = silhouette.car(img) if silhouette.available() else None
+    if main is not None and (main > 0).any():
+        # Часть засчитывается целиком, если она в основном внутри главной
+        # машины: обрезать по границе нельзя — края у двух сетей не совпадут
+        # до пикселя, и по кузову пойдёт кайма чужого цвета.
+        keep = cv2.dilate(main, np.ones((15, 15), np.uint8))
+        for k in list(OURS) + ['car']:
+            src = masks[k] if k in masks else car
+            num, lbl, stats, _ = cv2.connectedComponentsWithStats(
+                (src > 0).astype(np.uint8), 8)
+            out_m = np.zeros_like(src)
+            for i in range(1, num):
+                comp = (lbl == i)
+                if (keep[comp] > 0).mean() > 0.5:
+                    out_m[comp] = 255
+            if k == 'car':
+                car = out_m
+            else:
+                masks[k] = out_m
+
     masks['car'] = car
     # 'body' — то, во что ложится плёнка. Синоним paint, оставлен ради
     # совместимости с уже написанным пайплайном.
