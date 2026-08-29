@@ -28,6 +28,10 @@ if [ ! -d datasets/carparts-seg ]; then
   curl -L -o /tmp/cp.zip \
     https://github.com/ultralytics/assets/releases/download/v0.0.0/carparts-seg.zip
   unzip -q /tmp/cp.zip -d datasets/carparts-seg && rm /tmp/cp.zip
+  # Конфиг из архива несёт заголовок AGPL-3.0 и нам не нужен: список классов
+  # и раскладка каталогов зашиты в parts_train.py. Сами данные под CC BY 4.0,
+  # это разные лицензии — см. DATASETS.md.
+  rm -f datasets/carparts-seg/carparts-seg.yaml
 fi
 find datasets/carparts-seg -name '*.jpg' | wc -l | xargs echo "  кадров:"
 

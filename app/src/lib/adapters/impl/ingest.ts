@@ -36,7 +36,7 @@
 
 import { createHash } from 'node:crypto';
 import type { PoolClient } from 'pg';
-import { sys, withTenant, type Claims } from '../../db';
+import { sys, withChannel } from '../../db';
 import type { ChannelKind, NormalizedMessage } from '../channel';
 
 /**
@@ -182,17 +182,22 @@ export async function processEvent(
   const unrouted: string[] = [];
 
   for (const msg of parsed) {
-    const channel = await resolveChannel(plug.dbProvider, msg);
-    if (!channel) {
+    // Опознание канала и приём сообщения — одна транзакция: точку мы узнаём
+    // из строки канала, и под ней же сразу пишем. Разрывать нельзя, иначе
+    // между опознанием и записью канал успел бы сменить владельца.
+    const done = await withChannel(
+      plug.dbProvider, msg.channelExternalId, msg.channelKind,
+      (c, ch) => land(c, {
+        id: ch.channel_id, point_id: ch.point_id, network_id: ch.network_id,
+        kind: ch.kind, status: ch.status,
+      } as ChannelRow, msg, plug.dbProvider),
+    );
+    if (done === null) {
+      // Канал не наш или отключён — законный исход, не ошибка.
       unrouted.push(msg.externalMessageId);
       continue;
     }
-    const claims: Claims = {
-      app_role: 'manager',
-      point_id: channel.point_id,
-      network_id: channel.network_id,
-    };
-    landed.push(await withTenant(claims, c => land(c, channel, msg, plug.dbProvider)));
+    landed.push(done);
   }
 
   await sys(`update webhook_events set processed_at = now() where id = $1`, [webhookEventId]);
@@ -213,22 +218,10 @@ export async function ingestWebhook(
   return { ...stored, ...done };
 }
 
-/**
- * Канал точки по паре «провайдер + внешний идентификатор». Идёт через sys():
- * арендатор ещё неизвестен, RLS-претензии выставить не из чего — точку мы
- * узнаём именно из этой строки.
- */
-async function resolveChannel(dbProvider: string, msg: RoutedMessage): Promise<ChannelRow | null> {
-  const rows = await sys<ChannelRow>(
-    `select ch.id, ch.point_id, p.network_id, ch.kind, ch.status
-       from channels ch
-       join points p on p.id = ch.point_id
-      where ch.provider = $1 and ch.external_id = $2 and ch.kind = $3::channel_kind
-      limit 1`,
-    [dbProvider, msg.channelExternalId, msg.channelKind],
-  );
-  return rows[0] ?? null;
-}
+// resolveChannel() удалена. Она ходила в channels через sys() без претензии
+// арендатора; на боевой роли это молча возвращало ноль строк, и весь входящий
+// поток уходил в unrouted. Опознание канала теперь делает узкий резолвер
+// app.point_of_channel (миграция 009) внутри withChannel().
 
 async function land(
   c: PoolClient,

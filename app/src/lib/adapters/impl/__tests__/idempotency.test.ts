@@ -32,7 +32,7 @@
  * их в конце. Посевные данные не трогает.
  */
 
-import { sys } from '../../../db';
+import { sys, withTenant, type Claims } from '../../../db';
 import { ingestWebhook, normalizePhone } from '../ingest';
 import { createWazzupAdapter, wazzupPlug } from '../wazzup';
 import { avitoPlug, createAvitoAdapter } from '../avito';
@@ -40,6 +40,7 @@ import { avitoPlug, createAvitoAdapter } from '../avito';
 /* ── Данные прогона ──────────────────────────────────────────────────────── */
 
 const POINT = 'b0000000-0000-4000-8000-000000000001';   // посевная точка
+const NETWORK = 'a0000000-0000-4000-8000-000000000001'; // её сеть
 const WA_CHANNEL = 'test-wz-wa-01';
 const TG_CHANNEL = 'test-wz-tg-01';
 const AV_ACCOUNT = '9042121';
@@ -70,8 +71,13 @@ function eq(name: string, got: unknown, want: unknown): void {
     `получили ${JSON.stringify(got)}, ждали ${JSON.stringify(want)}`);
 }
 
+// Считаем под претензией арендатора: без неё RLS вернёт ноль, и проверка
+// «второго сообщения не появилось» пройдёт даже когда оно появилось.
+// Это ровно тот ложно-зелёный результат, ради которого страж и поставлен.
 async function count(sql: string, params: unknown[] = []): Promise<number> {
-  const rows = await sys<{ n: number }>(sql, params);
+  const rows = /\bwebhook_events\b/.test(sql) && !/\bmessages\b|\bclients\b|\bthreads\b|\bchannels\b/.test(sql)
+    ? await sys<{ n: number }>(sql, params)
+    : (await withTenant(TENANT, c => c.query<{ n: number }>(sql, params))).rows;
   return Number(rows[0]?.n ?? 0);
 }
 
@@ -132,34 +138,44 @@ function avEvent(eventId: string, messageId: string, text: string, authorId = 99
 
 /* ── Подготовка и уборка ─────────────────────────────────────────────────── */
 
+// Уборка и подготовка идут под претензией арендатора, а не через sys():
+// каналы, клиенты, треды и сообщения — таблицы под RLS, и на боевой роли
+// запрос без претензии молча сделал бы ноль строк. Тест, который убирает за
+// собой вхолостую, начал бы врать со второго прогона.
+const TENANT: Claims = { app_role: 'manager', point_id: POINT, network_id: NETWORK };
+
 async function scrub(): Promise<void> {
-  await sys(
-    `delete from messages where channel_id in
-       (select id from channels where point_id = $1 and external_id = any($2))`,
-    [POINT, EXTERNAL_IDS]);
-  await sys(
-    `delete from threads where client_id in
-       (select id from clients where point_id = $1 and (phone = $2 or source = $3))`,
-    [POINT, PHONE_STORED, AV_ANCHOR]);
-  await sys(
-    `delete from clients where point_id = $1 and (phone = $2 or source = $3)`,
-    [POINT, PHONE_STORED, AV_ANCHOR]);
-  await sys(
-    `delete from channels where point_id = $1 and external_id = any($2)`,
-    [POINT, EXTERNAL_IDS]);
+  await withTenant(TENANT, async c => {
+    await c.query(
+      `delete from messages where channel_id in
+         (select id from channels where point_id = $1 and external_id = any($2))`,
+      [POINT, EXTERNAL_IDS]);
+    await c.query(
+      `delete from threads where client_id in
+         (select id from clients where point_id = $1 and (phone = $2 or source = $3))`,
+      [POINT, PHONE_STORED, AV_ANCHOR]);
+    await c.query(
+      `delete from clients where point_id = $1 and (phone = $2 or source = $3)`,
+      [POINT, PHONE_STORED, AV_ANCHOR]);
+    await c.query(
+      `delete from channels where point_id = $1 and external_id = any($2)`,
+      [POINT, EXTERNAL_IDS]);
+  });
+  // webhook_events вне RLS по построению: вебхук кладётся до того, как
+  // арендатор вообще известен. Здесь sys() законен.
   await sys(
     `delete from webhook_events
       where external_event_id like 'wz:test-%' or external_event_id like 'av:test-%'`);
 }
 
 async function connectChannels(): Promise<void> {
-  await sys(
+  await withTenant(TENANT, c => c.query(
     `insert into channels (point_id, kind, provider, external_id, can_send_images, can_initiate)
      values ($1,'whatsapp','wazzup',$2,true,false),
             ($1,'telegram','wazzup',$3,true,true),
             ($1,'avito','avito_direct',$4,true,false)
      on conflict (point_id, kind, external_id) do nothing`,
-    [POINT, WA_CHANNEL, TG_CHANNEL, AV_ACCOUNT]);
+    [POINT, WA_CHANNEL, TG_CHANNEL, AV_ACCOUNT]));
 }
 
 /* ── Прогон ──────────────────────────────────────────────────────────────── */

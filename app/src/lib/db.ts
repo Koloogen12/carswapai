@@ -98,6 +98,62 @@ export async function withGarage<T>(
   );
 }
 
+/** Строка канала, какой её видит приём вебхука. */
+export type ResolvedChannel = {
+  channel_id: string;
+  point_id: string;
+  network_id: string;
+  kind: string;
+  status: string;
+};
+
+/**
+ * Приём вебхука. Арендатор здесь неизвестен по построению: снаружи приходят
+ * только провайдер и внешний идентификатор канала, а точка живёт как раз в
+ * той строке, которую надо прочитать.
+ *
+ * Раньше это шло через `sys()` без претензии. На боевой роли такой запрос
+ * молча возвращал ноль строк — не исключение, а пустоту, — и весь входящий
+ * поток уходил в `unrouted`. Тихо, без единой записи в журнале.
+ *
+ * Теперь точку отдаёт узкий резолвер `app.point_of_channel` (миграция 009).
+ * Он раскрывает точку только по внешнему идентификатору, который у
+ * вызывающего и так есть — он пришёл в вебхуке, — и потому не выдаёт ничего
+ * сверх уже известного.
+ *
+ * Возвращает `null`, если канала нет: это законный исход (чужой или
+ * отключённый канал), а не ошибка, и обрабатывать его надо как `unrouted`.
+ */
+export async function withChannel<T>(
+  provider: string,
+  externalId: string,
+  kind: string,
+  fn: (c: PoolClient, ch: ResolvedChannel) => Promise<T>,
+): Promise<T | null> {
+  const c = await pool.connect();
+  try {
+    await c.query('begin');
+    const r = await c.query<ResolvedChannel>(
+      'select * from app.point_of_channel($1,$2,$3)', [provider, externalId, kind]);
+    const ch = r.rows[0];
+    if (!ch) { await c.query('rollback'); return null; }
+    await c.query('select set_config($1,$2,true)', ['request.jwt.claims',
+      JSON.stringify({ app_role: 'manager', point_id: ch.point_id,
+                       network_id: ch.network_id } satisfies Claims)]);
+    await c.query('set local role app_tenant');
+    const out = await fn(c, ch);
+    await c.query('commit');
+    return out;
+  } catch (e) {
+    await c.query('rollback').catch(() => {});
+    throw e;
+  } finally {
+    await c.query("reset role; select set_config('request.jwt.claims','',false)")
+      .catch(() => {});
+    c.release();
+  }
+}
+
 async function withPublicLink<T>(
   resolver: string,
   key: string,

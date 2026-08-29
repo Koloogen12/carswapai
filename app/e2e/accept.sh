@@ -12,9 +12,35 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
-DB=${CSW_DB:-"-h /tmp/cswdev -p 55432 -U postgres -d carswap"}
+# Схема проверяется на кластере, поднятом ИЗ МИГРАЦИЙ, а не на базе
+# разработки: та отстала (в ней нет outbound_cards.honesty_shown из 001), и
+# проверка против неё измеряла бы не то, что поедет на сервер.
+DB=${CSW_DB:-"-h /tmp/cswaccept -p 55451 -U postgres -d carswap"}
 BASE=${CSW_BASE:-http://localhost:3000}
 OK=0; BAD=0; LIVE=0
+
+# Поднимаем кластер из миграций на время приёмки.
+export PGTMP=/tmp/cswaccept PGPORT=55451
+cleanup() { pg_ctl -D /tmp/cswaccept/data stop -m immediate >/dev/null 2>&1 || true
+            rm -rf /tmp/cswaccept; }
+trap cleanup EXIT
+rm -rf /tmp/cswaccept; mkdir -p /tmp/cswaccept
+initdb -D /tmp/cswaccept/data -U postgres --auth=trust -E UTF8 --locale=C >/dev/null
+pg_ctl -D /tmp/cswaccept/data -o "-p 55451 -k /tmp/cswaccept -c listen_addresses=''" \
+       -l /tmp/cswaccept/log start >/dev/null
+until pg_isready -h /tmp/cswaccept -p 55451 -q; do sleep 0.3; done
+psql -h /tmp/cswaccept -p 55451 -U postgres -q -c "create database carswap;"
+psql -h /tmp/cswaccept -p 55451 -U postgres -q -d carswap -c "
+  create role app_tenant nologin;
+  create role carswap_owner login createrole;
+  create role carswap_app login in role app_tenant;
+  alter database carswap owner to carswap_owner;
+  grant all on schema public to carswap_owner;
+  create extension if not exists pgcrypto; create extension if not exists pg_trgm;" >/dev/null
+for m in db/migrations/*.sql; do
+  psql -h /tmp/cswaccept -p 55451 -U carswap_owner -q -d carswap -v ON_ERROR_STOP=1 -f "$m" >/dev/null 2>&1
+done
+[ -f db/seed.sql ] && psql -h /tmp/cswaccept -p 55451 -U postgres -q -d carswap -f db/seed.sql >/dev/null 2>&1
 
 ok()   { printf '  \033[32mok\033[0m      %s\n' "$1"; OK=$((OK+1)); }
 bad()  { printf '  \033[31mПРОВАЛ\033[0m  %s\n     └ %s\n' "$1" "$2"; BAD=$((BAD+1)); }
@@ -112,8 +138,11 @@ live "generation_usage сходится со счётом вендора" "ве�
 
 # ── ДАННЫЕ ──────────────────────────────────────────────────────────────
 sect "Данные"
-G=$(cd db && PGTMP=/tmp/cswpg-accept PGPORT=55443 ./test.sh 2>&1 | grep -c 'ok  ·')
-B=$(cd db && PGTMP=/tmp/cswpg-accept PGPORT=55443 ./test.sh 2>&1 | grep -cE 'ПРОВАЛ|ERROR')
+# Один прогон на оба счётчика: раньше стенд поднимался дважды и приёмка
+# занимала вдвое дольше без всякой пользы.
+INV=$(cd db && PGTMP=/tmp/cswpg-accept PGPORT=55443 ./test.sh 2>&1)
+G=$(echo "$INV" | grep -c 'ok  ·')
+B=$(echo "$INV" | grep -cE 'ПРОВАЛ|ERROR')
 if [ "${B:-1}" = "0" ] && [ "${G:-0}" -ge 56 ]; then
   ok "менеджер одной точки не видит данные другой — проверено попыткой ($G инвариантов на боевой роли)"
 else
@@ -129,12 +158,18 @@ FK=$(q "select count(*) from information_schema.referential_constraints rc
 # ── ПРОДУКТ ─────────────────────────────────────────────────────────────
 sect "Продукт"
 if curl -s -o /dev/null --max-time 3 "$BASE/inbox"; then
-  for r in /inbox /price /bay /garage; do
+  for r in / /inbox /price /bay /crm /owner /network /staff /login /help /join; do
     curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$BASE$r" | grep -q 200 \
       && ok "маршрут $r отвечает" || bad "маршрут $r" "не 200"
   done
 else
   live "маршруты приложения" "дев-сервер не отвечает на $BASE"
+fi
+if curl -s -o /dev/null --max-time 3 "$BASE/inbox"; then
+  # Динамические маршруты берут параметр из посева: без него они 404 законно.
+  SLUG=$(q "select public_slug from points limit 1")
+  [ -n "${SLUG:-}" ] && { curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$BASE/g/$SLUG" \
+      | grep -q 200 && ok "гараж /g/<слаг> отвечает" || bad "гараж /g/<слаг>" "не 200"; }
 fi
 live "от входящего фото до отправки — не более трёх действий" "считается кликами человека"
 live "типовой кузов по марке и модели уходит за ≤20 секунд" "нужен замер на живой очереди"
