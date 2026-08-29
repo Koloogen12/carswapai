@@ -48,6 +48,36 @@ else
   FAIL=1
 fi
 
+step "3.6 · продакшн-сборка"
+# Дев-сервер не делает предварительной отрисовки, а сборка делает — и на ней
+# всплывает то, чего в разработке не видно вовсе: чтение параметров запроса
+# без границы ожидания, серверные компоненты с клиентскими хуками, обращения
+# к базе на этапе сборки. Уже стоило двух выкаток.
+#
+# Собираем в ОТДЕЛЬНЫЙ каталог: обычный `next build` кладёт результат в .next,
+# из которого прямо сейчас работает дев-сервер, и все маршруты следующего шага
+# начинают отвечать 500. Приём тот же, что в Dockerfile: исходный конфиг
+# сохраняется и импортируется, репозиторий не меняется.
+build_check() {
+  local restore=0
+  if [ -f next.config.mjs ]; then
+    cp next.config.mjs .next.config.qa-orig.mjs; restore=1
+    printf "import base from './.next.config.qa-orig.mjs';\nexport default { ...base, distDir: '.next-qa' };\n" > next.config.mjs
+  fi
+  local rc=0
+  npm run build >/tmp/qa-build.log 2>&1 || rc=$?
+  [ "$restore" = 1 ] && mv .next.config.qa-orig.mjs next.config.mjs
+  rm -rf .next-qa
+  return $rc
+}
+if build_check; then
+  echo "  ok · сборка проходит, страниц: $(grep -oE 'Generating static pages \(([0-9]+)/[0-9]+\)' /tmp/qa-build.log | tail -1 | grep -oE '[0-9]+/[0-9]+')"
+else
+  echo "  ПРОВАЛ · сборка не проходит:"
+  grep -E '⨯|Error occurred|Export encountered|Module not found' /tmp/qa-build.log | head -5 | sed 's/^/    /'
+  FAIL=1
+fi
+
 step "3.5 · регистр имён файлов"
 # macOS не различает регистр в именах файлов, Linux различает. Файл, который
 # в git записан как garage.tsx, а на диске лежит как Garage.tsx, собирается

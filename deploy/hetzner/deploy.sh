@@ -58,6 +58,9 @@ say "3 · .env стека"
 cat > "$STACK/.env" <<ENV
 DOMAIN=$DOMAIN
 PUBLIC_URL=https://$DOMAIN
+# Демонстрационные данные. Только для стенда: на боевом контуре в РФ выдуманные
+# точки и клиенты неотличимы от настоящих ровно тогда, когда настоящие пойдут.
+SEED_DEMO=${SEED_DEMO:-yes}
 ENV
 cat "$STACK/.env"
 

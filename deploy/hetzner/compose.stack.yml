@@ -40,11 +40,20 @@ services:
       - ./app/db:/db:ro
     environment:
       DATABASE_URL: postgresql://carswap_owner:${OWNER_PASSWORD}@db:5432/yoomp
+      SEED_DEMO: ${SEED_DEMO:-no}
     entrypoint: ["bash", "-lc"]
+    # Посев — только на стенде и только по явному флагу. На боевом контуре
+    # демонстрационные точки и выдуманные клиенты в базе недопустимы: их
+    # невозможно отличить от настоящих, когда начнут приходить настоящие.
+    # Сам seed.sql идемпотентен (57 «on conflict do nothing»), поэтому
+    # повторная выкатка его не размножает.
     command: >
       bash /db/migrate.sh &&
       psql "$$DATABASE_URL" -v ON_ERROR_STOP=1
-        -c "grant app_tenant to carswap_app"
+        -c "grant app_tenant to carswap_app" &&
+      { [ "$${SEED_DEMO:-no}" = "yes" ] &&
+        psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -f /db/seed.sql &&
+        echo "посев применён" || echo "посев пропущен (SEED_DEMO=$${SEED_DEMO:-no})"; }
     depends_on:
       db: { condition: service_healthy }
     restart: "no"

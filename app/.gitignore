@@ -3,3 +3,5 @@ node_modules/
 *.tsbuildinfo
 .env*.local
 worker/fixtures/dev-set/.preview/
+.next-qa
+.next.config.qa-orig.mjs

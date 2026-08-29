@@ -13,11 +13,30 @@
  * который не понял, на что согласился, — это отзыв согласия задним числом
  * и удаление данных в разгар сделки.
  */
-import { useState, useTransition } from 'react';
+import { Suspense, useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { giveConsent } from '@/lib/garage';
 
+/**
+ * Обёртка Suspense вокруг чтения параметров запроса.
+ *
+ * Без неё сборка падает на этапе предварительной отрисовки: useSearchParams
+ * заставляет Next отрисовать страницу на клиенте, а страница без границы
+ * ожидания отрисоваться заранее не может. В разработке этого не видно вовсе —
+ * там предварительной отрисовки нет, — и ошибка приходит только на сервере.
+ *
+ * Заглушка пустая намеренно: согласие показывается мгновенно, и мелькание
+ * скелета на юридическом экране читается как подвох.
+ */
 export default function ConsentPage() {
+  return (
+    <Suspense fallback={null}>
+      <Consent />
+    </Suspense>
+  );
+}
+
+function Consent() {
   // Точка приходит параметром: раньше слаг был вписан в разметку, и согласие
   // любой точки уводило в JETCAR Мытищи.
   const slug = useSearchParams().get('p') ?? '';
