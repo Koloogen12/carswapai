@@ -17,6 +17,73 @@ import { MANAGER } from './data';
  * ещё не было, а если такой нет — заводится новая.
  */
 
+/** Уже посчитанное в черновике: по одной записи на артикул. */
+export type TryonState = {
+  pointPriceId: string;
+  itemId: string;
+  done: { variant: string; storage_path: string }[];
+  errors: string[];
+};
+
+/**
+ * Что в этом треде уже примерено.
+ *
+ * ЗАЧЕМ. Состояние примерки живёт в базе, а не во вкладке. Без этого чтения
+ * перезагрузка страницы стирала бы готовые света с экрана, и менеджеру
+ * пришлось бы жать «Примерить» второй раз — на то, что уже посчитано.
+ *
+ * ПОЧЕМУ БЕРЁТСЯ САМАЯ ПОЛНАЯ ПОЗИЦИЯ. `startTryOn` вставляет позицию через
+ * `on conflict do nothing`, но уникального ключа на пару «конфигурация ×
+ * артикул» в схеме нет, поэтому конфликту не на чем сработать: повторное
+ * нажатие заводит вторую позицию — пустую. Пока ключа нет, на артикул берётся
+ * та позиция, у которой светов больше, а при равенстве — та, у которой есть
+ * задания; иначе экран показал бы пустой дубль вместо идущей примерки.
+ */
+export async function tryonExisting(threadId: string): Promise<TryonState[]> {
+  return withTenant(MANAGER, async c => {
+    const { rows } = await c.query(`
+      select cit.point_price_id, cit.id as item_id,
+             coalesce(json_agg(distinct jsonb_build_object(
+                        'variant', r.variant, 'storage_path', r.storage_path))
+                      filter (where r.id is not null), '[]') as done,
+             coalesce(array_agg(distinct rj.last_error)
+                      filter (where rj.status = 'failed'
+                                and rj.last_error is not null), '{}') as errors,
+             count(distinct rj.id) filter (
+               where rj.status in ('queued','running')) as pending
+        from configurations cfg
+        join configuration_items cit on cit.configuration_id = cfg.id
+        left join renders r on r.configuration_item_id = cit.id
+                           and r.qa_passed and r.erased_at is null
+        left join render_jobs rj on rj.configuration_item_id = cit.id
+       where cfg.thread_id = $1 and cfg.origin = 'manager'
+         and not exists (select 1 from outbound_cards oc
+                          where oc.configuration_id = cfg.id)
+       group by cit.point_price_id, cit.id`, [threadId]);
+
+    const best = new Map<string, TryonState & { pending: number }>();
+    for (const r of rows) {
+      const s = {
+        pointPriceId: r.point_price_id as string,
+        itemId: r.item_id as string,
+        done: r.done as TryonState['done'],
+        errors: r.errors as string[],
+        pending: Number(r.pending),
+      };
+      // Позиция без светов, без отказов и без живых заданий — это след
+      // прерванной попытки, а не идущая примерка. Отдавать её панели значит
+      // завести опрос по заданию, которого нет, и держать его до потолка.
+      if (!s.done.length && !s.errors.length && !s.pending) continue;
+      const was = best.get(s.pointPriceId);
+      if (!was || s.done.length > was.done.length
+          || (s.done.length === was.done.length && s.pending > was.pending)) {
+        best.set(s.pointPriceId, s);
+      }
+    }
+    return [...best.values()].map(({ pending: _p, ...s }) => s);
+  });
+}
+
 /** Фотография клиента, на которой считается примерка. Только чтение. */
 export async function tryonPhoto(threadId: string): Promise<string | null> {
   return withTenant(MANAGER, async c => {
