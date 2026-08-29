@@ -1,0 +1,51 @@
+"""
+Маршрутизация: класс A или класс B.
+
+Решение принимается ДО вызова чего-либо и стоит денег: класс A считается
+у нас за доли копейки, класс B идёт во внешнюю модель по 8,5 ₽ за кадр.
+Ошибиться в сторону A — отдать клиенту брак; в сторону B — сжечь маржу.
+
+Правила выведены из физики пикселей, а не из предпочтений:
+проверено измерением на реальных кадрах (см. experiment_specular.py).
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Decision:
+    cls: str          # 'A' | 'B'
+    reason: str
+    cost_kopecks: int
+
+
+# Финиши, где меняется материал, а не цвет: подменой цветности не делается.
+MATERIAL_CHANGE = {'matte', 'satin', 'chrome', 'carbon'}
+
+
+def route(src_finish: str, dst_finish: str, src_L: float, dst_L: float,
+          category: str) -> Decision:
+    """
+    src_L — средняя светлота исходной поверхности на фото.
+    dst_L — светлота целевого артикула из измеренного свотча.
+    """
+    if category in ('tint', 'starlight'):
+        return Decision('A', 'детерминированная операция, модель не нужна', 10)
+
+    # Смена материала: мат гасит отражения, хром их создаёт. Подмена цветности
+    # даст «затонированный глянец», а не мат — это видно сразу.
+    if src_finish == 'gloss' and dst_finish in MATERIAL_CHANGE:
+        return Decision('B', f'смена материала glossy → {dst_finish}', 850)
+    if src_finish in MATERIAL_CHANGE and dst_finish == 'gloss':
+        return Decision('B', f'смена материала {src_finish} → glossy', 850)
+
+    # Направление по светлоте. Измерено: на чёрном кузове (L≈18) подъём
+    # к L≈38 вытягивает шум из заваленных теней и даёт пятна, а отражение
+    # неба превращается в белую полосу. В светлом исходнике информации
+    # достаточно, и результат не отличить от съёмки.
+    if dst_L > src_L + 6.0:
+        return Decision('B', f'тёмное → светлое: L {src_L:.0f} → {dst_L:.0f}, '
+                             f'в тенях нет информации', 850)
+
+    return Decision('A', f'глянец → глянец, светлое → тёмное: L {src_L:.0f} → {dst_L:.0f}', 10)

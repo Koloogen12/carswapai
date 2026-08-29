@@ -1,0 +1,168 @@
+[
+  {
+    "photo": "01-silver-sun-reflections",
+    "sku": "K75407",
+    "cls": "B",
+    "reason": "смена материала glossy → satin",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "01-silver-sun-reflections",
+    "sku": "970-070",
+    "cls": "B",
+    "reason": "смена материала glossy → matte",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "01-silver-sun-reflections",
+    "sku": "HX20-LG",
+    "cls": "A",
+    "reason": "глянец → глянец, светлое → тёмное: L 57 → 41",
+    "cost": 10,
+    "qa": true,
+    "changed": 0.8952
+  },
+  {
+    "photo": "01-silver-sun-reflections",
+    "sku": "GAL-OL",
+    "cls": "A",
+    "reason": "глянец → глянец, светлое → тёмное: L 57 → 43",
+    "cost": 10,
+    "qa": true,
+    "changed": 0.8901
+  },
+  {
+    "photo": "05-overcast-side",
+    "sku": "K75407",
+    "cls": "B",
+    "reason": "смена материала glossy → satin",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "05-overcast-side",
+    "sku": "970-070",
+    "cls": "B",
+    "reason": "смена материала glossy → matte",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "05-overcast-side",
+    "sku": "HX20-LG",
+    "cls": "B",
+    "reason": "тёмное → светлое: L 31 → 41, в тенях нет информации",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "05-overcast-side",
+    "sku": "GAL-OL",
+    "cls": "B",
+    "reason": "тёмное → светлое: L 31 → 43, в тенях нет информации",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "11-snow-white-balance",
+    "sku": "K75407",
+    "cls": "B",
+    "reason": "смена материала glossy → satin",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "11-snow-white-balance",
+    "sku": "970-070",
+    "cls": "B",
+    "reason": "смена материала glossy → matte",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "11-snow-white-balance",
+    "sku": "HX20-LG",
+    "cls": "A",
+    "reason": "глянец → глянец, светлое → тёмное: L 57 → 41",
+    "cost": 10,
+    "qa": true,
+    "changed": 0.9999
+  },
+  {
+    "photo": "11-snow-white-balance",
+    "sku": "GAL-OL",
+    "cls": "A",
+    "reason": "глянец → глянец, светлое → тёмное: L 57 → 43",
+    "cost": 10,
+    "qa": true,
+    "changed": 0.9999
+  },
+  {
+    "photo": "12-occluded-cluttered",
+    "sku": "K75407",
+    "cls": "B",
+    "reason": "смена материала glossy → satin",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "12-occluded-cluttered",
+    "sku": "970-070",
+    "cls": "B",
+    "reason": "смена материала glossy → matte",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "12-occluded-cluttered",
+    "sku": "HX20-LG",
+    "cls": "A",
+    "reason": "глянец → глянец, светлое → тёмное: L 48 → 41",
+    "cost": 10,
+    "qa": true,
+    "changed": 0.9999
+  },
+  {
+    "photo": "12-occluded-cluttered",
+    "sku": "GAL-OL",
+    "cls": "A",
+    "reason": "глянец → глянец, светлое → тёмное: L 48 → 43",
+    "cost": 10,
+    "qa": true,
+    "changed": 0.9638
+  },
+  {
+    "photo": "02-black-crushed-shadows",
+    "sku": "K75407",
+    "cls": "B",
+    "reason": "смена материала glossy → satin",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "02-black-crushed-shadows",
+    "sku": "970-070",
+    "cls": "B",
+    "reason": "смена материала glossy → matte",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "02-black-crushed-shadows",
+    "sku": "HX20-LG",
+    "cls": "B",
+    "reason": "тёмное → светлое: L 14 → 41, в тенях нет информации",
+    "cost": 850,
+    "qa": null
+  },
+  {
+    "photo": "02-black-crushed-shadows",
+    "sku": "GAL-OL",
+    "cls": "B",
+    "reason": "тёмное → светлое: L 14 → 43, в тенях нет информации",
+    "cost": 850,
+    "qa": null
+  }
+]
