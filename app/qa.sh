@@ -4,6 +4,7 @@
 # Проверяет четыре вещи, каждая из которых уже ловила настоящую поломку:
 #   1. типы            — самое дешёвое, ловит всё механическое
 #   2. инварианты БД   — то, ради чего продукт существует
+#   3. база разработки  — отставшая схема выглядит как поломка кода
 #   3. маршруты        — экран, который не открывается, не считается сделанным
 #   4. связность       — в приложении не должно быть двух дизайн-языков
 set -uo pipefail
@@ -23,7 +24,31 @@ BAD=$(echo "$OUT" | grep -cE 'ПРОВАЛ|ERROR')
 echo "  зелёных: $GREEN, падений: $BAD"
 [ "$BAD" != "0" ] && { echo "$OUT" | grep -E 'ПРОВАЛ|ERROR' | head -5; FAIL=1; }
 
-step "3 · маршруты"
+step "3 · база разработки не отстала от миграций"
+# Сегодня это стоило часа: приложение на :3000 говорило со схемой без
+# резолверов из 006–009, гараж отдавал 404, и выглядело это как поломка
+# кода. Проверка дешёвая, а диагноз мгновенный.
+MISSING=""
+for fn in point_of_configuration point_of_slug point_of_channel \
+          expire_personal_data expire_renders; do
+  N=$(PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH" psql -h /tmp/cswdev -p 55432 \
+      -U postgres -d carswap -tAc "select count(*) from pg_proc p
+        join pg_namespace n on n.oid = p.pronamespace
+       where n.nspname='app' and p.proname='$fn'" 2>/dev/null)
+  [ "${N:-0}" = "0" ] && MISSING="$MISSING $fn"
+done
+if [ -z "$MISSING" ]; then
+  echo "  ok"
+elif ! PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH" psql -h /tmp/cswdev -p 55432 \
+     -U postgres -d carswap -tAc "select 1" >/dev/null 2>&1; then
+  echo "  база разработки не отвечает — пропускаю"
+else
+  echo "  ПРОВАЛ: в базе разработки нет функций:$MISSING"
+  echo "  накатите недостающие миграции, иначе экраны будут падать при верном коде"
+  FAIL=1
+fi
+
+step "4 · маршруты"
 if ! curl -s -o /dev/null --max-time 3 http://localhost:3000/inbox; then
   echo "  дев-сервер не отвечает — пропускаю"
 else
@@ -47,10 +72,10 @@ else
   echo "  проверено 32 маршрута"
 fi
 
-step "4 · связность интерфейса"
+step "5 · связность интерфейса"
 python3 qa_consistency.py || FAIL=1
 
-step "5 · верность макету"
+step "6 · верность макету"
 # Связность отвечает «из чего собрано», верность — «то ли собрано».
 # Экран можно построить из правильных компонентов и наполнить выдуманным.
 if curl -s -o /dev/null --max-time 3 http://localhost:3000/inbox; then
