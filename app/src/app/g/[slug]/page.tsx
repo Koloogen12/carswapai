@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { withGarage, LinkNotFound } from '@/lib/db';
 import { Garage } from './Garage';
+import { hasConsent } from '@/lib/garage';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,7 @@ export const dynamic = 'force-dynamic';
  * прайса. В прайсе по построению только то, что есть у ЭТОЙ точки (О-3).
  */
 export default async function GaragePage({ params }: { params: { slug: string } }) {
+  const consented = await hasConsent(params.slug);
   type Point = { id: string; name: string; network_id: string; brand: unknown };
   type Item = {
     point_price_id: string; sku: string; name: string; brand: string; category: string;
@@ -48,5 +50,5 @@ export default async function GaragePage({ params }: { params: { slug: string } 
 
   if (!data.point) notFound();
 
-  return <Garage pointName={data.point.name} items={data.items} plate="А 432 ОР 77" />;
+  return <Garage pointName={data.point.name} items={data.items} plate="А 432 ОР 77"  slug={params.slug} consented={consented} photoId={null} />;
 }

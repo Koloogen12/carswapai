@@ -13,9 +13,26 @@
  * который не понял, на что согласился, — это отзыв согласия задним числом
  * и удаление данных в разгар сделки.
  */
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { giveConsent } from '@/lib/garage';
 
 export default function ConsentPage() {
+  // Точка приходит параметром: раньше слаг был вписан в разметку, и согласие
+  // любой точки уводило в JETCAR Мытищи.
+  const slug = useSearchParams().get('p') ?? '';
+  const [pending, start] = useTransition();
+  const [err, setErr] = useState<string | null>(null);
+
+  const accept = () => start(async () => {
+    setErr(null);
+    if (!slug) { setErr('Ссылка неполная — откройте её из сообщения точки'); return; }
+    const r = await giveConsent(slug);
+    if (!r.ok) { setErr('Не удалось записать согласие. Попробуйте ещё раз'); return; }
+    // Возвращаемся в гараж — там теперь появится загрузка фотографии.
+    location.href = `/g/${slug}?upload=1`;
+  });
+
   const [processing, setProcessing] = useState(true);
   const [terms, setTerms] = useState(true);
   const [showcase, setShowcase] = useState(false);
@@ -62,10 +79,15 @@ export default function ConsentPage() {
         </div>
 
         <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "9px" }}>
-          <a href="/g/jetcar-mytishchi" style={{ background: ready ? "#111111" : "#E2E2E2", borderRadius: "999px", padding: "17px 0", textAlign: "center", pointerEvents: ready ? undefined : 'none' }}>
-            <span style={{ fontSize: "15px", fontWeight: "500", color: ready ? "#FFFFFF" : "#9A9A9A" }}>Загрузить фото</span>
-          </a>
-          <a href="/g/jetcar-mytishchi" style={{ background: "#F5F5F5", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}>
+          {err && (
+            <div style={{ background: "#FBEEEF", borderRadius: "14px", padding: "11px 13px", fontSize: "12px", lineHeight: "1.45", color: "#D93F45" }}>{err}</div>
+          )}
+          <button onClick={accept} disabled={!ready || pending}
+            style={{ background: ready ? "#111111" : "#E2E2E2", borderRadius: "999px", padding: "17px 0", textAlign: "center", border: 0, width: "100%", cursor: ready && !pending ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
+            <span style={{ fontSize: "15px", fontWeight: "500", color: ready ? "#FFFFFF" : "#9A9A9A" }}>
+              {pending ? 'Секунду…' : 'Загрузить фото'}</span>
+          </button>
+          <a href={slug ? `/g/${slug}` : '/'} style={{ background: "#F5F5F5", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}>
             <span style={{ fontSize: "13.5px", fontWeight: "500" }}>Без фото · по марке и модели</span>
           </a>
           <span style={{ fontSize: "11px", color: "#9A9A9A", textAlign: "center", lineHeight: "1.45" }}>

@@ -9,7 +9,8 @@
  * Г-1 · ноль полей до первой примерки. Артикула, которого нет в прайсе точки,
  * не существует: штриховка вместо ложного выбора (О-3).
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useTransition } from 'react';
+import { uploadCarPhoto } from '@/lib/garage';
 import { HONESTY_LINE, LIGHTS, type LightId } from '@/lib/domain';
 
 type Item = {
@@ -33,14 +34,32 @@ const HERO: Record<string, string> = {
 };
 const rub = (k: number) => Math.round(k / 100).toLocaleString('ru-RU').replace(/ /g, ' ');
 
-export function Garage({ pointName, items, plate }: {
+export function Garage({ pointName, items, plate, slug, consented, photoId }: {
   pointName: string; items: Item[]; plate: string;
+  slug: string; consented: boolean; photoId: string | null;
 }) {
   const [cat, setCat] = useState<string>('film');
   const [light, setLight] = useState<LightId>('day');
   const [picked, setPicked] = useState<Record<string, string>>({});
   const [used, setUsed] = useState(1);
   const [sent, setSent] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(photoId);
+  const [upErr, setUpErr] = useState<string | null>(null);
+  const [uploading, startUpload] = useTransition();
+
+  // Загрузка своей машины. Без неё гараж показывает типовой кузов, и это
+  // законный режим (О-1), но ради своей машины сюда и приходят.
+  const onFile = (f: File | null) => {
+    if (!f) return;
+    setUpErr(null);
+    startUpload(async () => {
+      const fd = new FormData();
+      fd.set('photo', f);
+      const r = await uploadCarPhoto(slug, fd);
+      if (!r.ok) { setUpErr(r.error); return; }
+      setPhoto(r.photoId);
+    });
+  };
 
   const byCat = useMemo(() => {
     const m: Record<string, Item[]> = {};
@@ -82,6 +101,41 @@ export function Garage({ pointName, items, plate }: {
         </div>
 
         <div style={{ position: "relative", marginTop: "auto", display: "flex", flexDirection: "column", gap: "9px", padding: "0 12px 14px" }}>
+
+          {/* Своя машина. Согласие собирается ДО загрузки и один раз (§13):
+              без него снимок не заведётся — это инвариант базы, а не проверка
+              в коде. Поэтому здесь либо поле файла, либо переход к согласию. */}
+          <div style={{ background: "#FFFFFF", borderRadius: "20px", padding: "13px 15px", display: "flex", flexDirection: "column", gap: "8px" }}>
+            <span style={{ fontSize: "12.5px", fontWeight: "500" }}>
+              {photo ? 'Ваша машина загружена' : 'Показать на своей машине'}</span>
+            {photo ? (
+              <span style={{ fontSize: "11.5px", color: "#9A9A9A", lineHeight: "1.45" }}>
+                Дальше примерка идёт на вашем кадре, а не на типовом кузове.
+              </span>
+            ) : consented ? (
+              <>
+                <label style={{ background: "#DEF23B", borderRadius: "999px", padding: "13px 0", textAlign: "center", cursor: uploading ? "wait" : "pointer" }}>
+                  <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                    {uploading ? 'Загружаем…' : 'Выбрать фото'}</span>
+                  <input type="file" accept="image/*" disabled={uploading}
+                    onChange={e => onFile(e.target.files?.[0] ?? null)}
+                    style={{ display: "none" }} />
+                </label>
+                <span style={{ fontSize: "11px", color: "#9A9A9A", textAlign: "center", lineHeight: "1.45" }}>
+                  Один кадр сбоку или в три четверти. Номер останется вашим.
+                </span>
+              </>
+            ) : (
+              <a href={`/g/consent?p=${encodeURIComponent(slug)}`}
+                 style={{ background: "#DEF23B", borderRadius: "999px", padding: "13px 0", textAlign: "center" }}>
+                <span style={{ fontSize: "13px", fontWeight: "500" }}>Загрузить своё фото</span>
+              </a>
+            )}
+            {upErr && (
+              <div style={{ background: "#FBEEEF", borderRadius: "14px", padding: "10px 12px", fontSize: "11.5px", lineHeight: "1.45", color: "#D93F45" }}>{upErr}</div>
+            )}
+          </div>
+
           <div style={{ display: "flex", gap: "4px", background: "rgba(255,255,255,.94)", borderRadius: "999px", padding: "4px", alignSelf: "center" }}>
             {LIGHTS.map(l => (
               <button key={l.id} onClick={() => setLight(l.id)} aria-pressed={light === l.id}
@@ -155,7 +209,7 @@ export function Garage({ pointName, items, plate }: {
                 style={{ width: "44px", height: "44px", borderRadius: "999px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", border: 0, cursor: "pointer" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.7" strokeLinecap="round"><rect x="3" y="5" width="7" height="14" rx="2" /><rect x="14" y="5" width="7" height="14" rx="2" /></svg>
               </button>
-              <button onClick={() => setSent(true)}
+              <button onClick={() => { setSent(true); }}
                 style={{ background: "#DEF23B", borderRadius: "999px", padding: "14px 18px", flex: "none", border: 0, cursor: "pointer", fontFamily: "inherit" }}>
                 <span style={{ fontSize: "13px", fontWeight: "500" }}>{sent ? 'Ушло в точку' : 'Написать точке'}</span>
               </button>

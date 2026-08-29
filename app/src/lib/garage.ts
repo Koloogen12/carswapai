@@ -26,8 +26,10 @@ const STORAGE = process.env.STORAGE_ROOT ?? '/var/lib/carswap/storage';
 const MAX_BYTES = Number(process.env.CSW_PHOTO_MAX_BYTES ?? 25 * 1024 * 1024);
 const SESSION_COOKIE = 'csw_g';
 
-/** Редакция текста, которую человек видел. Меняется текст — меняется версия. */
-export const CONSENT_VERSION = 'garage-2026-08-1';
+// Редакция текста, которую человек видел. Меняется текст — меняется версия.
+// Не экспортируется: в файле с 'use server' наружу могут смотреть только
+// асинхронные функции, а константу отсюда никто и не спрашивает.
+const CONSENT_VERSION = 'garage-2026-08-1';
 
 /**
  * Анонимная сессия гаража.
@@ -37,6 +39,17 @@ export const CONSENT_VERSION = 'garage-2026-08-1';
  * хранится фотография: иначе человек потеряет доступ к своей же примерке
  * раньше, чем мы удалим его данные.
  */
+/**
+ * Прочитать сессию, НЕ создавая её.
+ *
+ * Нужна отдельно, потому что при отрисовке страницы куку заводить нельзя —
+ * Next разрешает это только в действии. А знать, есть ли согласие, страница
+ * обязана: от этого зависит, показать поле файла или отправить к оферте.
+ */
+async function readSession(): Promise<string | null> {
+  return cookies().get(SESSION_COOKIE)?.value ?? null;
+}
+
 async function sessionId(): Promise<string> {
   const jar = cookies();
   const has = jar.get(SESSION_COOKIE)?.value;
@@ -128,5 +141,18 @@ export async function uploadCarPhoto(slug: string, form: FormData) {
        values ($1,$2,$3,0,0,$4) returning id`,
       [pointId, '/' + rel, sha, consent.rows[0].id]);
     return { ok: true as const, photoId: photo.rows[0].id, deduped: false };
+  }, sid);
+}
+
+/** Есть ли у этой сессии действующее согласие на обработку фото. */
+export async function hasConsent(slug: string): Promise<boolean> {
+  const sid = await readSession();
+  if (!sid) return false;      // сессии ещё нет — значит и согласия нет
+  return withGarage(slug, async c => {
+    const r = await c.query(
+      `select 1 from consents
+        where session_id = $1 and kind = 'photo_processing' and granted limit 1`,
+      [sid]);
+    return r.rows.length > 0;
   }, sid);
 }
