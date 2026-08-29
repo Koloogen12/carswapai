@@ -81,7 +81,17 @@ class CarParts(torch.utils.data.Dataset):
         ip = self.imgs[i]
         img = Image.open(ip).convert('RGB')
         w0, h0 = img.size
-        s = self.size / max(w0, h0)
+
+        # Разброс по масштабу. Причина конкретная, а не «так принято»:
+        # Humans in the Loop приехал от Roboflow ужатым до 413×310, то есть
+        # сеть видела госномера только мелкими и размытыми. На кадрах клиента
+        # номер крупный и резкий — это разрыв по масштабу, и он объясняет,
+        # почему номер находится на обучающем кадре и не находится на нашем.
+        target = self.size
+        if self.augment:
+            import random
+            target = int(self.size * (0.65 + random.random() * 0.70))
+        s = target / max(w0, h0)
         w, h = max(int(w0 * s), 1), max(int(h0 * s), 1)
         img = img.resize((w, h), Image.BILINEAR)
 
@@ -108,7 +118,7 @@ class CarParts(torch.utils.data.Dataset):
 
         if self.augment:
             import random
-            if random.random() < 0.5:                    # отражение
+            if random.random() < 0.5:                    # отражение по горизонтали
                 arr = arr[:, ::-1].copy()
                 if boxes:
                     masks = [m[:, ::-1].copy() for m in masks]
