@@ -100,7 +100,7 @@ def collate(batch):
     return tuple(zip(*batch))
 
 
-def build():
+def build(num_classes: int = NUM_CLASSES):
     from torchvision.models.detection import (
         maskrcnn_resnet50_fpn_v2, MaskRCNN_ResNet50_FPN_V2_Weights)
     from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
@@ -108,9 +108,9 @@ def build():
 
     m = maskrcnn_resnet50_fpn_v2(weights=MaskRCNN_ResNet50_FPN_V2_Weights.DEFAULT)
     inf = m.roi_heads.box_predictor.cls_score.in_features
-    m.roi_heads.box_predictor = FastRCNNPredictor(inf, NUM_CLASSES)
+    m.roi_heads.box_predictor = FastRCNNPredictor(inf, num_classes)
     inm = m.roi_heads.mask_predictor.conv5_mask.in_channels
-    m.roi_heads.mask_predictor = MaskRCNNPredictor(inm, 256, NUM_CLASSES)
+    m.roi_heads.mask_predictor = MaskRCNNPredictor(inm, 256, num_classes)
 
     for p in m.backbone.body.parameters():      # признаки COCO оставляем как есть
         p.requires_grad = False
@@ -124,10 +124,23 @@ def main():
     ap.add_argument('--size', type=int, default=640)
     ap.add_argument('--limit', type=int, default=0, help='обрезать выборку — для дымового прогона')
     ap.add_argument('--device', default='mps')
+    ap.add_argument('--data', default='', help='каталог набора; по умолчанию carparts-seg')
+    ap.add_argument('--vocab', default='source', choices=('source', 'ours'),
+                    help='source — 23 класса исходного набора; '
+                         'ours — наши 8 классов из vocab.py')
     ap.add_argument('--out', default=str(ROOT / 'models' / 'carparts.pt'))
     a = ap.parse_args()
 
-    root = ROOT / 'datasets' / 'carparts-seg'
+    root = pathlib.Path(a.data) if a.data else ROOT / 'datasets' / 'carparts-seg'
+
+    # Словарь решает число выходов сети, а оно зашивается в веса: перепутать
+    # его при дообучении — получить молча несовместимый файл.
+    global NAMES, NUM_CLASSES
+    if a.vocab == 'ours':
+        sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+        import vocab as V
+        NAMES, NUM_CLASSES = V.NAMES, V.NUM_CLASSES
+    print(f'словарь: {a.vocab}, классов {len(NAMES)}', flush=True)
     tr = CarParts(root, 'train', a.size)
     va = CarParts(root, 'val', a.size)
     if a.limit:
@@ -146,7 +159,7 @@ def main():
                                      pin_memory=(a.device == 'cuda'))
 
     dev = torch.device(a.device)
-    m = build().to(dev)
+    m = build(NUM_CLASSES).to(dev)
     params = [p for p in m.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(params, lr=1e-4, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=a.epochs * len(dl))
@@ -186,7 +199,10 @@ def main():
         mark = ''
         if vl < best:
             best = vl
-            torch.save({'model': m.state_dict(), 'names': NAMES, 'size': a.size}, a.out)
+            # names едут вместе с весами: без них файл нельзя истолковать,
+            # а два разных словаря дают внешне одинаковые .pt.
+            torch.save({'model': m.state_dict(), 'names': NAMES,
+                        'size': a.size, 'vocab': a.vocab}, a.out)
             mark = '  ← сохранено'
         print(f'эпоха {ep}/{a.epochs}: обучение {run/max(n,1):.3f} · '
               f'валидация {vl:.3f} · {time.time()-t0:.0f} с{mark}', flush=True)
