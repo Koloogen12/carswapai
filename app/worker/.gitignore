@@ -8,3 +8,4 @@ datasets/*/
 train/runs/
 out/
 *.pt
+train/logs/
