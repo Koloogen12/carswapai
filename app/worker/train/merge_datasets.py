@@ -31,6 +31,111 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATASETS = ROOT / 'datasets'
 
 
+def base_name(stem: str) -> str:
+    """
+    Имя ИСХОДНОГО снимка, без следов размножения.
+
+    Roboflow называет копии `Снимок_png.rf.<хеш>`: один и тот же кадр в
+    нескольких поворотах. Обычно он размножает уже ПОСЛЕ разбиения, и тогда
+    всё честно — но проверено, что не всегда: на 998 снимках один разъехался
+    между обучением и проверкой. Такой кадр валидацию завышает, потому что
+    сеть видела его же в обучении, пусть и повёрнутым.
+    """
+    for marker in ('_png.rf.', '_jpg.rf.', '_jpeg.rf.', '.rf.'):
+        if marker in stem:
+            return stem.split(marker, 1)[0]
+    return stem
+
+
+def regroup(out: pathlib.Path, val_frac: float = 0.15, test_frac: float = 0.10
+            ) -> dict[str, int]:
+    """
+    Переразбить набор по ИСХОДНЫМ снимкам, а не по файлам.
+
+    ЗАЧЕМ. Измерено на carparts-seg: 3156 файлов обучения — это всего 579
+    уникальных фотографий, остальное их повороты. А в проверке из 295
+    уникальных 290 есть и в обучении. То есть валидация на 98% шла по кадрам,
+    которые сеть уже видела, и её число не измеряло ничего.
+
+    Разбиение авторов набора здесь не сохраняем — именно оно и сломано.
+    Группируем все копии одного снимка и отправляем группу целиком в один
+    срез. Срез выбирается хешем имени, а не случайно: тот же набор обязан
+    давать то же разбиение, иначе два прогона несравнимы.
+    """
+    import hashlib
+    groups: dict[str, list[tuple[pathlib.Path, pathlib.Path]]] = {}
+    for split in ('train', 'val', 'test'):
+        d = out / 'images' / split
+        if not d.exists():
+            continue
+        for f in d.iterdir():
+            lbl = out / 'labels' / split / (f.stem + '.txt')
+            groups.setdefault(base_name(f.stem), []).append((f, lbl))
+
+    def where(name: str) -> str:
+        h = int(hashlib.sha256(name.encode()).hexdigest()[:8], 16) / 0xFFFFFFFF
+        if h < test_frac:
+            return 'test'
+        if h < test_frac + val_frac:
+            return 'val'
+        return 'train'
+
+    tmp = out.parent / (out.name + '_regroup')
+    shutil.rmtree(tmp, ignore_errors=True)
+    counts = {'train': 0, 'val': 0, 'test': 0}
+    uniq = {'train': 0, 'val': 0, 'test': 0}
+    for name, files in groups.items():
+        split = where(name)
+        uniq[split] += 1
+        (tmp / 'images' / split).mkdir(parents=True, exist_ok=True)
+        (tmp / 'labels' / split).mkdir(parents=True, exist_ok=True)
+        for img, lbl in files:
+            shutil.move(str(img), tmp / 'images' / split / img.name)
+            if lbl.exists():
+                shutil.move(str(lbl), tmp / 'labels' / split / lbl.name)
+            counts[split] += 1
+    shutil.rmtree(out, ignore_errors=True)
+    shutil.move(str(tmp), out)
+    print('  уникальных снимков: ' + ', '.join(f'{k}: {v}' for k, v in uniq.items()),
+          flush=True)
+    return counts
+
+
+def leaked(out: pathlib.Path) -> dict[str, set[str]]:
+    """
+    Какие исходные снимки попали и в обучение, и в проверку.
+
+    Возвращает, что выбросить из val и test. Выбрасываем именно оттуда, а не
+    из train: обучение переживёт потерю кадра, а испорченная валидация врёт
+    в нашу пользу — и мы этого не заметим.
+    """
+    def bases(split: str) -> set[str]:
+        d = out / 'images' / split
+        return {base_name(f.stem) for f in d.iterdir()} if d.exists() else set()
+
+    train = bases('train')
+    drop = {}
+    for split in ('val', 'test'):
+        common = train & bases(split)
+        if common:
+            drop[split] = common
+    return drop
+
+
+def drop_leaked(out: pathlib.Path) -> int:
+    """Убрать пересечение. Возвращает число удалённых кадров."""
+    n = 0
+    for split, names in leaked(out).items():
+        d = out / 'images' / split
+        for f in list(d.iterdir()):
+            if base_name(f.stem) in names:
+                f.unlink()
+                lbl = out / 'labels' / split / (f.stem + '.txt')
+                lbl.unlink(missing_ok=True)
+                n += 1
+    return n
+
+
 def _poly_line(cls: int, xy: list[float], w: int, h: int) -> str | None:
     """Полигон в строку YOLO: класс и нормированные координаты."""
     if len(xy) < 6:
@@ -165,6 +270,13 @@ def main() -> int:
     if not total:
         print('\nНечего сводить.', flush=True)
         return 1
+
+    # Переразбиение по исходным снимкам. Делается ВСЕГДА, а не когда вспомнили:
+    # разбиение из наборов проверено и оказалось сломанным.
+    print('\n── переразбиение по исходным снимкам ──', flush=True)
+    total = regroup(out)
+    assert not leaked(out), 'после переразбиения утечка невозможна — это ошибка в коде'
+    print('  файлов: ' + ', '.join(f'{k}: {v}' for k, v in total.items()), flush=True)
     print(f'\nИтого: ' + ', '.join(f'{k}: {v}' for k, v in sorted(total.items())), flush=True)
     print(f'Словарь: {vocab.NAMES}', flush=True)
     print(f'Дальше: python3 train/parts_train.py --data {out} --vocab ours '
