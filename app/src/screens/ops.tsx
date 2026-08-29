@@ -45,8 +45,10 @@ export function OpsHead({ title, count, note }: { title: string; count?: number;
 
 export function OpsNav({ active }: { active: string }) {
   const items = [['/ops/followups', 'Дожим'], ['/ops/schedule', 'Посты'],
-                 ['/ops/stock', 'Склад'], ['/ops/billing', 'Подписка'],
-                 ['/ops/events', 'События'], ['/ops/managers', 'Менеджеры']];
+                 ['/ops/stock', 'Склад'], ['/ops/cash', 'Касса'],
+                 ['/ops/billing', 'Подписка'], ['/ops/events', 'События'],
+                 ['/ops/search', 'Поиск'], ['/ops/audit', 'Аудит'],
+                 ['/ops/catalog', 'Каталог сети'], ['/ops/managers', 'Менеджеры']];
   return (
     <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
       {items.map(([href, label]) => (

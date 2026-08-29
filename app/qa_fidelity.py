@@ -37,6 +37,12 @@ MAP = [
     ('/ops/stock',         '08-pass2-point-operations',     3, [1]),
     ('/ops/billing',       '08-pass2-point-operations',     4, [1]),
     ('/ops/events',        '08-pass2-point-operations',     5, [1, 0]),
+    ('/ops/cash',          '09-pass3-management',           1, [1]),
+    ('/ops/search',        '09-pass3-management',           2, [1]),
+    ('/ops/catalog',       '09-pass3-management',           3, [1]),
+    ('/owner/mobile',      '09-pass3-management',           4, [1, 0]),
+    ('/g/consent',         '09-pass3-management',           4, [1, 1]),
+    ('/g/prepurchase',     '09-pass3-management',           4, [1, 2]),
 ]
 
 STOP = set('и в во не на с со а но что как к по для из у же от до за о об при бы это его их'.split())

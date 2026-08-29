@@ -141,3 +141,34 @@ export async function staffList() {
                      active: boolean; created_at: string }[];
   });
 }
+
+/** Сетевой каталог, коридор наценки и тарифы по точкам, модули 05–07 захода 3. */
+export async function networkCatalog() {
+  return withTenant(NETWORK, async c => {
+    const items = (await c.query(`
+      select ci.id, ci.brand, ci.sku, ci.name, np.price_kopecks as base,
+             n.price_deviation_allowed_pct::int as corridor,
+             (select count(*) from point_prices pp where pp.catalog_item_id = ci.id)::int as points
+        from network_prices np
+        join catalog_items ci on ci.id = np.catalog_item_id
+        join networks n on n.id = np.network_id
+       where ci.active order by np.price_kopecks desc limit 6`)).rows;
+
+    const tariffs = (await c.query(`
+      select p.id, p.name, p.soft_cap_kopecks, p.hard_cap_kopecks,
+             coalesce((select sum(cost_kopecks) from generation_usage g
+                        where g.point_id = p.id
+                          and g.created_at >= date_trunc('month', now())), 0)::int as spent,
+             exists (select 1 from point_budgets pb
+                      where pb.point_id = p.id and pb.released_at is not null) as released,
+             exists (select 1 from outbound_cards oc where oc.point_id = p.id) as started
+        from points p order by p.name`)).rows;
+
+    return { items, tariffs } as {
+      items: { id: string; brand: string; sku: string; name: string; base: number;
+               corridor: number; points: number }[];
+      tariffs: { id: string; name: string; soft_cap_kopecks: number; hard_cap_kopecks: number;
+                 spent: number; released: boolean; started: boolean }[];
+    };
+  });
+}

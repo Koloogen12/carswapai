@@ -275,3 +275,140 @@ export async function managerReport() {
                      confirmed: number }[];
   });
 }
+
+/**
+ * Касса и долги по нарядам, модуль 01 захода 3.
+ *
+ * Долг возникает ровно в одном месте — когда машину отдают до оплаты
+ * остатка. Поэтому просроченным считается не «счёт не закрыт», а
+ * «наряд сдан, а остаток висит»: до выдачи неоплаченный остаток
+ * не долг, а нормальный ход сделки.
+ */
+export async function cashbox() {
+  return withTenant(OWNER, async c => {
+    const rows = (await c.query(`
+      select o.id, o.number, o.status, o.created_at,
+             coalesce(cl.name, 'Клиент') as client,
+             inv.amount_kopecks as total,
+             coalesce((select sum(case when p.kind = 'refund' then -p.amount_kopecks
+                                       else p.amount_kopecks end)
+                         from payments p where p.invoice_id = inv.id), 0)::int as paid,
+             (select count(*) from payments p where p.invoice_id = inv.id)::int as pay_count,
+             (select count(*) from payments p
+               where p.invoice_id = inv.id and p.method = 'qr')::int as qr_count,
+             w.issued_at as handed_at
+        from orders o
+        join confirmations cf on cf.id = o.confirmation_id
+        join configurations cfg on cfg.id = cf.configuration_id
+        left join threads t on t.id = cfg.thread_id
+        left join clients cl on cl.id = t.client_id
+        left join invoices inv on inv.order_id = o.id
+        left join warranties w on w.order_id = o.id
+       where inv.id is not null
+       order by o.created_at desc`)).rows as {
+      id: string; number: string; status: string; client: string; total: number;
+      paid: number; pay_count: number; qr_count: number; handed_at: string | null;
+    }[];
+
+    const received = rows.reduce((a, r) => a + r.paid, 0);
+    const inWork = rows.filter(r => r.status !== 'done');
+    const expected = inWork.reduce((a, r) => a + (r.total - r.paid), 0);
+    // Просрочено — только там, где машина уже отдана.
+    const overdueRows = rows.filter(r => r.status === 'done' && r.total - r.paid > 0);
+    const overdue = overdueRows.reduce((a, r) => a + (r.total - r.paid), 0);
+
+    return {
+      rows, received, expected, overdue,
+      payCount: rows.reduce((a, r) => a + r.pay_count, 0),
+      qrCount: rows.reduce((a, r) => a + r.qr_count, 0),
+      inWorkCount: inWork.length, overdueCount: overdueRows.length,
+    };
+  });
+}
+
+export async function replyTemplates() {
+  return withTenant(OWNER, async c => {
+    const { rows } = await c.query(
+      `select id, title, body, sort_order from reply_templates order by sort_order, title`);
+    return rows as { id: string; title: string; body: string; sort_order: number }[];
+  });
+}
+
+/**
+ * Глобальный поиск, модуль 03 захода 3.
+ *
+ * Один запрос находит артикул, клиента, наряд и рулон. Это и есть проверка,
+ * что учётный слой действительно связан, а не четыре отдельные таблицы:
+ * если поиск по артикулу не выводит на наряд и рулон, значит связи нет.
+ */
+export type Hit = { kind: string; title: string; sub: string; href?: string };
+
+export async function globalSearch(q: string): Promise<Hit[]> {
+  if (!q || q.trim().length < 2) return [];
+  const like = `%${q.trim()}%`;
+  return withTenant(OWNER, async c => {
+    const out: Hit[] = [];
+
+    for (const r of (await c.query(`
+      select ci.brand, ci.sku, ci.name, pp.price_kopecks, pp.in_stock,
+             coalesce((select sum(fr.meters_left) from film_rolls fr
+                        where fr.catalog_item_id = ci.id and fr.depleted_at is null), 0) as meters
+        from point_prices pp join catalog_items ci on ci.id = pp.catalog_item_id
+       where ci.sku ilike $1 or ci.name ilike $1 or ci.brand ilike $1 limit 3`, [like])).rows)
+      out.push({ kind: 'Артикул', title: `${r.brand} ${r.sku} · ${String(r.name).toLowerCase()}`,
+        sub: `${r.in_stock ? 'в прайсе' : 'погашен'} · ${Math.round(r.price_kopecks / 100).toLocaleString('ru-RU')} ₽ · ${Number(r.meters).toFixed(0)} м на складе` });
+
+    for (const r of (await c.query(`
+      select cl.id, cl.name, cl.vehicle,
+             (select max(cf.confirmed_at) from confirmations cf
+                join configurations cfg on cfg.id = cf.configuration_id
+                join threads t on t.id = cfg.thread_id where t.client_id = cl.id) as confirmed,
+             (select o.number from orders o
+                join confirmations cf on cf.id = o.confirmation_id
+                join configurations cfg on cfg.id = cf.configuration_id
+                join threads t on t.id = cfg.thread_id where t.client_id = cl.id limit 1) as ord
+        from clients cl
+       where cl.name ilike $1 or cl.phone ilike $1 or cl.vehicle::text ilike $1 limit 3`, [like])).rows) {
+      const v = r.vehicle as { make?: string; model?: string; plate?: string };
+      out.push({ kind: 'Клиент', title: `${r.name} · ${v.make ?? ''} ${v.model ?? ''}`.trim(),
+        sub: r.confirmed
+          ? `подтвердил ${new Date(r.confirmed as string).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}${r.ord ? ` · наряд ${r.ord}` : ''}`
+          : `${v.plate ?? ''} · подтверждения ещё нет` });
+    }
+
+    for (const r of (await c.query(`
+      select o.number, o.status, o.batch_number,
+             (select b.name from bays b limit 1) as bay
+        from orders o where o.number ilike $1 or o.batch_number ilike $1 limit 3`, [like])).rows)
+      out.push({ kind: 'Наряд', title: `${r.number} · ${r.status === 'in_work' ? 'в работе' : r.status === 'done' ? 'сдан' : 'создан'}${r.bay ? `, ${String(r.bay).toLowerCase()}` : ''}`,
+        sub: r.batch_number ? `партия ${r.batch_number}` : 'рулон ещё не сверен' });
+
+    for (const r of (await c.query(`
+      select fr.batch_number, fr.meters_left, ci.sku,
+             coalesce((select sum(cit.meters_required) from configuration_items cit
+                        join point_prices pp2 on pp2.id = cit.point_price_id
+                        join confirmations cf on cf.configuration_id = cit.configuration_id
+                       where pp2.catalog_item_id = ci.id), 0) as booked,
+             (select o.number from orders o where o.verified_roll_id = fr.id limit 1) as ord
+        from film_rolls fr join catalog_items ci on ci.id = fr.catalog_item_id
+       where fr.batch_number ilike $1 or fr.barcode ilike $1 or ci.sku ilike $1 limit 3`, [like])).rows)
+      out.push({ kind: 'Рулон', title: `Партия ${r.batch_number} · ${Number(r.meters_left).toFixed(1)} м`,
+        sub: Number(r.booked) > 0
+          ? `${Number(r.booked).toFixed(1)} м забронировано${r.ord ? ` под ${r.ord}` : ''}`
+          : 'брони нет' });
+
+    return out;
+  });
+}
+
+export async function auditTrail() {
+  return withTenant(OWNER, async c => {
+    const { rows } = await c.query(`
+      select al.at, al.action, al.entity, al.detail, coalesce(u.name, 'Система') as actor,
+             al.actor_role
+        from audit_log al left join users u on u.id = al.actor_id
+       order by al.at desc limit 12`);
+    return rows as { at: string; action: string; entity: string; actor: string;
+                     actor_role: string | null; detail: Record<string, unknown> }[];
+  });
+}

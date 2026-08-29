@@ -34,11 +34,12 @@ else
   for u in /login /join /staff /inbox "/inbox/$TID" /g/jetcar-mytishchi "/bay/$OID" \
            /owner /network /price /crm "/c/$CFG" /bay \
            /ops/followups /ops/schedule /ops/stock /ops/billing /ops/events /ops/managers \
+           /ops/cash /ops/search /ops/catalog /owner/mobile /g/consent /g/prepurchase \
            "/doc/order/$OID" "/doc/invoice/$OID" "/doc/warranty/$OID"; do
     C=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3000$u")
     [ "$C" = "200" ] || { printf '  %-44s %s\n' "$u" "$C"; FAIL=1; }
   done
-  echo "  проверено 23 маршрута"
+  echo "  проверено 29 маршрутов"
 fi
 
 step "4 · связность интерфейса"
