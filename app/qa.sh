@@ -53,10 +53,10 @@ step "4 · маршруты"
 # входа вместо продукта. Заводим её прямо в базе: проверяем экраны, а не
 # доставку SMS.
 SESS=$(PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH" psql -h /tmp/cswdev -p 55432 \
-  -U postgres -d carswap -tAc "insert into sessions (user_id, expires_at) \
+  -U postgres -d carswap -qtAc "insert into sessions (user_id, expires_at) \
   select u.id, now() + interval '1 hour' from users u where u.role='owner' limit 1 \
-  returning id" 2>/dev/null)
-if ! curl -s -o /dev/null --max-time 3 http://localhost:3000/inbox; then
+  returning id" 2>/dev/null | head -1 | tr -d '[:space:]')
+if ! curl -s -o /dev/null --max-time 3 -b "csw_s=$SESS" http://localhost:3000/inbox; then
   echo "  дев-сервер не отвечает — пропускаю"
 else
   TID=$(cd db && PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH" psql -h /tmp/cswdev -p 55432 \
@@ -73,7 +73,9 @@ else
            /ops/cash /ops/search /ops/catalog /owner/mobile /g/consent /g/prepurchase \
            /crm/mobile /help "/measure/$AP" \
            "/doc/order/$OID" "/doc/invoice/$OID" "/doc/warranty/$OID"; do
-    C=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3000$u")
+    # Кука обязательна: без неё страж входа отдаёт 307 на каждый закрытый
+    # экран, и проверка маршрутов измеряет редирект, а не продукт.
+    C=$(curl -s -o /dev/null -w '%{http_code}' -b "csw_s=$SESS" "http://localhost:3000$u")
     [ "$C" = "200" ] || { printf '  %-44s %s\n' "$u" "$C"; FAIL=1; }
   done
   echo "  проверено 32 маршрута"
