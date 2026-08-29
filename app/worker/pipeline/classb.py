@@ -77,38 +77,77 @@ class Engine(abc.ABC):
         return True
 
 
-def run(engine: Engine, req: Request, allow_transfer: bool = False) -> Result:
+def run(engine: Engine, req: Request, car: np.ndarray,
+        lawyer_cleared: bool = False) -> Result:
     """
     Выполнить класс B с обязательными проверками вокруг движка.
 
-    allow_transfer — есть ли согласие клиента на трансграничную передачу.
-    По умолчанию нет, и внешний движок в этом случае не вызывается вовсе:
-    отказать честнее, чем отправить чужие персональные данные за границу и
-    рассказать об этом потом.
-    """
-    if engine.leaves_contour and not allow_transfer:
-        return Result(None, engine.name, 0, False,
-                      'кадр уходит за контур, а согласия на трансграничную '
-                      'передачу нет — по ст. 12 152-ФЗ отправлять нельзя')
+    ПОРЯДОК ДЕЙСТВИЙ И ПОЧЕМУ ИМЕННО ТАКОЙ:
 
-    # Номер снимается ДО отправки: наружу не должно уехать то, чего там быть
-    # не должно, даже если движок обещает ничего не хранить.
-    img = req.image
-    if engine.leaves_contour and req.keep:
-        img = img.copy()
-        for k in req.keep:
-            if k is not None and (k > 0).any():
-                img[k > 0] = 0
+    1. Обезличить. За контур уходит обрезка по машине с залитым номером и
+       без фона — см. depersonalize. Это не оптимизация, а единственный
+       способ не совершать трансграничную передачу персональных данных.
+    2. Отказать, если номер не найден. Не зная, где он, мы не можем
+       утверждать, что его нет в отправляемом кадре.
+    3. Спросить модель.
+    4. Проверить, что вернулась ТА ЖЕ машина. Без этой проверки брак был бы
+       скрыт сборкой: снаружи маски остался бы оригинал, а внутри — чужой
+       кузов.
+    5. Собрать: изменения только внутри маски, номер возвращён побитово.
+    6. Прогнать тот же контроль качества, что у класса A. Иначе
+       «генеративное» означало бы «непроверяемое».
+
+    lawyer_cleared — подтверждение юриста, что обезличивания достаточно для
+    этого контура. По умолчанию его нет, и движок за контуром не вызывается:
+    решение о достаточности принимает человек с дипломом, а не эта функция.
+    """
+    from . import depersonalize
+
+    if engine.leaves_contour and not lawyer_cleared:
+        return Result(None, engine.name, 0, False,
+                      'внешний движок не согласован юристом: обезличивание '
+                      'убирает номер и фон, но VIN, отражения и приметность '
+                      'машины остаются — достаточность этого решает не код')
+
+    if not engine.leaves_contour:
+        # Свой движок внутри контура: обезличивать незачем, кадр никуда не едет.
+        try:
+            drawn = engine.render(req)
+        except Exception as e:
+            return Result(None, engine.name, 0, False, f'движок не ответил: {e}')
+        out = composite.composite(req.image, drawn, req.mask, None, *req.keep)
+        rep = qa.report(req.image, out, req.mask, req.keep[0] if req.keep else None)
+        if not rep['passed']:
+            return Result(None, engine.name, engine.cost_kopecks, False,
+                          rep.get('reject_reason') or 'результат не прошёл проверку')
+        return Result(out, engine.name, engine.cost_kopecks, True)
+
+    plate = req.keep[0] if req.keep else None
+    try:
+        outgoing = depersonalize.prepare(req.image, car, req.mask, plate)
+    except ValueError as e:
+        return Result(None, engine.name, 0, False, str(e))
+
+    ok, why = depersonalize.safe_to_send(outgoing)
+    if not ok:
+        return Result(None, engine.name, 0, False, why)
 
     try:
-        drawn = engine.render(Request(img, req.mask, req.sku_name, req.target_lab,
-                                      req.finish, req.keep))
+        drawn_crop = engine.render(Request(outgoing.image, outgoing.mask,
+                                           req.sku_name, req.target_lab,
+                                           req.finish, ()))
     except Exception as e:
         return Result(None, engine.name, 0, False, f'движок не ответил: {e}')
 
+    from .engines.openrouter import same_car
+    same, iou = same_car(outgoing.image, drawn_crop)
+    if not same:
+        return Result(None, engine.name, engine.cost_kopecks, False,
+                      f'модель вернула другую машину: совпадение силуэта {iou:.2f}')
+
+    drawn = depersonalize.restore(req.image, drawn_crop, outgoing.box)
     out = composite.composite(req.image, drawn, req.mask, None, *req.keep)
-    rep = qa.report(req.image, out, req.mask,
-                    req.keep[0] if req.keep else None)
+    rep = qa.report(req.image, out, req.mask, plate)
     if not rep['passed']:
         return Result(None, engine.name, engine.cost_kopecks, False,
                       rep.get('reject_reason') or 'результат не прошёл проверку')
