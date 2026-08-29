@@ -10,7 +10,7 @@
  * не существует: штриховка вместо ложного выбора (О-3).
  */
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { uploadCarPhoto, startGarageTryOn, garageTryOnStatus } from '@/lib/garage';
+import { uploadCarPhoto, startGarageTryOn, garageTryOnStatus, contactLink } from '@/lib/garage';
 import { HONESTY_LINE, LIGHTS, type LightId } from '@/lib/domain';
 
 type Item = {
@@ -259,7 +259,16 @@ export function Garage({ pointName, items, plate, slug, consented, photoId }: {
                 style={{ width: "44px", height: "44px", borderRadius: "999px", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center", flex: "none", border: 0, cursor: "pointer" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.7" strokeLinecap="round"><rect x="3" y="5" width="7" height="14" rx="2" /><rect x="14" y="5" width="7" height="14" rx="2" /></svg>
               </button>
-              <button onClick={() => { setSent(true); }}
+              <button onClick={() => {
+                  // Уводим в мессенджер точки. Г-1: ни одного поля здесь не
+                  // спрашиваем — клиента опознает его собственный аккаунт.
+                  const picked1 = chosen[0]?.point_price_id ?? null;
+                  contactLink(slug, picked1).then(r => {
+                    if (!r.ok) { setTryErr(r.error); return; }
+                    setSent(true);
+                    window.open(r.url, '_blank', 'noopener');
+                  });
+                }}
                 style={{ background: "#DEF23B", borderRadius: "999px", padding: "14px 18px", flex: "none", border: 0, cursor: "pointer", fontFamily: "inherit" }}>
                 <span style={{ fontSize: "13px", fontWeight: "500" }}>{sent ? 'Ушло в точку' : 'Написать точке'}</span>
               </button>

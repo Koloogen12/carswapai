@@ -1,6 +1,5 @@
 import { claimsFor } from './session';
 import { withTenant } from './db';
-import { OWNER } from './data';
 
 /** Операционка точки, заход 2. Всё читается под правами владельца точки. */
 
@@ -12,7 +11,8 @@ import { OWNER } from './data';
  * поэтому сортировка по возрасту молчания, а не по сумме.
  */
 export async function followUps() {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(`
       select cf.id, cl.name, cl.phone,
              trim(coalesce(cl.vehicle->>'make','')||' '||coalesce(cl.vehicle->>'model','')) as vehicle,
@@ -37,7 +37,8 @@ export async function followUps() {
 }
 
 export async function schedule() {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const bays = (await c.query(`
       select b.id, b.name,
              (select u.name from shifts sh join users u on u.id = sh.user_id
@@ -86,7 +87,8 @@ export async function schedule() {
 }
 
 export async function stock() {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     // Забронировано под подтверждённые выборы: именно оно превращает
     // «есть 9,6 м» в «не хватит». Остаток без брони ничего не значит.
     const rolls = (await c.query(`
@@ -143,12 +145,13 @@ export async function stock() {
 }
 
 export async function billing() {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const sub = (await c.query(
       `select plan, price_kopecks, period_start, period_end, status
          from subscriptions where point_id = $1 order by period_end desc limit 1`,
-      [OWNER.point_id])).rows[0];
-    const b = (await c.query(`select * from app.budget_state($1)`, [OWNER.point_id])).rows[0];
+      [who.point_id])).rows[0];
+    const b = (await c.query(`select * from app.budget_state($1)`, [who.point_id])).rows[0];
     const byCat = (await c.query(`
       select category::text, render_class::text, count(*)::int as n,
              sum(cost_kopecks)::int as cost
@@ -181,7 +184,8 @@ export type PointEvent = {
 };
 
 export async function events(): Promise<PointEvent[]> {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const out: PointEvent[] = [];
 
     const blocked = (await c.query(`
@@ -200,7 +204,7 @@ export async function events(): Promise<PointEvent[]> {
       detail: `Наряд ${b.number} · в записи ${b.sku}, на рулоне другой артикул. Наряд заблокирован`,
     });
 
-    const [bud] = (await c.query(`select * from app.budget_state($1)`, [OWNER.point_id])).rows;
+    const [bud] = (await c.query(`select * from app.budget_state($1)`, [who.point_id])).rows;
     const pct = bud.hard_limit ? Math.round((bud.spent_kopecks / bud.hard_limit) * 100) : 0;
     if (pct >= 60) {
       const [spike] = (await c.query(`
@@ -262,7 +266,8 @@ export async function events(): Promise<PointEvent[]> {
 
 /** Отчёт по менеджерам: кто доводит до подтверждённого выбора. */
 export async function managerReport() {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(`
       select u.id, u.name,
              (select count(*) from threads t where t.assigned_to = u.id)::int as threads,
@@ -271,7 +276,7 @@ export async function managerReport() {
                 join configurations cfg on cfg.id = cf.configuration_id
                where cfg.created_by = u.id)::int as confirmed
         from users u where u.role = 'manager' and u.point_id = $1
-       order by u.name`, [OWNER.point_id]);
+       order by u.name`, [who.point_id]);
     return rows as { id: string; name: string; threads: number; tryons: number;
                      confirmed: number }[];
   });
@@ -286,7 +291,8 @@ export async function managerReport() {
  * не долг, а нормальный ход сделки.
  */
 export async function cashbox() {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const rows = (await c.query(`
       select o.id, o.number, o.status, o.created_at,
              coalesce(cl.name, 'Клиент') as client,
@@ -328,7 +334,8 @@ export async function cashbox() {
 }
 
 export async function replyTemplates() {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(
       `select id, title, body, sort_order from reply_templates order by sort_order, title`);
     return rows as { id: string; title: string; body: string; sort_order: number }[];
@@ -345,9 +352,10 @@ export async function replyTemplates() {
 export type Hit = { kind: string; title: string; sub: string; href?: string };
 
 export async function globalSearch(q: string): Promise<Hit[]> {
+  const who = await claimsFor();
   if (!q || q.trim().length < 2) return [];
   const like = `%${q.trim()}%`;
-  return withTenant(await claimsFor(), async c => {
+  return withTenant(who, async c => {
     const out: Hit[] = [];
 
     for (const r of (await c.query(`
@@ -403,7 +411,8 @@ export async function globalSearch(q: string): Promise<Hit[]> {
 }
 
 export async function auditTrail() {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(`
       select al.at, al.action, al.entity, al.detail, coalesce(u.name, 'Система') as actor,
              al.actor_role

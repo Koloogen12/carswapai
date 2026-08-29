@@ -73,7 +73,7 @@ export function Hero(): ReactElement {
               <p style={{ margin: "0", maxWidth: "470px", fontSize: "clamp(12.5px,1.6vh,16px)", lineHeight: "1.45", color: "#B4B4B4", textWrap: "pretty", display: "-webkit-box", WebkitLineClamp: "4", WebkitBoxOrient: "vertical", overflow: "hidden" }}>Заявки из WhatsApp, Telegram, MAX и Авито приходят в один список. Открываешь диалог, собираешь примерку прямо в нём и отправляешь одним действием: его машина, артикул из твоего прайса, твоя цена. Три минуты вместо получаса объяснений словами.</p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                <a className="cs-btn-primary" href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "clamp(12px,1.7vh,15px) 28px", fontSize: "14px", fontWeight: "500" }}>Записаться на демо · 15 минут</a>
+                <a className="cs-btn-primary" href="#demo-form" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "clamp(12px,1.7vh,15px) 28px", fontSize: "14px", fontWeight: "500" }}>Записаться на демо · 15 минут</a>
                 <a className="cs-btn-ghost" href="#try" style={{ background: "rgba(255,255,255,.1)", color: "#FFFFFF", borderRadius: "999px", padding: "clamp(12px,1.7vh,15px) 28px", fontSize: "14px", fontWeight: "500" }}>Померить на своей машине</a>
               </div>
             </div>

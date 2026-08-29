@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { claimsFor } from './session';
 import { withTenant } from './db';
-import { MANAGER } from './data';
+
 import { HONESTY_LINE, LIGHTS } from './domain';
 
 /**
@@ -15,15 +15,16 @@ import { HONESTY_LINE, LIGHTS } from './domain';
  * здесь, а в базе; этот код её просто не может обойти.
  */
 export async function sendCard(threadId: string, pointPriceIds: string[]) {
+  const who = await claimsFor();
   if (pointPriceIds.length !== 3) {
     return { ok: false as const, error: 'М-4: в карточке ровно три артикула' };
   }
-  return withTenant(await claimsFor(), async c => {
+  return withTenant(who, async c => {
     try {
       const cfg = await c.query(
         `insert into configurations (point_id, thread_id, created_by, origin)
          values ($1,$2,$3,'manager') returning id`,
-        [MANAGER.point_id, threadId, MANAGER.user_id]);
+        [who.point_id, threadId, who.user_id]);
       const configId = cfg.rows[0].id as string;
 
       const paths: string[] = [];
@@ -39,7 +40,7 @@ export async function sendCard(threadId: string, pointPriceIds: string[]) {
           `insert into configuration_items
              (configuration_id, point_id, point_price_id, category, price_kopecks)
            values ($1,$2,$3,$4,$5) returning id`,
-          [configId, MANAGER.point_id, ppid, p.category, p.price_kopecks]);
+          [configId, who.point_id, ppid, p.category, p.price_kopecks]);
         const itemId = item.rows[0].id as string;
 
         for (const l of LIGHTS) {
@@ -49,7 +50,7 @@ export async function sendCard(threadId: string, pointPriceIds: string[]) {
             `insert into renders (configuration_item_id, point_id, variant, storage_path,
                                   pipeline, render_class, qa_passed, cost_kopecks)
              values ($1,$2,$3,$4,$5,$6,true,$7)`,
-            [itemId, MANAGER.point_id, l.id, path,
+            [itemId, who.point_id, l.id, path,
              JSON.stringify({ source: 'typical_body_cache', sku: p.sku, light: l.id }),
              p.default_class, 0]);
         }
@@ -59,7 +60,7 @@ export async function sendCard(threadId: string, pointPriceIds: string[]) {
         `insert into outbound_cards (point_id, configuration_id, honesty_line, channel_kind,
                                      rendered_paths)
          values ($1,$2,$3,$4,$5)`,
-        [MANAGER.point_id, configId, HONESTY_LINE, 'telegram', paths]);
+        [who.point_id, configId, HONESTY_LINE, 'telegram', paths]);
 
       const ch = await c.query(
         `select ch.id from messages m join channels ch on ch.id = m.channel_id
@@ -69,7 +70,7 @@ export async function sendCard(threadId: string, pointPriceIds: string[]) {
                                outbound_card_id, delivery)
          select $1,$2,$3,'out',$4, oc.id, 'delivered'
            from outbound_cards oc where oc.configuration_id = $5`,
-        [MANAGER.point_id, threadId, ch.rows[0].id,
+        [who.point_id, threadId, ch.rows[0].id,
          'Три варианта из нашего прайса. ' + HONESTY_LINE, configId]);
 
       revalidatePath(`/inbox/${threadId}`);
@@ -119,7 +120,8 @@ function cacheKey(sku: string, light: string) {
  */
 export async function startTryOn(configId: string, pointPriceId: string,
                                  photoId: string) {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     try {
       const price = await c.query(
         `select pp.id, pp.price_kopecks, ci.category, ci.sku, ci.finish,
@@ -150,7 +152,7 @@ export async function startTryOn(configId: string, pointPriceId: string,
          values ($1,$2,$3,$4,$5)
          on conflict do nothing
          returning id`,
-        [configId, MANAGER.point_id, pointPriceId, p.category, p.price_kopecks]);
+        [configId, who.point_id, pointPriceId, p.category, p.price_kopecks]);
       const itemId = item.rows[0]?.id
         ?? (await c.query(
               `select id from configuration_items
@@ -166,13 +168,13 @@ export async function startTryOn(configId: string, pointPriceId: string,
       for (const l of LIGHTS) {
         const r = await c.query(
           `select app.enqueue_render($1,$2,$3::render_variant,'B',$4,0::smallint,850,$5::jsonb) as id`,
-          [MANAGER.point_id, itemId, l.id,
+          [who.point_id, itemId, l.id,
            `${photoId}:${pointPriceId}:${l.id}`,
            JSON.stringify({
              photo_path: photo.rows[0].storage_path,
              sku_name: p.sku, finish: p.finish,
              target_lab: [Number(p.lab_l), Number(p.lab_a), Number(p.lab_b)],
-             light: l.id, network_id: MANAGER.network_id,
+             light: l.id, network_id: who.network_id,
            })]);
         ids.push(r.rows[0].id as string);
       }
@@ -189,7 +191,8 @@ export async function startTryOn(configId: string, pointPriceId: string,
 
 /** Готовность примерки: сколько светов уже посчитано и что с отказами. */
 export async function tryOnStatus(itemId: string) {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const done = await c.query(
       `select variant, storage_path from renders
         where configuration_item_id = $1 and qa_passed and erased_at is null`,

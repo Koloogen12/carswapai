@@ -142,7 +142,11 @@ function avEvent(eventId: string, messageId: string, text: string, authorId = 99
 // каналы, клиенты, треды и сообщения — таблицы под RLS, и на боевой роли
 // запрос без претензии молча сделал бы ноль строк. Тест, который убирает за
 // собой вхолостую, начал бы врать со второго прогона.
-const TENANT: Claims = { app_role: 'manager', point_id: POINT, network_id: NETWORK };
+// Роль владельца, а не менеджера: миграция 018 запретила менеджеру заводить
+// и удалять каналы — и правильно, каналы это деньги и чужие обращения.
+// Фикстура теста делает ровно то, что запрещено менеджеру, значит и роль ей
+// нужна та, которой это позволено.
+const TENANT: Claims = { app_role: 'owner', point_id: POINT, network_id: NETWORK };
 
 async function scrub(): Promise<void> {
   await withTenant(TENANT, async c => {

@@ -9,6 +9,15 @@ import { bookSlot, confirmChoice, payPrepay, decideChange, reschedule,
 
 const rub = (k: number) => Math.round(k / 100).toLocaleString('ru-RU').replace(/ /g, ' ');
 const DOW = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+/** Часы приёма на замер — из кадра «04 Клиент выбирает слот сам». */
+const TIMES = ['09:00', '11:00', '13:30', '16:00'];
+/** «30 августа» — как в макете. Месяц словом, потому что дату читает клиент,
+ *  а не система: «30.08.2026» в сообщении из мессенджера выглядит выпиской. */
+const fmtDay = (d: Date) => d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+/** Оклейка идёт после замера; три дня — типовой срок из макета, и назван он
+ *  здесь оговоркой, а не обещанием: точный срок считается по метражу, а
+ *  метраж как раз и обмеряют на замере. */
+const PICKUP_DAYS = 3;
 
 export function ClientJourney({ j }: { j: Journey }) {
   const [pending, start] = useTransition();
@@ -38,6 +47,10 @@ export function ClientJourney({ j }: { j: Journey }) {
   /** Машина, как её можно назвать по имеющимся данным. В посеве бывает,
    *  что ни марки, ни номера ещё нет — тогда честнее прочерк, чем « · ». */
   const car = [j.vehicle, j.plate].filter(Boolean).join(' · ') || '—';
+  /** Когда забирать машину, если замер состоится в выбранный день. */
+  const pickup = (() => {
+    const d = new Date(days[dayIdx]); d.setDate(d.getDate() + PICKUP_DAYS); return d;
+  })();
 
   const act = (fn: () => Promise<{ ok: boolean; error?: string }>) =>
     start(async () => { const r = await fn(); setErr(r.ok ? null : r.error ?? null); });
@@ -159,40 +172,37 @@ export function ClientJourney({ j }: { j: Journey }) {
           оно предъявляется наравне с выбором цвета.</Note>
       </Pad>}
 
-      {stage === 'visit' && j.appointment_at && (
-        <div style={{ display: "none" }} />
-      )}
-
+      {/* Кадр «04 Клиент выбирает слот сам» — 07-pass1-client-second-half,
+          блок 2, [1,0,1]. Раньше здесь стоял собственный набор: часы пилюлями
+          в строку и абзац про «окно между решением и замером», которого в
+          макете нет вовсе. Проверка верности звала это выдумкой и была права. */}
       {stage === 'slot' && <Pad>
         <Head title="Когда вам удобно на замер"
           note="Двадцать минут: сверим оттенок с рулоном, обмерим кузов, назовём точный срок." small />
-        <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "18px", display: "flex", flexDirection: "column", gap: "14px" }}>
-          <div style={{ display: "flex", gap: "6px" }}>
-            {days.map((d, i) => (
-              <button key={i} onClick={() => setDay(i)}
-                style={{ flex: "1", background: day === i ? "#111111" : "#F7F7F7", borderRadius: "14px", padding: "11px 0", textAlign: "center", display: "flex", flexDirection: "column", gap: "2px", border: 0, cursor: "pointer", fontFamily: "inherit" }}>
-                <span style={{ fontSize: "10px", color: "#9A9A9A" }}>{DOW[d.getDay()]}</span>
-                <span style={{ fontSize: "16px", fontWeight: "500", color: day === i ? "#FFFFFF" : "#111111" }}>{d.getDate()}</span>
-              </button>
-            ))}
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "7px" }}>
-            {times.map(t => {
-              const iso = (() => { const d = new Date(days[day]);
-                const [h, m] = t.split(':'); d.setHours(+h, +m, 0, 0); return d.toISOString(); })();
-              const on = slot === iso;
-              return (
-                <button key={t} onClick={() => setSlot(iso)}
-                  style={{ background: on ? "#DEF23B" : "#F7F7F7", borderRadius: "999px", padding: "11px 18px", border: 0, cursor: "pointer", fontFamily: "inherit", fontSize: "13.5px", fontWeight: "500" }}>{t}</button>
-              );
-            })}
-          </div>
+        <SlotPicker days={days} times={times} dayIdx={dayIdx} timeIdx={timeIdx}
+          onDay={setDayIdx} onTime={setTimeIdx} />
+        <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "15px 17px", display: "flex", flexDirection: "column", gap: "7px" }}>
+          <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Оклейка после замера</span>
+          <span style={{ fontSize: "13px", lineHeight: "1.5", color: "#2E2E2E" }}>
+            Ближайшее окно на посту — сразу после замера. Машину заберёте {fmtDay(pickup)} вечером,
+            если на замере метраж подтвердится.
+          </span>
         </div>
-        <Note>Слот бронируется сейчас, пока вы ещё смотрите на свою машину. Перенести можно
-          в один тап — но окно между решением и замером и есть то место, где сделки теряются чаще всего.</Note>
         {err && <Err text={err} />}
-        <Primary onClick={() => slot && act(() => bookSlot(j.configuration_id, slot))}
-          busy={pending} disabled={!slot}>Записаться на замер</Primary>
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
+          <Primary busy={pending}
+            onClick={() => act(() => bookSlot(j.configuration_id, isoOf(dayIdx, timeIdx)))}>
+            Записаться на {fmtDay(days[dayIdx])}, {times[timeIdx]}</Primary>
+          {/* В макете здесь обещание «слоты показаны по реальной загрузке
+              постов — накладок не будет». Держать его нечем: под ролью
+              `client` политика на appointments отдаёт ровно один визит —
+              свой, — и чужую занятость ссылка клиента не видит и не должна.
+              Печатать обещание, которого продукт не выполняет, дороже, чем
+              разойтись с макетом на одну строку. */}
+          <span style={{ fontSize: "10.5px", color: "#9A9A9A", textAlign: "center", lineHeight: "1.45" }}>
+            Слот закрепляется за вами сразу — точка увидит запись в своём расписании.
+          </span>
+        </div>
       </Pad>}
 
       {stage === 'visit' && <Pad>
@@ -200,7 +210,7 @@ export function ClientJourney({ j }: { j: Journey }) {
           note={`${DOW[new Date(j.appointment_at!).getDay()]} · замер займёт 20 минут`} small />
         <Card>
           <Rows rows={[['Точка', j.point_name], ['Адрес', j.point_address ?? '—'],
-                       ['Артикул', `${j.brand} ${j.sku}`], ['Ваш автомобиль', `${j.vehicle} · ${j.plate ?? ''}`]]} />
+                       ['Артикул', `${j.brand} ${j.sku}`], ['Ваш автомобиль', car]]} />
         </Card>
         <div style={{ display: "flex", gap: "7px" }}>
           {['day', 'overcast', 'parking'].map(v => (
@@ -211,33 +221,26 @@ export function ClientJourney({ j }: { j: Journey }) {
           ))}
         </div>
         <Honesty text={j.honesty_line} />
-        <Note>Ваш выбор зафиксирован {new Date(j.confirmed_at!).toLocaleDateString('ru-RU')}.
-          На замере мы приложим к нему образец рулона — сверите сами.</Note>
+        {/* Визит может стоять и до фиксации выбора — тогда даты у нас нет.
+            Раньше здесь стоял `j.confirmed_at!`, и клиент на посевной
+            конфигурации …0002 читал «зафиксирован 01.01.1970»: восклицательный
+            знак не проверяет, а лишь запрещает спрашивать. */}
+        <Note>{j.confirmed_at
+          ? `Ваш выбор зафиксирован ${new Date(j.confirmed_at).toLocaleDateString('ru-RU')}. ` +
+            'На замере мы приложим к нему образец рулона — сверите сами.'
+          : 'Выбор цвета ещё не зафиксирован — сделаем это на замере, вместе со сверкой рулона.'}</Note>
 
         {/* Перенос — не «удалить визит». Отказ и возврат живут рядом, но
             отдельной веткой: клиент, который переносит, и клиент, который
             отказывается, находятся в разных состояниях сделки. */}
         <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "20px", display: "flex", flexDirection: "column", gap: "13px" }}>
           <span style={{ fontSize: "19px", fontWeight: "500", letterSpacing: "-0.024em", lineHeight: "1.2" }}>Перенести замер</span>
-          <div style={{ display: "flex", gap: "6px" }}>
-            {days.map((d, i) => (
-              <button key={i} onClick={() => setDay(i)}
-                style={{ flex: "1", background: day === i ? "#111111" : "#F7F7F7", borderRadius: "14px", padding: "11px 0", textAlign: "center", display: "flex", flexDirection: "column", gap: "2px", border: 0, cursor: "pointer", fontFamily: "inherit" }}>
-                <span style={{ fontSize: "10px", color: "#9A9A9A" }}>{DOW[d.getDay()]}</span>
-                <span style={{ fontSize: "16px", fontWeight: "500", color: day === i ? "#FFFFFF" : "#111111" }}>{d.getDate()}</span>
-              </button>
-            ))}
-          </div>
+          <DayStrip days={days} value={dayIdx} onPick={setDayIdx} />
           <div style={{ display: "flex", gap: "7px", flexWrap: "wrap" }}>
-            {times.map(t => {
-              const iso = (() => { const d = new Date(days[day]);
-                const [h, m] = t.split(':'); d.setHours(+h, +m, 0, 0); return d.toISOString(); })();
-              const on = slot === iso;
-              return (
-                <button key={t} onClick={() => setSlot(iso)}
-                  style={{ fontSize: "12px", fontWeight: "500", background: on ? "#DEF23B" : "#F7F7F7", borderRadius: "999px", padding: "9px 14px", border: 0, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
-              );
-            })}
+            {times.map((t, i) => (
+              <button key={t} onClick={() => setTimeIdx(i)} aria-pressed={i === timeIdx}
+                style={{ fontSize: "12px", fontWeight: "500", background: i === timeIdx ? "#DEF23B" : "#F7F7F7", borderRadius: "999px", padding: "9px 14px", border: 0, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+            ))}
           </div>
           <div style={{ background: "#F5FBCB", borderRadius: "16px", padding: "12px 14px" }}>
             <span style={{ fontSize: "11px", lineHeight: "1.45", color: "#2E2E2E" }}>
@@ -245,9 +248,11 @@ export function ClientJourney({ j }: { j: Journey }) {
               на новую дату цвет тот же.
             </span>
           </div>
-          <Primary busy={pending} disabled={!slot}
-            onClick={() => slot && act(() => reschedule(j.configuration_id, j.appointment_id!, slot))}>
-            Перенести</Primary>
+          {err && <Err text={err} />}
+          <Primary busy={pending}
+            onClick={() => act(() => reschedule(j.configuration_id, j.appointment_id!,
+                                                isoOf(dayIdx, timeIdx)))}>
+            Перенести на {fmtDay(days[dayIdx])}, {times[timeIdx]}</Primary>
           <span style={{ fontSize: "11px", color: "#9A9A9A", textAlign: "center", lineHeight: "1.45" }}>
             Нужен возврат предоплаты — напишите в чат точки, вернём на ту же карту.
           </span>
@@ -283,8 +288,24 @@ export function ClientJourney({ j }: { j: Journey }) {
           ? <Primary busy={pending}
               onClick={() => act(() => payPrepay(j.configuration_id, j.invoice_id!, prepay, j.point_id))}>
               Оплатить {rub(prepay)} ₽</Primary>
-          : <Note>Что дальше: {new Date(j.appointment_at ?? Date.now()).toLocaleDateString('ru-RU')} —
-              замер и сверка рулона, затем три дня работы. Даты придут в этот же чат.</Note>}
+          : j.appointment_at
+            ? <Note>Что дальше: {fmtDay(new Date(j.appointment_at))} — замер и сверка рулона,
+                затем три дня работы. Даты придут в этот же чат.</Note>
+            /* Предоплата внесена, а замера в базе нет — так стоит посевная
+               …0001. Раньше экран подставлял сюда сегодняшнее число вместо
+               отсутствующей даты и выдавал его за дату замера, а действий не
+               предлагал вовсе: ноль кнопок на оплаченном счёте. Замер — ровно
+               то, что клиенту осталось сделать, поэтому здесь та же карточка
+               выбора слота, что и на шаге записи. */
+            : <>
+                <Note>Что дальше: остался замер — без него не начнём.
+                  Выберите время, рулон под ваш артикул уже забронирован.</Note>
+                <SlotPicker days={days} times={times} dayIdx={dayIdx} timeIdx={timeIdx}
+                  onDay={setDayIdx} onTime={setTimeIdx} />
+                <Primary busy={pending}
+                  onClick={() => act(() => bookSlot(j.configuration_id, isoOf(dayIdx, timeIdx)))}>
+                  Записаться на {fmtDay(days[dayIdx])}, {times[timeIdx]}</Primary>
+              </>}
       </Pad>}
 
       {stage === 'work' && <Pad>
@@ -321,15 +342,22 @@ export function ClientJourney({ j }: { j: Journey }) {
         </div>
         <Card>
           <Rows rows={[['Наряд', j.order_number ?? '—'], ['Артикул', `${j.brand} ${j.sku}`],
-                       ['Вы подтвердили', new Date(j.confirmed_at!).toLocaleDateString('ru-RU')],
+                       ['Вы подтвердили', j.confirmed_at
+                          ? new Date(j.confirmed_at).toLocaleDateString('ru-RU') : '—'],
                        ['К оплате при выдаче', `${rub((j.invoice_amount ?? j.price_kopecks) - paid)} ₽`]]} />
         </Card>
         <Honesty text={j.honesty_line} />
-        <Primary onClick={() => {}}>Принимаю работу</Primary>
+        {/* Единственный шаг пути без серверного действия: в journey.ts приёмки
+            нет, а завести её значило бы править src/lib — он вне территории
+            этой задачи. Кнопка, которая молча ничего не делает, хуже
+            выключенной: выключаем и называем причину. */}
+        <Primary onClick={() => {}} disabled>Принимаю работу</Primary>
+        <Note>Подпись приёмки принимает мастер на выдаче — в ссылке клиента
+          этот шаг ещё не подключён.</Note>
       </Pad>}
 
       {stage === 'done' && <Pad>
-        <Head title="Мой гараж" note={`${j.vehicle} · ${j.plate ?? ''}`} small />
+        <Head title="Мой гараж" note={car} small />
         <div style={{ height: "180px", borderRadius: "26px", overflow: "hidden" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={img('day')} alt="" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
@@ -398,7 +426,51 @@ function Phone({ children, bg }: { children: React.ReactNode; bg: string }) {
   );
 }
 const Pad = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ padding: "28px 16px 18px", display: "flex", flexDirection: "column", gap: "14px" }}>{children}</div>
+  // flex:1 — чтобы marginTop:auto у нижнего блока прижимал его к низу рамки,
+  // как в макете, где кадр фиксирован по высоте.
+  <div style={{ flex: "1", padding: "28px 16px 18px", display: "flex", flexDirection: "column", gap: "14px" }}>{children}</div>
+);
+/**
+ * Карточка выбора слота — кадр «04 Клиент выбирает слот сам».
+ *
+ * Часы столбцом, а не пилюлями в строку: в строку не помещалась подпись
+ * состояния, и потому её в прежней сборке просто не было.
+ */
+const SlotPicker = ({ days, times, dayIdx, timeIdx, onDay, onTime }: {
+  days: Date[]; times: string[]; dayIdx: number; timeIdx: number;
+  onDay: (i: number) => void; onTime: (i: number) => void;
+}) => (
+  <div style={{ background: "#FFFFFF", borderRadius: "26px", padding: "18px", display: "flex", flexDirection: "column", gap: "14px" }}>
+    <DayStrip days={days} value={dayIdx} onPick={onDay} />
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      {times.map((t, i) => {
+        const on = i === timeIdx;
+        return (
+          <button key={t} onClick={() => onTime(i)} aria-pressed={on}
+            style={{ display: "flex", alignItems: "center", gap: "12px", background: on ? "#DEF23B" : "#F7F7F7", borderRadius: "16px", padding: "14px 16px", border: 0, cursor: "pointer", fontFamily: "inherit", width: "100%", textAlign: "left" }}>
+            <span style={{ flex: "1", fontSize: "15px", fontWeight: "500" }}>{t}</span>
+            {on
+              ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.4" strokeLinecap="round" style={{ flex: "none" }}><path d="M5 13l4.5 4.5L19 7" /></svg>
+              : <span style={{ fontSize: "11.5px", color: "#6E6E6E" }}>свободно</span>}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+/** Полоса из четырёх ближайших дней — общая для записи и для переноса. */
+const DayStrip = ({ days, value, onPick }: {
+  days: Date[]; value: number; onPick: (i: number) => void;
+}) => (
+  <div style={{ display: "flex", gap: "6px" }}>
+    {days.map((d, i) => (
+      <button key={i} onClick={() => onPick(i)} aria-pressed={i === value}
+        style={{ flex: "1", background: i === value ? "#111111" : "#F7F7F7", borderRadius: "14px", padding: "11px 0", textAlign: "center", display: "flex", flexDirection: "column", gap: "2px", border: 0, cursor: "pointer", fontFamily: "inherit" }}>
+        <span style={{ fontSize: "10px", color: "#9A9A9A" }}>{DOW[d.getDay()]}</span>
+        <span style={{ fontSize: "16px", fontWeight: "500", color: i === value ? "#FFFFFF" : "#111111" }}>{d.getDate()}</span>
+      </button>
+    ))}
+  </div>
 );
 const Hero = ({ src, dim }: { src: string; dim?: boolean }) => (
   <div style={{ position: "absolute", inset: "0", opacity: dim ? .35 : 1 }}>

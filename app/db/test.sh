@@ -62,6 +62,9 @@ psql -h "$S" -p "$PORT" -U carswap_owner -d carswap -q -v ON_ERROR_STOP=1 -f tes
 # то есть RLS для неё действует так же, как в бою.
 psql -h "$S" -p "$PORT" -U carswap_app -d carswap -v ON_ERROR_STOP=1 \
   -f tests/invariants.sql -f tests/queue.sql -f tests/consent-rolls.sql -f tests/operations.sql -f tests/renders-erasure.sql -f tests/channel-resolver.sql -f tests/offer-consent.sql -f tests/auth.sql \
+  -f tests/leads.sql \
+  -f tests/channels.sql \
+  -f tests/staff.sql \
   -f tests/retention.sql \
   -f tests/client-link.sql 2>&1 \
   | grep -E 'ok  ·|ПРОВАЛ|ERROR'

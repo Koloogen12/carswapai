@@ -53,6 +53,22 @@
   outline-offset: 2px;
 }
 
+/* Форма заявки в блоке #demo. Три правила, которых инлайновым стилем не
+ * выразить, — и ни одного нового значения.
+ *
+ * scroll-margin-top: все кнопки «Записаться на демо» ведут теперь на саму
+ * форму, а не на блок; шапка зафиксирована, и без отбивки форма уехала бы
+ * под неё. 96px — тот же отступ, с которого начинается любой раздел.
+ *
+ * Состояния фокуса поля в макете нет ни на одном экране. Общее правило
+ * :focus-visible ниже рисует чёрную обводку — на тёмной карточке #demo она
+ * невидима, поэтому поле берёт кислоту, то есть тот же цвет на горячем,
+ * что и кнопки. Толщина 1.5px — как у обводки поля на экране входа. */
+.cs-landing #demo-form { scroll-margin-top: 96px; }
+.cs-landing .cs-field { box-shadow: inset 0 0 0 1.5px transparent; transition: box-shadow .16s; }
+.cs-landing .cs-field:focus-within { box-shadow: inset 0 0 0 1.5px #DEF23B; }
+.cs-landing .cs-field input::placeholder { color: #9A9A9A; opacity: 1; }
+
 /* Примерочная: слои плёнок переключаются по opacity, чтобы смена была
  * мгновенной и без мигания. */
 .cs-film-layer { transition: opacity .18s; }
@@ -62,7 +78,7 @@
 .cs-scrollx { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 @media (prefers-reduced-motion: reduce) {
-  .cs-film-layer, .cs-btn-primary, .cs-btn-ghost, .csChev { transition: none; }
+  .cs-film-layer, .cs-btn-primary, .cs-btn-ghost, .csChev, .cs-field { transition: none; }
 }
 
 /* ── ≤900px: навигация в шапке не помещается ─────────────────────────── */

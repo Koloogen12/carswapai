@@ -10,6 +10,8 @@
 /* eslint-disable @next/next/no-img-element */
 import type { ReactElement } from 'react';
 
+import { LeadForm } from './LeadForm';
+
 /* ── 0 · навбар ─────────────────────────────────────────────── */
 export function Nav(): ReactElement {
   return (
@@ -30,7 +32,7 @@ export function Nav(): ReactElement {
             <a href="#pricing" style={{ fontSize: "13.5px", color: "#C4C4C4" }}>Тарифы</a>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <a className="cs-btn-primary" href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "12px 22px", fontSize: "13.5px", fontWeight: "500" }}>Записаться на демо</a>
+            <a className="cs-btn-primary" href="#demo-form" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "12px 22px", fontSize: "13.5px", fontWeight: "500" }}>Записаться на демо</a>
             <div style={{ width: "42px", height: "42px", borderRadius: "999px", background: "rgba(255,255,255,.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "none" }}><circle cx="12" cy="9" r="3.4" /><path d="M5.5 20a6.5 6.5 0 0113 0" /></svg>
             </div>
@@ -690,7 +692,7 @@ export function Network(): ReactElement {
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px", flexWrap: "wrap" }}>
               <p style={{ margin: "0", maxWidth: "620px", fontSize: "14px", lineHeight: "1.55", color: "#9A9A9A", textWrap: "pretty" }}>Референсов в вашей отрасли у нас пока нет — и мы это проговариваем вслух, а не подставляем «студию из Москвы» без названия.</p>
-              <a className="cs-btn-primary" href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500", flex: "none" }}>Обсудить пилот на 5 точках</a>
+              <a className="cs-btn-primary" href="#demo-form" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500", flex: "none" }}>Обсудить пилот на 5 точках</a>
             </div>
           </div>
         </div>
@@ -747,7 +749,7 @@ export function Pricing(): ReactElement {
                 <span style={{ fontSize: "13.5px", lineHeight: "1.45", color: "#E8E8E8" }}>Столько менеджеров, сколько нужно</span>
                 <span style={{ fontSize: "13.5px", lineHeight: "1.45", color: "#E8E8E8" }}>Подключение и загрузка прайса — наша работа</span>
               </div>
-              <a href="#demo" style={{ display: "block", background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "15px", textAlign: "center", fontSize: "14px", fontWeight: "500", marginTop: "auto" }}>Подключить точку</a>
+              <a href="#demo-form" style={{ display: "block", background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "15px", textAlign: "center", fontSize: "14px", fontWeight: "500", marginTop: "auto" }}>Подключить точку</a>
             </div>
 
             <div style={{ background: "#FFFFFF", borderRadius: "32px", padding: "32px", display: "flex", flexDirection: "column", gap: "22px" }}>
@@ -764,7 +766,7 @@ export function Pricing(): ReactElement {
                 <span style={{ fontSize: "13.5px", lineHeight: "1.45", color: "#2E2E2E" }}>Пилот 5 точек, первый месяц бесплатно</span>
                 <span style={{ fontSize: "13.5px", lineHeight: "1.45", color: "#2E2E2E" }}>Выделенный канал поддержки</span>
               </div>
-              <a href="#demo" style={{ display: "block", background: "#FFFFFF", boxShadow: "inset 0 0 0 1px #E2E2E2", borderRadius: "999px", padding: "14px", textAlign: "center", fontSize: "14px", fontWeight: "500", marginTop: "auto" }}>Обсудить пилот</a>
+              <a href="#demo-form" style={{ display: "block", background: "#FFFFFF", boxShadow: "inset 0 0 0 1px #E2E2E2", borderRadius: "999px", padding: "14px", textAlign: "center", fontSize: "14px", fontWeight: "500", marginTop: "auto" }}>Обсудить пилот</a>
             </div>
 
           </div>
@@ -841,10 +843,13 @@ export function FinalCta(): ReactElement {
             <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
               <h2 style={{ margin: "0", fontSize: "clamp(28px,3.3vw,48px)", lineHeight: "1.02", fontWeight: "500", letterSpacing: "-0.04em", color: "#FFFFFF", textWrap: "balance" }}>Покажем на вашей точке. Пришлите прайс — соберём примерку на вашей машине.</h2>
               <p style={{ margin: "0", maxWidth: "540px", fontSize: "15px", lineHeight: "1.55", color: "#9A9A9A", textWrap: "pretty" }}>Пятнадцать минут, без презентации. Показываем инбокс, собираем одну примерку из вашего прайса и отправляем в ваш же WhatsApp — дальше решаете сами.</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                <a className="cs-btn-primary" href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500" }}>Записаться на демо</a>
-                <a className="cs-btn-ghost" href="#try" style={{ background: "rgba(255,255,255,.1)", color: "#FFFFFF", borderRadius: "999px", padding: "16px 30px", fontSize: "14.5px", fontWeight: "500" }}>Сначала померить самому</a>
-              </div>
+              {/* На месте пары кнопок из макета стоит форма заявки. Кнопка
+                * «Записаться на демо» здесь вела на #demo — то есть сама на
+                * себя, — и это был единственный способ сообщить о себе на
+                * всей странице. Теперь та же кнопка отправляет форму, а
+                * «Сначала померить самому» осталась рядом с ней в том же
+                * ряду и с теми же значениями. */}
+              <LeadForm />
             </div>
             <div style={{ background: "rgba(255,255,255,.06)", borderRadius: "28px", padding: "28px", display: "flex", flexDirection: "column", gap: "14px" }}>
               <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.09em", textTransform: "uppercase", color: "#DEF23B" }}>Что будет на демо</span>

@@ -70,7 +70,7 @@ export function Checklist(): ReactElement {
               <span style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "0.09em", textTransform: "uppercase", color: "#DEF23B" }}>{tickLabel(ticks)}</span>
               <span style={{ fontSize: "17px", fontWeight: "500", letterSpacing: "-0.02em", color: "#FFFFFF", textWrap: "pretty" }}>{tickLine(ticks)}</span>
             </div>
-            <a href="#demo" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "15px 28px", fontSize: "14px", fontWeight: "500", flex: "none" }}>Посмотрим на вашей точке · 15 минут</a>
+            <a href="#demo-form" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "15px 28px", fontSize: "14px", fontWeight: "500", flex: "none" }}>Посмотрим на вашей точке · 15 минут</a>
           </div>
         </div>
       </div>

@@ -118,7 +118,8 @@ def strip_rationale(node: str) -> str:
     # соседний маршрут, где такие подписи были настоящими.
     m = list(re.finditer(
         r'<span style=\{\{[^}]*fontSize: "11(?:\.\d)?px"[^}]*color: "#9A9A9A"[^}]*\}\}>'
-        r'[^<]{60,}</span>\s*$', node.rstrip()))
+        # После подписи идут закрывающие теги рамки — их и пропускаем.
+        r'[^<]{60,}</span>\s*(?:</div>\s*)*$', node.rstrip()))
     if not m:
         return node
     last = m[-1]
@@ -222,7 +223,13 @@ def main() -> int:
             # показывала недостачу там, где экран верен.
             picked = frames(node)
             src = ' '.join(picked) if picked else node
-            return vocab(words(strip_rationale(src)))
+            full = vocab(words(src))
+            trimmed = vocab(words(strip_rationale(src)))
+            # Отсечение подписи осмысленно, только пока выборка остаётся
+            # достаточной. На мелком кадре подпись — заметная доля текста, и
+            # после неё каждое пропущенное слово весит по восемь процентов:
+            # доля перестаёт что-либо мерить и начинает шуметь.
+            return trimmed if len(trimmed) >= 20 else full
 
         want = at(block, path)
         hit = want & have

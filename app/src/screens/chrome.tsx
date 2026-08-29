@@ -32,6 +32,12 @@ export function AppBar({ pointName, user, role, spent, cap }: {
         <a href="/price" style={{ width: "40px", height: "40px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="4" width="6.5" height="6.5" rx="2" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="2" /><rect x="4" y="13.5" width="6.5" height="6.5" rx="2" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2" /></svg>
         </a>
+        {/* Каналы. Без ссылки экран запуска точки недостижим: владелец
+            попадал бы на него только по прямому адресу, а это ровно тот
+            шаг, без которого в продукт не приходит ни одного обращения. */}
+        <a href="/channels" aria-label="Подключение каналов" style={{ width: "40px", height: "40px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"><path d="M12 20v-5" /><path d="M8.5 15h7a2 2 0 0 0 2-2V9h-11v4a2 2 0 0 0 2 2z" /><path d="M9 6V3.5M15 6V3.5" /></svg>
+        </a>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
         <a href="/owner" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>

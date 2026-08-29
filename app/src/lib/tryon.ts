@@ -1,7 +1,7 @@
 'use server';
 import { claimsFor } from './session';
 import { withTenant } from './db';
-import { MANAGER } from './data';
+
 
 /**
  * Черновик живой примерки треда.
@@ -41,7 +41,8 @@ export type TryonState = {
  * задания; иначе экран показал бы пустой дубль вместо идущей примерки.
  */
 export async function tryonExisting(threadId: string): Promise<TryonState[]> {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(`
       select cit.point_price_id, cit.id as item_id,
              coalesce(json_agg(distinct jsonb_build_object(
@@ -87,7 +88,8 @@ export async function tryonExisting(threadId: string): Promise<TryonState[]> {
 
 /** Фотография клиента, на которой считается примерка. Только чтение. */
 export async function tryonPhoto(threadId: string): Promise<string | null> {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const { rows } = await c.query(
       `select p.storage_path
          from photos p
@@ -106,7 +108,8 @@ export async function tryonPhoto(threadId: string): Promise<string | null> {
  * находит уже заведённый черновик и второго не создаёт.
  */
 export async function tryonDraft(threadId: string) {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     try {
       const photo = await c.query(
         `select p.id from photos p
@@ -132,7 +135,7 @@ export async function tryonDraft(threadId: string) {
       const made = await c.query(
         `insert into configurations (point_id, thread_id, photo_id, created_by, origin)
          values ($1,$2,$3,$4,'manager') returning id`,
-        [MANAGER.point_id, threadId, photoId, MANAGER.user_id]);
+        [who.point_id, threadId, photoId, who.user_id]);
       return { ok: true as const, configId: made.rows[0].id as string, photoId };
     } catch (e) {
       return { ok: false as const, error: (e as Error).message };

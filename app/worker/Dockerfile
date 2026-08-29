@@ -27,7 +27,14 @@ from torchvision.models.detection import maskrcnn_resnet50_fpn_v2, MaskRCNN_ResN
 maskrcnn_resnet50_fpn_v2(weights=MaskRCNN_ResNet50_FPN_V2_Weights.DEFAULT)" \
  && python3 -c "\
 from open_image_models import create_detector;\
-create_detector('yolo-v9-t-512-license-plate-end2end')" || true
+create_detector('yolo-v9-t-512-license-plate-end2end')"
+
+# Проверка сборки, а не пожелание. Раньше здесь стояло `|| true`, и образ
+# собирался с неработающим детектором номера: пакет ставился, функция в нём
+# отсутствовала, воркер падал на первом же задании. Пусть лучше не соберётся.
+RUN python3 -c "\
+from open_image_models import create_detector;\
+assert create_detector, 'детектор номера не собрался'" 
 
 COPY . /srv/worker/
 ENV PYTHONPATH=/srv/worker

@@ -25,7 +25,7 @@
 import { revalidatePath } from 'next/cache';
 import { claimsFor } from './session';
 import { withTenant } from './db';
-import { MANAGER } from './data';
+
 import { OFFER_TEXT } from './adapters/channel-text';
 
 type Channel = {
@@ -50,21 +50,22 @@ async function threadChannel(c: import('pg').PoolClient, threadId: string) {
  * доставленное клиенту сообщение, которого нет в истории, — а по нему потом
  * доказывается основание хранения фотографии.
  */
-async function record(c: import('pg').PoolClient, threadId: string,
+async function record(c: import('pg').PoolClient, pointId: string, threadId: string,
                       channelId: string, body: string) {
   const r = await c.query<{ id: string }>(
     `insert into messages (point_id, thread_id, channel_id, direction, body, sent_at)
      values ($1,$2,$3,'out',$4, now()) returning id`,
-    [MANAGER.point_id, threadId, channelId, body]);
+    [pointId, threadId, channelId, body]);
   return r.rows[0].id;
 }
 
 /** Сценарий 2 · «есть фото вашего авто?» вместе с офертой, одним сообщением. */
 export async function askForPhoto(threadId: string) {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const ch = await threadChannel(c, threadId);
     if (!ch) return { ok: false as const, error: 'у обращения нет канала' };
-    const messageId = await record(c, threadId, ch.channel_id, OFFER_TEXT);
+    const messageId = await record(c, who.point_id!, threadId, ch.channel_id, OFFER_TEXT);
     revalidatePath(`/inbox/${threadId}`);
     // Доставка идёт отдельным шагом воркера отправки: держать серверное
     // действие на сетевом вызове к шлюзу — тот же просчёт, что и с генерацией.
@@ -74,12 +75,13 @@ export async function askForPhoto(threadId: string) {
 
 /** Сценарий 1 · ссылка на гараж: клиент перебирает артикулы сам. */
 export async function sendGarageLink(threadId: string) {
-  return withTenant(await claimsFor(), async c => {
+  const who = await claimsFor();
+  return withTenant(who, async c => {
     const ch = await threadChannel(c, threadId);
     if (!ch) return { ok: false as const, error: 'у обращения нет канала' };
 
     const pt = await c.query<{ public_slug: string }>(
-      `select public_slug from points where id = $1`, [MANAGER.point_id]);
+      `select public_slug from points where id = $1`, [who.point_id]);
     const slug = pt.rows[0]?.public_slug;
     if (!slug) return { ok: false as const, error: 'у точки нет публичной ссылки' };
 
@@ -96,7 +98,7 @@ export async function sendGarageLink(threadId: string) {
                error: 'В Авито ссылки не отправляем — попросите фото прямо в переписке' };
     }
 
-    const messageId = await record(c, threadId, ch.channel_id, body);
+    const messageId = await record(c, who.point_id!, threadId, ch.channel_id, body);
     revalidatePath(`/inbox/${threadId}`);
     return { ok: true as const, messageId, url };
   });
