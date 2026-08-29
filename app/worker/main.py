@@ -94,18 +94,17 @@ def save_render(point_id: str, job_id: str, img: np.ndarray) -> str:
     return '/' + rel
 
 
-def budget_left(cur, point_id: str) -> int | None:
-    """Остаток до жёсткого потолка точки, в копейках. None — потолка нет."""
-    cur.execute("""
-        select p.hard_cap_kopecks,
-               coalesce((select sum(g.cost_kopecks) from generation_usage g
-                          where g.point_id = p.id
-                            and g.at >= date_trunc('month', now())), 0)
-          from points p where p.id = %s""", (point_id,))
+def hard_stop(cur, point_id: str) -> bool:
+    """
+    Достигнут ли жёсткий потолок расхода точки.
+
+    Спрашиваем app.budget_state — ту же функцию, которой пользуется
+    постановка заданий. Свой подсчёт здесь был бы вторым источником правды
+    о деньгах: разойтись они могут молча, а расплачиваться будет точка.
+    """
+    cur.execute('select hard_reached from app.budget_state(%s)', (point_id,))
     row = cur.fetchone()
-    if not row or row[0] is None:
-        return None
-    return max(int(row[0]) - int(row[1]), 0)
+    return bool(row and (row['hard_reached'] if isinstance(row, dict) else row[0]))
 
 
 def handle(cur, job) -> None:
@@ -122,8 +121,10 @@ def handle(cur, job) -> None:
 
     engine = GatewayEngine()
 
-    left = budget_left(cur, point_id)
-    if left is not None and left < engine.cost_kopecks:
+    # Потолок проверяется ЕЩЁ РАЗ, здесь, а не только при постановке: между
+    # постановкой и исполнением проходит время, и за него точка могла
+    # исчерпать лимит другими заданиями.
+    if hard_stop(cur, point_id):
         # Не ошибка исполнения, а исчерпанный лимит: сообщение должно быть
         # таким, чтобы точка поняла, что делать, — пополнить, а не чинить.
         raise RuntimeError('исчерпан месячный потолок расхода точки')
@@ -150,15 +151,28 @@ def handle(cur, job) -> None:
         insert into renders (configuration_item_id, point_id, variant, storage_path,
                              pipeline, render_class, model_used, provider,
                              cost_kopecks, qa_passed)
-        values (%s,%s,%s,%s,%s::jsonb,'B',%s,%s,%s,true)""",
+        values (%s,%s,%s,%s,%s::jsonb,'B',%s,%s,%s,true)
+        returning id""",
         (job['configuration_item_id'], point_id, job['variant'], path,
          json.dumps({'engine': res.engine, 'sku': req.sku_name,
                      'target_lab': list(req.target_lab), 'finish': req.finish},
                     ensure_ascii=False),
          res.engine, 'gateway', res.cost_kopecks))
+    render_id = cur.fetchone()['id']
+
+    # Расход привязывается к КОНКРЕТНОМУ рендеру и категории: без этого
+    # сверка с счётом вендора превращается в спор об общей сумме, а разбор
+    # «на что ушли деньги точки» — в гадание.
     cur.execute("""
-        insert into generation_usage (point_id, render_class, cost_kopecks, provider)
-        values (%s,'B',%s,'gateway')""", (point_id, res.cost_kopecks))
+        select ci.category from configuration_items ci where ci.id = %s""",
+        (job['configuration_item_id'],))
+    row = cur.fetchone()
+    cur.execute("""
+        insert into generation_usage (point_id, render_id, render_class, category,
+                                      model_used, provider, cost_kopecks)
+        values (%s,%s,'B',%s,%s,'gateway',%s)""",
+        (point_id, render_id, row['category'] if row else 'film',
+         res.engine, res.cost_kopecks))
     cur.execute('select app.finish_render_job(%s, %s)', (job['id'], res.cost_kopecks))
 
 
@@ -192,7 +206,11 @@ def main() -> int:
                     print(f'  ОТКАЗ {job["id"]}: {msg}', flush=True)
                     traceback.print_exc()
                     try:
-                        cur.execute("select set_config('request.jwt.claims','',false)")
+                        # Претензия ОБЯЗАТЕЛЬНА и здесь. Без неё функция не
+                        # увидит задание, отказ запишется вхолостую, и задание
+                        # останется висеть в running навсегда. Точку берём из
+                        # самого задания — мы его и забрали.
+                        as_tenant(cur, str(job['point_id']))
                         cur.execute('select app.fail_render_job(%s, %s)',
                                     (job['id'], msg[:500]))
                     except Exception:

@@ -40,9 +40,11 @@ import numpy as np
 
 from . import classb
 
-# Три света — порядок зафиксирован и совпадает с домашней константой LIGHTS
-# в интерфейсе: клиент видит их всегда в одном порядке.
-LIGHTS = ('day', 'shade', 'night')
+# Три света. Значения обязаны совпадать с типом render_variant в базе и с
+# LIGHTS в src/lib/domain.ts — порядок зафиксирован, клиент видит их всегда
+# одинаково. Проверку на совпадение делает test_worker.py: разойтись эти три
+# места могут молча, и тогда задание просто не встанет в очередь.
+LIGHTS = ('day', 'overcast', 'parking')
 
 MAX_PARALLEL = int(os.environ.get('CSW_B_PARALLEL', '3'))
 
