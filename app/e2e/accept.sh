@@ -111,20 +111,34 @@ N=$(q "select count(*) from outbound_cards c
 [ "${N:-1}" = "0" ] && ok "артикул и цена только из прайса точки, не генерируются" \
                     || bad "артикул и цена только из прайса точки" "позиций без строки прайса: $N"
 
-N=$(q "select count(*) from outbound_cards where honesty_shown is not true")
-C=$(q "select count(*) from information_schema.columns
-        where table_name='outbound_cards' and column_name='honesty_shown'
-          and is_nullable='NO'")
-if [ "${N:-1}" = "0" ] && [ "${C:-0}" = "1" ]; then
-  ok "строка честности на 100% карточек и не отключается ни одной ролью"
+# О-2 держится двумя разными способами, и проверять надо оба.
+# 1) На карточке строка обязана быть непустой — иначе её нельзя вставить.
+N=$(q "select count(*) from outbound_cards where honesty_line is null or btrim(honesty_line) = ''")
+# 2) У подтверждения нет способа сказать «не показывал»: колонка not null
+#    со значением по умолчанию true и check(honesty_shown). Тумблера нет,
+#    потому что нет значения, которое он мог бы записать.
+C=$(q "select count(*) from pg_constraint c join pg_class t on t.oid = c.conrelid
+        where t.relname = 'confirmations'
+          and pg_get_constraintdef(c.oid) like '%honesty_shown%'")
+NN=$(q "select attnotnull::int from pg_attribute
+         where attrelid = 'confirmations'::regclass and attname = 'honesty_shown'")
+if [ "${N:-1}" = "0" ] && [ "${C:-0}" -ge 1 ] && [ "${NN:-0}" = "1" ]; then
+  ok "строка честности: на карточке непустая, у подтверждения не отключаема"
 else
-  bad "строка честности" "карточек без неё: $N"
+  bad "строка честности" \
+      "карточек без строки: $N, ограничений на honesty_shown: $C, not null: $NN"
 fi
 
-D=$(q "select count(*) from catalog_items where default_class = 'D'")
-[ "${D:-1}" = "0" ] && ok "категории класса D недоступны: их нет в каталоге" \
-                    || live "категории класса D недоступны на уровне API" \
-                            "в каталоге $D позиций класса D — нужен тест, что API их отклоняет"
+# Класс D недоступен не потому, что спрятан в интерфейсе, а потому, что
+# в перечислении render_class его нет вовсе: 'D' невозможно даже записать.
+# Это сильнее любой проверки на уровне API.
+D=$(q "select count(*) from pg_enum e join pg_type t on t.oid = e.enumtypid
+        where t.typname = 'render_class' and e.enumlabel = 'D'")
+V=$(q "select string_agg(e.enumlabel, ',' order by e.enumsortorder)
+        from pg_enum e join pg_type t on t.oid = e.enumtypid
+       where t.typname = 'render_class'")
+[ "${D:-1}" = "0" ] && ok "класс D невозможен: в типе render_class только ($V)" \
+                    || bad "класс D недоступен" "в перечислении render_class есть 'D'"
 
 live "при недоступности вендора класс A продолжает работать" \
      "класс B ещё не подключён ни к одному вендору (pipeline/classb.py — интерфейс); проверять после выбора движка"
@@ -169,7 +183,10 @@ else
 fi
 if curl -s -o /dev/null --max-time 3 "$BASE/inbox"; then
   # Динамические маршруты берут параметр из посева: без него они 404 законно.
-  SLUG=$(q "select public_slug from points limit 1")
+  # Слаг берём из базы ДЕВ-СЕРВЕРА: приёмочный кластер — другая база, и
+  # его слаг дал бы честный 404, который выглядел бы как поломка маршрута.
+  SLUG=$(psql -h /tmp/cswdev -p 55432 -U postgres -d carswap -tAc \
+         "select public_slug from points limit 1" 2>/dev/null)
   [ -n "${SLUG:-}" ] && { curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$BASE/g/$SLUG" \
       | grep -q 200 && ok "гараж /g/<слаг> отвечает" || bad "гараж /g/<слаг>" "не 200"; }
 fi
