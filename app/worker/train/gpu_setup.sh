@@ -16,7 +16,9 @@ cd "$(dirname "$0")/.."
 
 echo "── зависимости ──"
 pip install -q --upgrade pip
-pip install -q torch torchvision numpy pillow
+# opencv нужен проверке eval_parts.py, а не обучению — но ставим сразу:
+# доставлять его отдельной командой после часа обучения глупо.
+pip install -q torch torchvision numpy pillow opencv-python-headless
 
 python3 - <<'PY'
 import torch

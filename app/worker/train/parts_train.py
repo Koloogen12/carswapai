@@ -47,10 +47,32 @@ NUM_CLASSES = len(NAMES) + 1          # +1 — фон, его требует Mas
 
 
 class CarParts(torch.utils.data.Dataset):
-    def __init__(self, root: pathlib.Path, split: str, size: int = 640):
+    """
+    Кадры и полигоны.
+
+    AUG — преобразования на лету, только для обучения. Без них сеть
+    переобучается на четвёртой эпохе: измерено, обучение падало до 0,407,
+    а валидация росла с 0,890 до 0,940.
+
+    Наборы приехали уже размноженными Roboflow, и на это легко положиться —
+    зря. Их повороты зафиксированы в файлах, то есть сеть видит одни и те же
+    десять вариантов кадра снова и снова. Преобразование на лету даёт каждый
+    раз новый.
+
+    Отражение по горизонтали здесь допустимо ровно потому, что мы свели
+    словарь к восьми классам: левая и правая двери стали одной «краской», и
+    зеркальный кадр не противоречит разметке. На исходных 23 классах это
+    ломало бы метки back_left_door / back_right_door.
+    """
+
+    def __init__(self, root: pathlib.Path, split: str, size: int = 640,
+                 augment: bool = False):
         self.imgs = sorted((root / 'images' / split).glob('*.jpg'))
+        self.imgs += sorted((root / 'images' / split).glob('*.png'))
+        self.imgs.sort()
         self.lbls = root / 'labels' / split
         self.size = size
+        self.augment = augment
 
     def __len__(self):
         return len(self.imgs)
@@ -82,7 +104,24 @@ class CarParts(torch.utils.data.Dataset):
             boxes.append([x0, y0, x1, y1])
             labels.append(cls + 1)              # 0 занят фоном
 
-        t = torch.from_numpy(np.asarray(img)).permute(2, 0, 1).float() / 255.0
+        arr = np.asarray(img).copy()
+
+        if self.augment:
+            import random
+            if random.random() < 0.5:                    # отражение
+                arr = arr[:, ::-1].copy()
+                if boxes:
+                    masks = [m[:, ::-1].copy() for m in masks]
+                    boxes = [[w - b[2], b[1], w - b[0], b[3]] for b in boxes]
+            # Разброс по яркости и цвету. Для нас это не украшение: задача —
+            # найти краску независимо от того, какого она цвета, а в наборе
+            # цветов кузова немного. Без разброса сеть привяжется к ним.
+            g = 0.75 + random.random() * 0.55
+            arr = np.clip(arr.astype(np.float32) * g, 0, 255)
+            ch = np.array([0.9 + random.random() * 0.2 for _ in range(3)], np.float32)
+            arr = np.clip(arr * ch, 0, 255).astype(np.uint8)
+
+        t = torch.from_numpy(arr).permute(2, 0, 1).float() / 255.0
         if not boxes:
             target = {'boxes': torch.zeros((0, 4), dtype=torch.float32),
                       'labels': torch.zeros((0,), dtype=torch.int64),
@@ -123,6 +162,10 @@ def main():
     ap.add_argument('--batch', type=int, default=4)
     ap.add_argument('--size', type=int, default=640)
     ap.add_argument('--limit', type=int, default=0, help='обрезать выборку — для дымового прогона')
+    ap.add_argument('--no-augment', action='store_true',
+                    help='без преобразований на лету; переобучение наступает быстрее')
+    ap.add_argument('--patience', type=int, default=3,
+                    help='сколько эпох ждать улучшения валидации, прежде чем остановиться')
     ap.add_argument('--device', default='mps')
     ap.add_argument('--data', default='', help='каталог набора; по умолчанию carparts-seg')
     ap.add_argument('--vocab', default='source', choices=('source', 'ours'),
@@ -141,8 +184,9 @@ def main():
         import vocab as V
         NAMES, NUM_CLASSES = V.NAMES, V.NUM_CLASSES
     print(f'словарь: {a.vocab}, классов {len(NAMES)}', flush=True)
-    tr = CarParts(root, 'train', a.size)
-    va = CarParts(root, 'val', a.size)
+    tr = CarParts(root, 'train', a.size, augment=not a.no_augment)
+    va = CarParts(root, 'val', a.size)   # проверка без преобразований: иначе
+                                          # два прогона несравнимы между собой
     if a.limit:
         tr.imgs = tr.imgs[: a.limit]
         va.imgs = va.imgs[: max(a.limit // 8, 2)]
@@ -165,6 +209,7 @@ def main():
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=a.epochs * len(dl))
 
     best = float('inf')
+    stale = 0
     pathlib.Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     for ep in range(1, a.epochs + 1):
         m.train()
@@ -199,13 +244,22 @@ def main():
         mark = ''
         if vl < best:
             best = vl
+            stale = 0
             # names едут вместе с весами: без них файл нельзя истолковать,
             # а два разных словаря дают внешне одинаковые .pt.
             torch.save({'model': m.state_dict(), 'names': NAMES,
                         'size': a.size, 'vocab': a.vocab}, a.out)
             mark = '  ← сохранено'
+        else:
+            stale += 1
         print(f'эпоха {ep}/{a.epochs}: обучение {run/max(n,1):.3f} · '
               f'валидация {vl:.3f} · {time.time()-t0:.0f} с{mark}', flush=True)
+        # Ранняя остановка. Учить дальше, когда валидация перестала улучшаться,
+        # — это платить за GPU, чтобы модель стала хуже.
+        if stale >= a.patience:
+            print(f'валидация не улучшается {stale} эпох(и) подряд — остановка. '
+                  f'Лучшие веса уже сохранены.', flush=True)
+            break
     print(f'готово, лучшая валидация {best:.3f} → {a.out}', flush=True)
 
 
