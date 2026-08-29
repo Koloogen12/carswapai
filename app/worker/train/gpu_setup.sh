@@ -27,7 +27,10 @@ if [ ! -d datasets/carparts-seg ]; then
   mkdir -p datasets
   curl -L -o /tmp/cp.zip \
     https://github.com/ultralytics/assets/releases/download/v0.0.0/carparts-seg.zip
-  unzip -q /tmp/cp.zip -d datasets/carparts-seg && rm /tmp/cp.zip
+  # Через python, а не unzip: в образах runpod его нет, а python есть всегда —
+  # он и так нужен для обучения.
+  python3 -c "import zipfile,sys;zipfile.ZipFile('/tmp/cp.zip').extractall('datasets/carparts-seg')"
+  rm -f /tmp/cp.zip
   # Конфиг из архива несёт заголовок AGPL-3.0 и нам не нужен: список классов
   # и раскладка каталогов зашиты в parts_train.py. Сами данные под CC BY 4.0,
   # это разные лицензии — см. DATASETS.md.
