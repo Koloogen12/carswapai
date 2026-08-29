@@ -9,7 +9,14 @@ FROM python:3.11-slim-bookworm
 # Веса детектора номера и силуэта скачиваются при сборке, а НЕ при первом
 # запуске: на боевом контуре у воркера нет выхода в интернет, и «скачает
 # сам при старте» означало бы, что он не стартует вовсе.
+# Оба кэша весов — в общий каталог образа, а не в домашний. Прогрев идёт от
+# root, а работает воркер от carswap: с домашним каталогом веса легли бы
+# в /root и рабочему пользователю остались недоступны. На боевом контуре
+# интернета у воркера нет, и он полез бы качать их заново — то есть не
+# запустился бы вовсе.
 ENV TORCH_HOME=/opt/models \
+    XDG_CACHE_HOME=/opt/models \
+    HOME=/opt/models \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
@@ -42,7 +49,8 @@ ENV PYTHONPATH=/srv/worker
 # Не под root: воркер ходит в интернет к шлюзу и работает с чужими файлами.
 RUN useradd --system --uid 10001 carswap \
  && mkdir -p /var/lib/carswap/storage \
- && chown -R carswap /var/lib/carswap
+ && chown -R carswap /var/lib/carswap \
+ && chown -R carswap /opt/models
 USER carswap
 
 CMD ["python3", "/srv/worker/main.py"]
