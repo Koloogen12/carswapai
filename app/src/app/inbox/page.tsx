@@ -10,7 +10,7 @@ export default async function InboxPage() {
   const [rows, b] = await Promise.all([inbox(), budget()]);
   return (
     <Frame>
-      <AppBar pointName={me.point} user={me.user} role={me.role}
+      <AppBar active="inbox" pointName={me.point} user={me.user} role={me.role}
         spent={b.spent_kopecks} cap={b.hard_limit} />
       <InboxList rows={rows} />
     </Frame>

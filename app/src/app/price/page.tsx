@@ -4,6 +4,8 @@ import { priceList, budget } from '@/lib/data';
 import { rub } from '@/screens/cabinet';
 import { sys } from '@/lib/db';
 import { Toggle } from './Toggle';
+import { AddFromCatalog, PriceCell } from './AddFromCatalog';
+import { catalogToAdd } from '@/lib/pricing';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +29,7 @@ const THUMB: Record<string, string> = {
  */
 export default async function PricePage() {
   const me = await whoAmI();
-  const [rows, b] = await Promise.all([priceList(), budget()]);
+  const [rows, b, toAdd] = await Promise.all([priceList(), budget(), catalogToAdd()]);
   const [net] = await sys<{ markup: number }>(
     `select price_deviation_allowed_pct::int as markup from networks limit 1`);
 
@@ -41,7 +43,7 @@ export default async function PricePage() {
   return (
     <div style={{ background: "#2A2A2A", minHeight: "100vh", padding: "22px" }}>
       <div style={{ width: "100%", maxWidth: "1440px", margin: "0 auto", background: "#EFEFEF", borderRadius: "30px", padding: "26px 28px 30px", display: "flex", flexDirection: "column", gap: "16px" }}>
-        <AppBar pointName={me.point} user={me.user} role={me.role}
+        <AppBar active="price" pointName={me.point} user={me.user} role={me.role}
           spent={b.spent_kopecks} cap={b.hard_limit} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1.35fr 1fr", gap: "16px", alignItems: "start" }}>
@@ -65,7 +67,7 @@ export default async function PricePage() {
                     <span style={{ fontSize: "11px", ...(i === 0 ? { opacity: ".6" } : { color: "#9A9A9A" }) }}>
                       {r.brand} {r.sku} · база сети {rub(Math.round(r.price_kopecks / (1 + markup / 100)))}</span>
                   </div>
-                  <span style={{ fontSize: "16px", fontWeight: "500", letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums", flex: "none" }}>{rub(r.price_kopecks)}</span>
+                  <PriceCell id={r.point_price_id} kopecks={r.price_kopecks} removable />
                   <Toggle id={r.point_price_id} on />
                 </div>
               ) : (
@@ -81,6 +83,14 @@ export default async function PricePage() {
                   <Toggle id={r.point_price_id} on={false} />
                 </div>
               ))}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                <span style={{ fontSize: "10.5px", fontWeight: "600", letterSpacing: "0.07em", textTransform: "uppercase", color: "#9A9A9A" }}>Добавить из каталога сети</span>
+                <span style={{ fontSize: "11.5px", color: "#6E6E6E" }}>{toAdd.length} доступно</span>
+              </div>
+              <AddFromCatalog items={toAdd} />
             </div>
 
             <div style={{ background: "#111111", borderRadius: "999px", padding: "16px 0", textAlign: "center" }}>

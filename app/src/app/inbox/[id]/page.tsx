@@ -27,7 +27,7 @@ export default async function ThreadPage({ params }: { params: { id: string } })
   const channel = t.messages.at(-1)?.channel ?? 'web';
   return (
     <Frame>
-      <AppBar pointName={me.point} user={me.user} role={me.role}
+      <AppBar active="inbox" pointName={me.point} user={me.user} role={me.role}
         spent={b.spent_kopecks} cap={b.hard_limit} />
       <div style={{ flex: "1", display: "flex", gap: "12px", minHeight: "0" }}>
         <InboxList rows={rows} activeId={params.id} compact />

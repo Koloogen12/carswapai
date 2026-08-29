@@ -67,6 +67,25 @@ insert into catalog_items (id, category, brand, sku, name, finish, light_respons
     null, null, null, '{"labour":true}')
 on conflict do nothing;
 
+-- Каталог сети ШИРЕ прайса точки, и так и должно быть: одна точка работает
+-- с матовыми, другая с хромом, третья только с PPF. Эти три артикула в прайс
+-- точки не заводятся — они и показывают, что добавить есть что.
+insert into catalog_items (id, category, brand, sku, name, finish, light_response,
+                           default_class, lab_l, lab_a, lab_b) values
+  ('dddddddd-0000-4000-8000-00000000000a','film','Avery','SW900-825','Сатин медь',
+   'satin','satin','B', 46.0, 24.0, 31.0),
+  ('dddddddd-0000-4000-8000-00000000000b','film','3M','2080-M12','Мат бордо',
+   'matte','solid','B', 28.0, 33.0, 12.0),
+  ('dddddddd-0000-4000-8000-00000000000c','tint','SunTek','CIR-35','Тонировка 35%',
+   'gloss','solid','A', null, null, null)
+on conflict do nothing;
+
+insert into network_prices (network_id, catalog_item_id, zone_code, price_kopecks) values
+  ('a0000000-0000-4000-8000-000000000001','dddddddd-0000-4000-8000-00000000000a','full_body', 21500000),
+  ('a0000000-0000-4000-8000-000000000001','dddddddd-0000-4000-8000-00000000000b','full_body', 19800000),
+  ('a0000000-0000-4000-8000-000000000001','dddddddd-0000-4000-8000-00000000000c','full_body', 1800000)
+on conflict do nothing;
+
 insert into network_prices (network_id, catalog_item_id, zone_code, price_kopecks)
 select 'a0000000-0000-4000-8000-000000000001', id, 'full_body',
        case sku when 'K75407' then 24840000 when '970-070' then 21490000
@@ -84,7 +103,14 @@ select 'b0000000-0000-4000-8000-000000000001', id, 'full_body',
                 when 'PPF-MATTE' then 42000000 when 'ATR-20' then 1200000
                 else 900000 end,
        sku <> 'GAL-OL'
-  from catalog_items on conflict do nothing;
+  from catalog_items
+ -- Только те, для кого здесь названа цена. Прочие артикулы каталога сети
+ -- в прайс точки НЕ заводятся: каталог шире того, что держит точка, и
+ -- именно на них показывается «добавить из каталога». Прежний `else 900000`
+ -- подставлял им цену вне коридора сети и ронял посев.
+ where sku in ('K75407','970-070','HX20-LG','GAL-OL','K75400',
+               'PPF-PPF','PPF-MATTE','ATR-20')
+ on conflict do nothing;
 
 insert into film_rolls (point_id, catalog_item_id, batch_number, barcode, meters_initial, meters_left) values
   ('b0000000-0000-4000-8000-000000000001','e1000000-0000-4000-8000-000000000001',

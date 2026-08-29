@@ -20,7 +20,7 @@ export default async function CrmPage() {
   const [rows, b] = await Promise.all([crmClients(), budget()]);
   return (
     <Frame pad="26px 28px 30px" gap="16px">
-      <AppBar pointName={me.point} user={me.user} role={me.role}
+      <AppBar active="crm" pointName={me.point} user={me.user} role={me.role}
         spent={b.spent_kopecks} cap={b.hard_limit} />
       <Card gap="16px">
         <CardHead title="Клиенты точки"

@@ -25,7 +25,7 @@ export default async function ChannelsPage() {
 
   return (
     <Frame pad="26px 28px 30px" gap="20px">
-      <AppBar pointName={me.point} user={me.user} role={me.role}
+      <AppBar active="channels" pointName={me.point} user={me.user} role={me.role}
         spent={b.spent_kopecks} cap={b.hard_limit} />
       <ChannelsView data={data} pointName={me.point} />
     </Frame>

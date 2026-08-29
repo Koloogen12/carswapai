@@ -7,9 +7,17 @@
  */
 import type { ReactNode } from 'react';
 
-export function AppBar({ pointName, user, role, spent, cap }: {
+export function AppBar({ pointName, user, role, spent, cap, active }: {
   pointName: string; user: string; role: string; spent: number; cap: number;
+  /**
+   * Текущий раздел. Без него подсветка была зашита: первая кнопка всегда
+   * чёрная, остальные всегда белые — и на любой странице шапка показывала
+   * «вы в инбоксе». Человек нажимает, переходит, а шапка говорит, что он
+   * там же: продукт выглядит сломанным ровно в том месте, где им управляют.
+   */
+  active?: 'inbox' | 'crm' | 'price' | 'channels';
 }) {
+  const on = (k: string) => (active ?? 'inbox') === k;
   const pct = cap ? Math.min(100, Math.round((spent / cap) * 100)) : 0;
   const initials = user.split(' ').map(w => w[0]).slice(0, 2).join('');
   return (
@@ -22,20 +30,20 @@ export function AppBar({ pointName, user, role, spent, cap }: {
         <span style={{ fontSize: "11.5px", color: "#9A9A9A", background: "#FFFFFF", borderRadius: "999px", padding: "5px 11px", marginLeft: "4px" }}>{pointName}</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <a href="/inbox" style={{ width: "40px", height: "40px", borderRadius: "13px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <a href="/inbox" aria-current={on('inbox') ? 'page' : undefined} style={{ width: "40px", height: "40px", borderRadius: on('inbox') ? "13px" : "999px", background: on('inbox') ? "#111111" : "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v11H8l-4 4z" /></svg>
           <span style={{ position: "absolute", top: "6px", right: "6px", width: "8px", height: "8px", borderRadius: "999px", background: "#DEF23B", boxShadow: "0 0 0 2px #111111" }}></span>
         </a>
-        <a href="/crm" style={{ width: "40px", height: "40px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <a href="/crm" aria-current={on('crm') ? 'page' : undefined} style={{ width: "40px", height: "40px", borderRadius: on('crm') ? "13px" : "999px", background: on('crm') ? "#111111" : "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="5" width="16" height="15" rx="3" /><path d="M8 3v4M16 3v4M4 10h16" /></svg>
         </a>
-        <a href="/price" style={{ width: "40px", height: "40px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <a href="/price" aria-current={on('price') ? 'page' : undefined} style={{ width: "40px", height: "40px", borderRadius: on('price') ? "13px" : "999px", background: on('price') ? "#111111" : "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"><rect x="4" y="4" width="6.5" height="6.5" rx="2" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="2" /><rect x="4" y="13.5" width="6.5" height="6.5" rx="2" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2" /></svg>
         </a>
         {/* Каналы. Без ссылки экран запуска точки недостижим: владелец
             попадал бы на него только по прямому адресу, а это ровно тот
             шаг, без которого в продукт не приходит ни одного обращения. */}
-        <a href="/channels" aria-label="Подключение каналов" style={{ width: "40px", height: "40px", borderRadius: "999px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <a href="/channels" aria-current={on('channels') ? 'page' : undefined} aria-label="Подключение каналов" style={{ width: "40px", height: "40px", borderRadius: on('channels') ? "13px" : "999px", background: on('channels') ? "#111111" : "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.5" strokeLinecap="round"><path d="M12 20v-5" /><path d="M8.5 15h7a2 2 0 0 0 2-2V9h-11v4a2 2 0 0 0 2 2z" /><path d="M9 6V3.5M15 6V3.5" /></svg>
         </a>
       </div>
