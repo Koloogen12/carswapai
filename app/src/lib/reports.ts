@@ -119,6 +119,12 @@ export async function crmClients() {
              (select max(cf.confirmed_at) from confirmations cf
                join configurations cfg on cfg.id = cf.configuration_id
                join threads t on t.id = cfg.thread_id where t.client_id = cl.id) as confirmed_at,
+             (select cit.price_kopecks from configuration_items cit
+                join configurations cfg on cfg.id = cit.configuration_id
+                join threads t on t.id = cfg.thread_id where t.client_id = cl.id
+                order by cit.price_kopecks desc limit 1) as price_kopecks,
+             (select min(ap.starts_at) from appointments ap where ap.client_id = cl.id
+               and ap.kind = 'measure') as measure_at,
              (select o.status from orders o
                join confirmations cf on cf.id = o.confirmation_id
                join configurations cfg on cfg.id = cf.configuration_id
@@ -126,7 +132,8 @@ export async function crmClients() {
                order by o.created_at desc limit 1) as order_status
         from clients cl order by cl.created_at desc`);
     return rows as { id: string; name: string; phone: string; vehicle: Record<string, unknown>;
-                     tryons: number; confirmed_at: string | null; order_status: string | null }[];
+                     tryons: number; confirmed_at: string | null; order_status: string | null;
+                     price_kopecks: number | null; measure_at: string | null }[];
   });
 }
 
