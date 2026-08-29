@@ -9,7 +9,10 @@
 # Ни одной фотографии клиента здесь нет и быть не должно — эта машина
 # арендована у иностранного провайдера, и ПД туда не отправляются.
 set -euo pipefail
-cd "$(dirname "$0")"
+# В app/worker, а не в train/: parts_train.py ищет датасет по ROOT.parent,
+# то есть в app/worker/datasets. Из-за cd в собственный каталог скрипт
+# распаковывал в train/datasets, а обучение смотрело в другое место.
+cd "$(dirname "$0")/.."
 
 echo "── зависимости ──"
 pip install -q --upgrade pip
@@ -29,7 +32,16 @@ if [ ! -d datasets/carparts-seg ]; then
     https://github.com/ultralytics/assets/releases/download/v0.0.0/carparts-seg.zip
   # Через python, а не unzip: в образах runpod его нет, а python есть всегда —
   # он и так нужен для обучения.
-  python3 -c "import zipfile,sys;zipfile.ZipFile('/tmp/cp.zip').extractall('datasets/carparts-seg')"
+  # Архив несёт верхний каталог, и он бывает разным; python extractall его,
+  # в отличие от unzip у ultralytics, не срезает — нормализуем сами.
+  python3 - <<'EOF'
+import zipfile, os, glob, shutil
+zipfile.ZipFile('/tmp/cp.zip').extractall('datasets/_x')
+inner = glob.glob('datasets/_x/*/images') or glob.glob('datasets/_x/images')
+shutil.rmtree('datasets/carparts-seg', ignore_errors=True)
+shutil.move(os.path.dirname(inner[0]), 'datasets/carparts-seg')
+shutil.rmtree('datasets/_x', ignore_errors=True)
+EOF
   rm -f /tmp/cp.zip
   # Конфиг из архива несёт заголовок AGPL-3.0 и нам не нужен: список классов
   # и раскладка каталогов зашиты в parts_train.py. Сами данные под CC BY 4.0,
@@ -42,9 +54,9 @@ echo "── обучение ──"
 # batch 8 влезает в 24 ГБ на 640px; на 16 ГБ поставь 4.
 BATCH=${BATCH:-8}
 EPOCHS=${EPOCHS:-12}
-python3 -u parts_train.py --device cuda --batch "$BATCH" --epochs "$EPOCHS" \
-        --size 640 --out carparts.pt
+python3 -u train/parts_train.py --device cuda --batch "$BATCH" --epochs "$EPOCHS" \
+        --size 640 --out models/carparts.pt
 
 echo
 echo "готово. забирай веса:"
-echo "  scp <этот-сервер>:$(pwd)/carparts.pt app/worker/models/carparts.pt"
+echo "  scp <этот-сервер>:$(pwd)/models/carparts.pt app/worker/models/carparts.pt"

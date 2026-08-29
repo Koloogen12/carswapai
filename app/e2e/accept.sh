@@ -12,6 +12,8 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+# Без этого postmaster на macOS падает с «became multithreaded during startup».
+export LC_ALL=C LANG=C
 # Схема проверяется на кластере, поднятом ИЗ МИГРАЦИЙ, а не на базе
 # разработки: та отстала (в ней нет outbound_cards.honesty_shown из 001), и
 # проверка против неё измеряла бы не то, что поедет на сервер.
