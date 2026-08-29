@@ -26,7 +26,19 @@ RUN apt-get update \
 
 WORKDIR /srv
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Колёса torch берутся из индекса CPU, а не из PyPI по умолчанию.
+#
+# По умолчанию torch тянет за собой полный набор библиотек CUDA — почти пять
+# гигабайт кода для видеокарты. Видеокарты на боевой машине нет и не будет:
+# силуэт и детектор номера считаются на процессоре, это измерялось. На общем
+# сервере эти пять гигабайт — чужое место на диске и лишние минуты сборки у
+# каждого, кто выкатывается после нас.
+#
+# Индекс указан ТОЛЬКО для torch и torchvision. Остальные пакеты идут с PyPI:
+# индекс CPU их не содержит, и общий --index-url сломал бы установку.
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+        torch==2.8.0 torchvision==0.23.0 \
+ && pip install --no-cache-dir -r requirements.txt
 
 # Прогрев весов в слой образа.
 RUN python3 -c "\

@@ -4,6 +4,9 @@ psycopg2-binary==2.9.10
 numpy==1.26.4
 opencv-python-headless==4.10.0.84
 Pillow==11.0.0
+# torch и torchvision ставятся ОТДЕЛЬНО, из индекса CPU — см. Dockerfile.
+# Здесь оставлены пины, чтобы версия была видна в одном месте; повторная
+# установка тем же пином из PyPI уже установленное не перекачивает.
 torch==2.8.0
 torchvision==0.23.0
 open-image-models[onnx]==0.6.0

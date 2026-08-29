@@ -41,19 +41,29 @@ services:
     environment:
       DATABASE_URL: postgresql://carswap_owner:${OWNER_PASSWORD}@db:5432/yoomp
       SEED_DEMO: ${SEED_DEMO:-no}
+    # command СПИСКОМ из одного элемента, а не строкой.
+    #
+    # Строку compose разбивает по пробелам и передаёт в bash -lc как отдельные
+    # аргументы: первый становится программой, остальные — позиционными
+    # параметрами. Скрипт при этом не выполняется вовсе, а контейнер выходит с
+    # нулём. Симптом злой: миграции «прошли», база пустая, воркер падает с
+    # «schema app does not exist», и искать начинаешь в миграциях.
     entrypoint: ["bash", "-lc"]
-    # Посев — только на стенде и только по явному флагу. На боевом контуре
-    # демонстрационные точки и выдуманные клиенты в базе недопустимы: их
-    # невозможно отличить от настоящих, когда начнут приходить настоящие.
-    # Сам seed.sql идемпотентен (57 «on conflict do nothing»), поэтому
-    # повторная выкатка его не размножает.
-    command: >
-      bash /db/migrate.sh &&
-      psql "$$DATABASE_URL" -v ON_ERROR_STOP=1
-        -c "grant app_tenant to carswap_app" &&
-      { [ "$${SEED_DEMO:-no}" = "yes" ] &&
-        psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -f /db/seed.sql &&
-        echo "посев применён" || echo "посев пропущен (SEED_DEMO=$${SEED_DEMO:-no})"; }
+    command:
+      - |
+        set -euo pipefail
+        bash /db/migrate.sh
+        psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 \
+             -c 'grant app_tenant to carswap_app'
+        # Посев — только на стенде и только по явному флагу. На боевом контуре
+        # демонстрационные точки в базе недопустимы: их невозможно отличить от
+        # настоящих, когда пойдут настоящие. Сам seed.sql идемпотентен.
+        if [ "$${SEED_DEMO:-no}" = "yes" ]; then
+          psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -f /db/seed.sql
+          echo "посев применён"
+        else
+          echo "посев пропущен (SEED_DEMO=$${SEED_DEMO:-no})"
+        fi
     depends_on:
       db: { condition: service_healthy }
     restart: "no"
