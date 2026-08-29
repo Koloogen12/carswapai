@@ -13,8 +13,14 @@ const DOW = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 export function ClientJourney({ j }: { j: Journey }) {
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
-  const [day, setDay] = useState(0);
-  const [slot, setSlot] = useState<string | null>(null);
+  // Слот держим индексами, а не ISO-строкой: строку пришлось бы собирать
+  // в рендере и сравнивать с собой же, а на сервере и в браузере она
+  // получалась разной. Индекс одинаков всюду, ISO собирается в момент клика.
+  const [dayIdx, setDayIdx] = useState(0);
+  // По макету время выбрано заранее — экран открывается готовым к записи,
+  // а не с выключенной кнопкой. Это и есть смысл шага: закрыть окно между
+  // подтверждением цвета и замером в одно нажатие.
+  const [timeIdx, setTimeIdx] = useState(0);
 
   const renders = j.renders ?? [];
   const img = (v: string) => renders.find(r => r.variant === v)?.storage_path ?? '';
@@ -23,7 +29,15 @@ export function ClientJourney({ j }: { j: Journey }) {
   const days = Array.from({ length: 4 }, (_, i) => {
     const d = new Date(); d.setDate(d.getDate() + i + 1); d.setHours(11, 0, 0, 0); return d;
   });
-  const times = ['10:00', '11:00', '14:30', '17:00'];
+  const times = TIMES;
+  /** ISO выбранного слота собирается в момент нажатия, а не в рендере. */
+  const isoOf = (di: number, ti: number) => {
+    const d = new Date(days[di]); const [h, m] = times[ti].split(':');
+    d.setHours(+h, +m, 0, 0); return d.toISOString();
+  };
+  /** Машина, как её можно назвать по имеющимся данным. В посеве бывает,
+   *  что ни марки, ни номера ещё нет — тогда честнее прочерк, чем « · ». */
+  const car = [j.vehicle, j.plate].filter(Boolean).join(' · ') || '—';
 
   const act = (fn: () => Promise<{ ok: boolean; error?: string }>) =>
     start(async () => { const r = await fn(); setErr(r.ok ? null : r.error ?? null); });

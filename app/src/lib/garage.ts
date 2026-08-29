@@ -156,3 +156,114 @@ export async function hasConsent(slug: string): Promise<boolean> {
     return r.rows.length > 0;
   }, sid);
 }
+
+/**
+ * Примерка в гараже — на фотографии клиента, а не на заготовке.
+ *
+ * ДО ЭТОГО гараж листал заранее отрендеренные картинки: клиент загружал свою
+ * машину и всё равно видел чужую в разных плёнках. Это и есть то самое, ради
+ * чего продукт существует, и оно не работало.
+ *
+ * Г-9 · у анонимного гаража свой потолок генераций, он показан на экране
+ * («7 осталось»). Проверяем его ДО постановки заданий: иначе счётчик на
+ * экране и расход в базе разойдутся, и первым это заметит владелец точки
+ * в счёте.
+ */
+export async function startGarageTryOn(slug: string, pointPriceId: string,
+                                       photoId: string) {
+  const sid = await readSession();
+  if (!sid) return { ok: false as const, error: 'Сессия не найдена — откройте ссылку заново' };
+
+  return withGarage(slug, async c => {
+    const price = await c.query<{
+      id: string; sku: string; finish: string; category: string;
+      price_kopecks: number; lab_l: number | null; lab_a: number; lab_b: number;
+    }>(
+      `select pp.id, pp.price_kopecks, ci.category, ci.sku, ci.finish,
+              ci.lab_l, ci.lab_a, ci.lab_b
+         from point_prices pp join catalog_items ci on ci.id = pp.catalog_item_id
+        where pp.id = $1`, [pointPriceId]);
+    if (!price.rows.length) {
+      return { ok: false as const, error: 'Этого артикула нет в прайсе точки' };
+    }
+    const p = price.rows[0];
+    if (p.lab_l === null) {
+      // Цвет обязан быть измерен: слать модели название вместо чисел значит
+      // показать клиенту цвет, которого не будет на замере.
+      return { ok: false as const, error: 'У артикула не измерен цвет — примерка невозможна' };
+    }
+
+    const photo = await c.query<{ id: string; point_id: string }>(
+      `select id, point_id from photos where id = $1 and erased_at is null`, [photoId]);
+    if (!photo.rows.length) {
+      return { ok: false as const, error: 'Фотография не найдена' };
+    }
+    const pointId = photo.rows[0].point_id;
+
+    // Конфигурация гаража — на сессию, не на клиента: клиента ещё нет (Г-1).
+    const cfg = await c.query<{ id: string }>(
+      `insert into configurations (point_id, origin, session_id)
+       values ($1,'garage',$2)
+       on conflict do nothing
+       returning id`, [pointId, sid]);
+    const configId = cfg.rows[0]?.id
+      ?? (await c.query(`select id from configurations
+                          where point_id = $1 and session_id = $2
+                          order by created_at desc limit 1`,
+                        [pointId, sid])).rows[0]?.id;
+    if (!configId) return { ok: false as const, error: 'Не удалось начать примерку' };
+
+    const item = await c.query<{ id: string }>(
+      `insert into configuration_items
+         (configuration_id, point_id, point_price_id, category, price_kopecks)
+       values ($1,$2,$3,$4,$5)
+       on conflict (configuration_id, point_price_id) do nothing
+       returning id`,
+      [configId, pointId, pointPriceId, p.category, p.price_kopecks]);
+    const itemId = item.rows[0]?.id
+      ?? (await c.query(`select id from configuration_items
+                          where configuration_id = $1 and point_price_id = $2`,
+                        [configId, pointPriceId])).rows[0]?.id;
+    if (!itemId) return { ok: false as const, error: 'Не удалось добавить артикул' };
+
+    // Приоритет 10 — гараж (ядро 2): менеджер в диалоге ждёт клиента, а
+    // клиент в гараже ждёт себя. Очередь это различает.
+    const jobs: string[] = [];
+    for (const light of ['day', 'overcast', 'parking']) {
+      const r = await c.query<{ id: string }>(
+        `select app.enqueue_render($1,$2,$3::render_variant,'B',$4,10::smallint,850,$5::jsonb) as id`,
+        [pointId, itemId, light, `${photoId}:${pointPriceId}:${light}`,
+         JSON.stringify({
+           photo_path: (await c.query(`select storage_path from photos where id = $1`,
+                                      [photoId])).rows[0]?.storage_path,
+           sku_name: p.sku, finish: p.finish,
+           target_lab: [Number(p.lab_l), Number(p.lab_a), Number(p.lab_b)],
+           light, origin: 'garage',
+         })]);
+      jobs.push(r.rows[0].id);
+    }
+    return { ok: true as const, itemId, jobs };
+  }, sid);
+}
+
+/** Готовность примерки в гараже: какие света уже посчитаны. */
+export async function garageTryOnStatus(slug: string, itemId: string) {
+  const sid = await readSession();
+  if (!sid) return { ready: false, done: [] as { variant: string; storage_path: string }[],
+                     pending: 0, errors: [] as string[] };
+  return withGarage(slug, async c => {
+    const done = await c.query<{ variant: string; storage_path: string }>(
+      `select variant::text, storage_path from renders
+        where configuration_item_id = $1 and qa_passed and erased_at is null`, [itemId]);
+    const jobs = await c.query<{ status: string; last_error: string | null }>(
+      `select status::text, last_error from render_jobs where configuration_item_id = $1`,
+      [itemId]);
+    return {
+      ready: done.rows.length === 3,
+      done: done.rows,
+      pending: jobs.rows.filter(r => ['queued', 'running'].includes(r.status)).length,
+      errors: jobs.rows.filter(r => r.status === 'failed')
+                       .map(r => r.last_error ?? 'без причины'),
+    };
+  }, sid);
+}

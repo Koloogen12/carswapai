@@ -9,8 +9,8 @@
  * Г-1 · ноль полей до первой примерки. Артикула, которого нет в прайсе точки,
  * не существует: штриховка вместо ложного выбора (О-3).
  */
-import { useMemo, useState, useTransition } from 'react';
-import { uploadCarPhoto } from '@/lib/garage';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { uploadCarPhoto, startGarageTryOn, garageTryOnStatus } from '@/lib/garage';
 import { HONESTY_LINE, LIGHTS, type LightId } from '@/lib/domain';
 
 type Item = {
@@ -44,6 +44,11 @@ export function Garage({ pointName, items, plate, slug, consented, photoId }: {
   const [used, setUsed] = useState(1);
   const [sent, setSent] = useState(false);
   const [photo, setPhoto] = useState<string | null>(photoId);
+  // Примерка на СВОЁМ кадре. Пока фотографии нет, гараж показывает типовой
+  // кузов — это законный режим (О-1), но ради своей машины сюда и приходят.
+  const [mine, setMine] = useState<Record<string, Record<string, string>>>({});
+  const [running, setRunning] = useState<string | null>(null);
+  const [tryErr, setTryErr] = useState<string | null>(null);
   const [upErr, setUpErr] = useState<string | null>(null);
   const [uploading, startUpload] = useTransition();
 
@@ -60,6 +65,30 @@ export function Garage({ pointName, items, plate, slug, consented, photoId }: {
       setPhoto(r.photoId);
     });
   };
+
+  // Опрос идёт, только пока есть что ждать, и останавливается по готовности,
+  // по ошибке и при уходе со страницы. Незакрытый опрос живёт вечно и долбит
+  // сервер — это уже ловили на панели примерки в диалоге.
+  useEffect(() => {
+    if (!running || !photo) return;
+    let alive = true;
+    let tries = 0;
+    const tick = async () => {
+      if (!alive) return;
+      const st = await garageTryOnStatus(slug, running);
+      if (!alive) return;
+      if (st.errors.length) { setTryErr(st.errors[0]); setRunning(null); return; }
+      if (st.done.length) {
+        const bySku: Record<string, string> = {};
+        for (const d of st.done) bySku[d.variant] = d.storage_path;
+        setMine(m => ({ ...m, [running]: bySku }));
+      }
+      if (st.ready || ++tries > 60) { setRunning(null); return; }
+      setTimeout(tick, 2000);
+    };
+    const t = setTimeout(tick, 1500);
+    return () => { alive = false; clearTimeout(t); };
+  }, [running, photo, slug]);
 
   const byCat = useMemo(() => {
     const m: Record<string, Item[]> = {};
@@ -84,7 +113,9 @@ export function Garage({ pointName, items, plate, slug, consented, photoId }: {
         {/* Машина занимает экран */}
         <div style={{ position: "absolute", inset: "0" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={HERO[lead?.sku ?? ''] ?? '/renders/render-01.png'}
+          <img src={(running && mine[running]?.[light])
+                    ?? Object.values(mine)[0]?.[light]
+                    ?? HERO[lead?.sku ?? ''] ?? '/renders/render-01.png'}
             alt={`ваша машина в ${lead?.name ?? 'плёнке'}`}
             style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
@@ -130,6 +161,14 @@ export function Garage({ pointName, items, plate, slug, consented, photoId }: {
                  style={{ background: "#DEF23B", borderRadius: "999px", padding: "13px 0", textAlign: "center" }}>
                 <span style={{ fontSize: "13px", fontWeight: "500" }}>Загрузить своё фото</span>
               </a>
+            )}
+            {tryErr && (
+              <div style={{ background: "#FBEEEF", borderRadius: "14px", padding: "10px 12px", fontSize: "11.5px", lineHeight: "1.45", color: "#D93F45" }}>{tryErr}</div>
+            )}
+            {running && (
+              <span style={{ fontSize: "11px", color: "#9A9A9A", textAlign: "center" }}>
+                Примеряем на вашей машине · три света
+              </span>
             )}
             {upErr && (
               <div style={{ background: "#FBEEEF", borderRadius: "14px", padding: "10px 12px", fontSize: "11.5px", lineHeight: "1.45", color: "#D93F45" }}>{upErr}</div>
@@ -177,8 +216,19 @@ export function Garage({ pointName, items, plate, slug, consented, photoId }: {
                 );
                 return (
                   <button key={i.point_price_id} aria-pressed={on}
-                    onClick={() => { setPicked(p => ({ ...p, [cat]: on ? '' : i.point_price_id }));
-                      if (!on) setUsed(u => u + 1); }}
+                    onClick={() => {
+                      setPicked(p => ({ ...p, [cat]: on ? '' : i.point_price_id }));
+                      if (on) return;
+                      setUsed(u => u + 1);
+                      // Есть своя фотография — примеряем на ней, а не листаем
+                      // заготовки. Нет — остаётся типовой кузов.
+                      if (!photo) return;
+                      setTryErr(null);
+                      startGarageTryOn(slug, i.point_price_id, photo).then(r => {
+                        if (!r.ok) { setTryErr(r.error); return; }
+                        setRunning(r.itemId);
+                      });
+                    }}
                     style={{ flex: "1", display: "flex", flexDirection: "column", gap: "6px", border: 0, background: "transparent", padding: 0, cursor: "pointer", fontFamily: "inherit" }}>
                     <div style={{ height: "58px", borderRadius: "16px", overflow: "hidden", ...(on ? { boxShadow: "0 0 0 3px #DEF23B" } : {}) }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
