@@ -226,39 +226,49 @@ export function MeasureFlow({ m }: { m: MeasureView }) {
               sub={`было ${est || '—'} м оценочно`} amount={extra} />
             <Line on title="Подготовка царапины на двери"
               sub="иначе плёнка ляжет с дефектом" amount={850000} />
-            <Line title="Керамика поверх плёнки"
-              sub="клиент отказался — не предлагаем повторно" amount={1200000} />
+            <Line title="Полировка капота под сколы"
+              sub="необязательно · сколы видны на просвет" amount={1400000} />
+          </div>
+
+          <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "18px", display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ fontSize: "12px", color: "#5A5A5A" }}>Было в наряде</span>
+              <span style={{ fontSize: "12.5px", fontVariantNumeric: "tabular-nums" }}>{rub(m.price_kopecks)} ₽</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ fontSize: "12px", color: "#5A5A5A" }}>Доработки</span>
+              <span style={{ fontSize: "12.5px", fontWeight: "500", fontVariantNumeric: "tabular-nums" }}>+ {rub(extra + 850000)} ₽</span>
+            </div>
             <div style={{ height: "1px", background: "#F0F0F0" }}></div>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-                <span style={{ fontSize: "11.5px", color: "#5A5A5A" }}>Новая цена</span>
-                <span style={{ fontSize: "10.5px", color: "#5A5A5A" }}>
-                  было {rub(m.price_kopecks)} ₽</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "baseline", fontSize: "26px", fontWeight: "500", letterSpacing: "-0.035em", fontVariantNumeric: "tabular-nums" }}>
-                {rub(m.price_kopecks + extra + 850000)}<span style={{ fontSize: "15px", color: "#767676", marginLeft: "3px" }}>₽</span></div>
+              <span style={{ fontSize: "12.5px", fontWeight: "500" }}>Новая сумма</span>
+              <div style={{ display: "flex", alignItems: "baseline", fontSize: "24px", fontWeight: "500", letterSpacing: "-0.035em", fontVariantNumeric: "tabular-nums" }}>
+                {rub(m.price_kopecks + extra + 850000)}<span style={{ fontSize: "14px", color: "#767676", marginLeft: "3px" }}>₽</span></div>
             </div>
           </div>
 
           {/* Согласие клиента на доплату — такое же событие, как согласие
               на цвет: своим действием и с датой. На выдаче предъявляется
               наравне с первым. */}
-          <div style={{ background: "#F5FBCB", borderRadius: "18px", padding: "14px 16px" }}>
-            <span style={{ fontSize: "12px", lineHeight: "1.45", color: "#2E2E2E" }}>
-              Клиент согласует доплату сам, здесь и сейчас. Согласованная сумма
-              не переписывается — на выдаче она предъявляется наравне с выбором цвета.
+          <div style={{ background: "#F5FBCB", borderRadius: "20px", padding: "13px 15px" }}>
+            <span style={{ fontSize: "11px", lineHeight: "1.5", color: "#2E2E2E" }}>
+              Клиент подтверждает новую сумму со своего телефона — приходит
+              уведомлением в его мессенджер. Без подтверждения наряд не уходит в работу.
             </span>
           </div>
 
           {err && <Err text={err} />}
-          <button disabled={pending}
-            onClick={() => start(async () => {
-              setErr(null);
-              setStep('changes');
-            })}
-            style={{ marginTop: "auto", background: "#DEF23B", borderRadius: "999px", padding: "20px 0", border: 0, cursor: "pointer", fontFamily: "inherit", fontSize: "16px", fontWeight: "500", width: "100%" }}>
-            Отправить клиенту на согласование
-          </button>
+
+          {/* Единственное место, где цена растёт. Согласование здесь, а не
+              в счёте при выдаче — это разница между «понятно» и скандалом. */}
+          <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ background: "#111111", borderRadius: "999px", padding: "19px 0", textAlign: "center" }}>
+              <span style={{ fontSize: "15px", fontWeight: "500", color: "#FFFFFF" }}>Отправить на согласование</span>
+            </div>
+            <div style={{ background: "#FFFFFF", borderRadius: "999px", padding: "15px 0", textAlign: "center" }}>
+              <span style={{ fontSize: "13.5px", fontWeight: "500" }}>Клиент согласовал голосом</span>
+            </div>
+          </div>
         </>}
       </div>
     </div>

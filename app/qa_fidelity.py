@@ -40,7 +40,7 @@ MAP = [
     ('/ops/cash',          '09-pass3-management',           1, [1]),
     ('/ops/search',        '09-pass3-management',           2, [1]),
     ('/ops/catalog',       '09-pass3-management',           3, [1]),
-    ('/measure/fc7c285a-bdad-4084-9918-183838973cd8', '10-pass4-measure-intake-mobile-crm', 1, [1, 0]),
+    ('/measure/{AP}',      '10-pass4-measure-intake-mobile-crm', 1, [1, 3]),
     ('/c/15500000-0000-4000-8000-000000000001',
                            '10-pass4-measure-intake-mobile-crm', 2, [1, 0]),
     ('/crm/mobile',        '10-pass4-measure-intake-mobile-crm', 3, [1, 0]),
@@ -93,6 +93,14 @@ def vocab(ws: list[str]) -> set[str]:
         out.add(t)
     return out
 
+def sql1(q: str) -> str:
+    import subprocess
+    r = subprocess.run(['psql', '-h', '/tmp/cswdev', '-p', '55432', '-U', 'postgres',
+                        '-d', 'carswap', '-tAc', q], capture_output=True, text=True,
+                       env={'PATH': '/opt/homebrew/opt/postgresql@16/bin:/usr/bin:/bin',
+                            'LC_ALL': 'C'})
+    return r.stdout.strip()
+
 def thread_id() -> str:
     import subprocess
     q = "select id from threads order by last_message_at desc limit 1"
@@ -109,8 +117,11 @@ def main() -> int:
     fail = 0
     print(f'{"маршрут":30s} {"совпало":>8s} {"из":>5s}  верность')
     tid = thread_id()
+    ap = sql1("select ap.id from appointments ap "
+              "join configuration_items cit on cit.configuration_id = ap.configuration_id "
+              "where ap.kind='measure' limit 1")
     for route, src, block, path in MAP:
-        route = route.replace('{TID}', tid)
+        route = route.replace('{TID}', tid).replace('{AP}', ap)
         data = json.loads((ROOT / 'tools' / 'out' / f'{src}.json').read_text(encoding='utf-8'))
         node = data['blocks'][block]
         for step in path:
