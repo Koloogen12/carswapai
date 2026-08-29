@@ -37,6 +37,7 @@
 import { createHash } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { sys, withChannel } from '../../db';
+import { ingestInboundPhoto } from './media';
 import type { ChannelKind, NormalizedMessage } from '../channel';
 
 /**
@@ -83,6 +84,14 @@ export type LandedMessage = {
   threadId: string;
   /** null — сообщение уже было: сработала третья линия. */
   messageId: string | null;
+  /** Снимок клиента, если во вложении было изображение и его удалось сохранить. */
+  photoId?: string | null;
+  /**
+   * Почему фотографию сохранить не удалось. Не ошибка приёма: сообщение
+   * принято в любом случае, а причина нужна менеджеру — чаще всего она
+   * означает «отправьте клиенту оферту», а не «что-то сломалось».
+   */
+  photoRefusal?: string | null;
 };
 
 /** Результат первой фазы: событие durable, дальше можно отвечать шлюзу. */
@@ -256,12 +265,37 @@ async function land(
     );
   }
 
+  // ── Фотография клиента: начало всей цепочки примерки ──────────────────
+  // Раньше вложение оставалось ссылкой в JSON и никуда не сохранялось —
+  // примерять было нечего. Основание хранения проверяется внутри: без
+  // доставленной оферты, пришедшей РАНЬШЕ фотографии, снимок не заводится.
+  //
+  // Отказ здесь НЕ роняет приём сообщения. Сообщение уже принято, и терять
+  // его из-за того, что фото сохранить не на чем, нельзя: менеджер должен
+  // увидеть обращение и отправить оферту.
+  let photoId: string | null = null;
+  let photoRefusal: string | null = null;
+  const messageId = ins.rows.length > 0 ? (ins.rows[0].id as string) : null;
+  if (messageId) {
+    const image = (msg.attachments ?? []).find(a => a.kind === 'image');
+    if (image) {
+      const r = await ingestInboundPhoto(c, {
+        pointId: channel.point_id, threadId, clientId,
+        messageId, messageSentAt: msg.sentAt, attachment: image,
+      });
+      if (r.ok) photoId = r.photoId;
+      else photoRefusal = r.reason;
+    }
+  }
+
   return {
     externalMessageId: msg.externalMessageId,
     channelId: channel.id,
     clientId,
     threadId,
-    messageId: ins.rows.length > 0 ? (ins.rows[0].id as string) : null,
+    messageId,
+    photoId,
+    photoRefusal,
   };
 }
 
