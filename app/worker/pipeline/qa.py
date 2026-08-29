@@ -50,7 +50,7 @@ def changed_area_matches(original: np.ndarray, result: np.ndarray,
 
 
 def plate_readable(original: np.ndarray, result: np.ndarray,
-                   plate_mask: np.ndarray) -> bool:
+                   plate_mask: np.ndarray) -> bool | None:
     """
     Номер на выходе обязан быть теми же пикселями, что на входе.
 
@@ -58,7 +58,10 @@ def plate_readable(original: np.ndarray, result: np.ndarray,
     пикселях, а нам нужно, чтобы номер вообще не трогали.
     """
     if plate_mask is None or (plate_mask > 0).sum() == 0:
-        return True
+        # НЕ «пройдено». Ненайденный номер означает, что мы не знаем, где он,
+        # и не можем утверждать, что не тронули его. Возврат True здесь был
+        # ложно-зелёной проверкой: промах детектора выдавался за доказательство.
+        return None
     sel = plate_mask > 0
     return bool((original[sel] == result[sel]).all())
 
@@ -73,6 +76,11 @@ def report(original: np.ndarray, result: np.ndarray, mask: np.ndarray,
         'outside_bad_ratio': round(bad_ratio, 6),
         'area_ok': ok_area,
         'changed_ratio': round(area_ratio, 4),
-        'plate_untouched': ok_plate,
-        'passed': bool(ok_out and ok_area and ok_plate),
+        'plate_untouched': ok_plate,          # None — номер не найден, не проверено
+        # Непроверенный номер не пропускаем: по §8 отдавать можно только то,
+        # за что можно поручиться. Пусть лучше отказ с внятной причиной, чем
+        # выдача с перекрашенным чужим госномером.
+        'passed': bool(ok_out and ok_area and ok_plate is True),
+        'reject_reason': (None if ok_plate is not None else
+                          'номер не найден — не можем поручиться, что он не тронут'),
     }

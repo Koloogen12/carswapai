@@ -128,10 +128,15 @@ def main():
         va.imgs = va.imgs[: max(a.limit // 8, 2)]
     print(f'обучение: {len(tr)} кадров, валидация: {len(va)}', flush=True)
 
+    # На GPU загрузка кадров с диска становится узким местом, на CPU
+    # рабочие процессы только отнимают ядра у самого обучения.
+    nw = 4 if a.device == 'cuda' else 0
     dl = torch.utils.data.DataLoader(tr, batch_size=a.batch, shuffle=True,
-                                     collate_fn=collate, num_workers=0)
+                                     collate_fn=collate, num_workers=nw,
+                                     pin_memory=(a.device == 'cuda'))
     dv = torch.utils.data.DataLoader(va, batch_size=a.batch, shuffle=False,
-                                     collate_fn=collate, num_workers=0)
+                                     collate_fn=collate, num_workers=nw,
+                                     pin_memory=(a.device == 'cuda'))
 
     dev = torch.device(a.device)
     m = build().to(dev)

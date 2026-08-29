@@ -31,11 +31,23 @@ def feather(mask: np.ndarray, width: int | None = None) -> np.ndarray:
 
 
 def composite(original: np.ndarray, edited: np.ndarray, mask: np.ndarray,
-              width: int | None = None) -> np.ndarray:
-    """Возвращает изменённое внутрь маски, остальное — байт в байт оригинал."""
+              width: int | None = None, *keep: np.ndarray) -> np.ndarray:
+    """
+    Возвращает изменённое внутрь маски, остальное — байт в байт оригинал.
+
+    keep — области, которые обязаны совпасть с оригиналом ПОБИТОВО. Вычесть их
+    из маски заранее недостаточно: растушёвка размывает край и затекает внутрь
+    вырезанной дыры, так что несколько рядов пикселей внутри номера всё равно
+    меняются. Поэтому они возвращаются жёстко и последним действием, уже после
+    смешивания.
+    """
     a = feather(mask, width)[..., None]
     out = original.astype(np.float32) * (1 - a) + edited.astype(np.float32) * a
-    return np.clip(out, 0, 255).astype(np.uint8)
+    out = np.clip(out, 0, 255).astype(np.uint8)
+    for k in keep:
+        if k is not None and (k > 0).any():
+            out[k > 0] = original[k > 0]
+    return out
 
 
 def protect(mask: np.ndarray, *protected: np.ndarray) -> np.ndarray:

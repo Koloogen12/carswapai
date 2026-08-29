@@ -168,44 +168,138 @@ def wheels(img: np.ndarray, car_mask: np.ndarray) -> np.ndarray:
 
 def plate(img: np.ndarray, car_mask: np.ndarray) -> np.ndarray:
     """
-    Госномер. Всегда исключается из зоны изменений и всегда возвращается из
-    оригинала: это и узнаваемость своей машины, и снятие юридического риска —
-    перерисованный чужой номер не нужен ни в каком виде.
-    """
-    if (car_mask > 0).sum() < 100:
-        return np.zeros_like(car_mask)
-    ry, rx, cw, ch = _norm_box(car_mask)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    grad = cv2.morphologyEx(gray, cv2.MORPH_GRADIENT,
-                            cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
-    _, th = cv2.threshold(grad, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    th = cv2.morphologyEx(th, cv2.MORPH_CLOSE, cv2.getStructuringElement(
-        cv2.MORPH_RECT, (max(int(cw * 0.045), 5), 3)))
-    th[car_mask == 0] = 0
+    Госномер. ВОЗВРАЩАЕТ ПУСТУЮ МАСКУ — детектора у нас пока нет.
 
-    out = np.zeros_like(car_mask)
-    best, best_score = None, 0.0
-    for c, in [(c,) for c in cv2.findContours(th, cv2.RETR_EXTERNAL,
-                                              cv2.CHAIN_APPROX_SIMPLE)[0]]:
-        x, y, w, h = cv2.boundingRect(c)
-        if h < 4 or w < cw * 0.07 or w > cw * 0.42:
-            continue
-        ar = w / h
-        if not (2.4 <= ar <= 7.0):                # российский номер ≈ 4,5:1
-            continue
-        cy, cx = min(y + h // 2, out.shape[0] - 1), min(x + w // 2, out.shape[1] - 1)
-        if car_mask[cy, cx] == 0 or ry[cy, cx] < 0.42:
-            continue
-        # Номер белый: медиана яркости внутри должна быть высокой.
-        bright = float(np.median(gray[y:y + h, x:x + w])) / 255.0
-        score = ry[cy, cx] * min(ar / 4.5, 4.5 / ar) * (0.35 + bright)
-        if score > best_score:
-            best, best_score = (x, y, w, h), score
-    if best:
-        x, y, w, h = best
-        pad = max(int(h * 0.15), 2)
-        cv2.rectangle(out, (x - pad, y - pad), (x + w + pad, y + h + pad), 255, -1)
+    Была написана и проверена на двенадцати реальных кадрах классическая
+    версия: светлое поле, тёмные знаки, пропорция 4,6:1, синяя полоса слева.
+    Она нашла «номер» на пяти кадрах, и все пять оказались дверными ручками и
+    зеркалом. Это хуже, чем ничего: маска защищала не то место, настоящий
+    номер оставался открытым, а проверка качества при этом была зелёной.
+
+    Ложная уверенность опаснее честного незнания, поэтому детектор снят, а не
+    оставлен «пока так». Вызывающий получает пустую маску, qa.plate_readable
+    возвращает None вместо True, и кадр не проходит контроль — то есть система
+    отказывает, а не выдаёт результат, за который не может поручиться.
+
+    Настоящее решение — обученный детектор: задача давно решена, публичные
+    наборы российских номеров есть. Учить его надо тем же заходом, что и
+    сегментацию частей.
+
+    Пока его нет, номер, шильдики и решётку удерживает от перекраски
+    texture_gate(): они мелкофактурные, а краска гладкая.
+    """
+    return np.zeros(img.shape[:2], np.uint8)
+
+
+def texture_gate(img: np.ndarray, mask: np.ndarray, quantile: float = 0.88) -> np.ndarray:
+    """
+    Убрать из маски всё мелкофактурное.
+
+    Крашеная панель — гладкая поверхность с плавным переходом яркости. Номер,
+    шильдик, решётка радиатора, протектор и сетка бампера — мелкая частая
+    деталь. Одна проверка на локальный разброс яркости отсекает их все разом,
+    и не надо заводить детектор на каждое.
+
+    Это НЕ замена детектору номера: гарантии здесь нет, есть уменьшение вреда.
+    Гарантию даёт только знание, где номер.
+    """
+    g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    k = 5
+    mean = cv2.blur(g, (k, k))
+    var = cv2.blur(g * g, (k, k)) - mean * mean
+    sd = np.sqrt(np.maximum(var, 0))
+
+    sel = mask > 0
+    if sel.sum() < 100:
+        return mask
+    thr = float(np.quantile(sd[sel], quantile))
+    out = mask.copy()
+    out[(sd > max(thr, 6.0)) & sel] = 0
+    # Смыкаем поры, чтобы фактура не превратила кузов в решето.
+    out = cv2.morphologyEx(out, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
     return out
+
+
+def paint(img: np.ndarray, car_mask: np.ndarray, k: int = 5) -> np.ndarray:
+    """
+    Крашеная поверхность — самый крупный цветовой кластер внутри силуэта.
+
+    Почему так, а не «силуэт минус стёкла минус колёса минус фары»: плёнка не
+    клеится на стекло, резину, фару и решётку, и это ровно те места, где цвет
+    не совпадает с цветом краски. Значит вместо четырёх ненадёжных детекторов
+    достаточно одного решения — выделить саму краску.
+
+    Светлота приглушена втрое: одна и та же краска на освещённой крыше и в
+    тени двери расходится по L сильнее, чем краска расходится со стеклом по
+    оттенку. Без этого один кузов распадается на два кластера, и перекрашена
+    оказывается половина машины.
+
+    ГРАНИЦА ПРИМЕНИМОСТИ, которую видно на реальных кадрах: серебристый диск и
+    серебристая краска — один цвет, чёрное стекло и чёрная краска — тоже. Цвет
+    их не разделяет в принципе; разделяет форма, то есть обученная сеть на
+    части. До неё на ахроматичных кузовах эта функция прихватывает лишнее.
+    """
+    sel = car_mask > 0
+    if sel.sum() < 200:
+        return np.zeros_like(car_mask)
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.float32)
+    feat = np.stack([lab[..., 0][sel] * 0.35, lab[..., 1][sel], lab[..., 2][sel]], 1)
+    crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+    _, lbl, cen = cv2.kmeans(feat, min(k, int(sel.sum())), None, crit, 3,
+                             cv2.KMEANS_PP_CENTERS)
+    lbl = lbl.ravel()
+    main = int(np.bincount(lbl, minlength=len(cen)).argmax())
+    keep = np.where(np.linalg.norm(cen - cen[main], axis=1) < 14.0)[0]
+
+    m = np.zeros(img.shape[:2], np.uint8)
+    idx = np.zeros(int(sel.sum()), bool)
+    for kk in keep:
+        idx |= (lbl == kk)
+    m[sel] = idx.astype(np.uint8) * 255
+    return _regularize(m, car_mask)
+
+
+def _regularize(m: np.ndarray, car_mask: np.ndarray) -> np.ndarray:
+    """
+    Привести попиксельное решение к поверхности.
+
+    Кластеризация судит каждый пиксель в одиночку, поэтому на кузове выходит
+    рябь в один пиксель: часть точек перекрашивается, часть нет, и результат
+    покрыт крапом. Краска — это сплошная поверхность, а не облако точек, и
+    маску надо привести к тому же виду.
+
+    Размеры считаются от габарита машины, а не в пикселях: на макро и на общем
+    плане один и тот же кузов занимает на два порядка разное число точек.
+    """
+    ys, xs = np.nonzero(car_mask > 0)
+    if len(xs) == 0:
+        return m
+    cw = max(xs.max() - xs.min(), 1)
+    k = max(int(cw * 0.010) | 1, 3)          # нечётный, не меньше трёх
+
+    m = cv2.medianBlur(m, k)                 # рябь в один пиксель
+    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((k * 2 + 1,) * 2, np.uint8))
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((k,) * 2, np.uint8))
+
+    # Дыры внутри кузова — это блики и отражения, а не «не краска»:
+    # плёнка под ними тоже лежит. Заливаем всё, что окружено краской.
+    h, w = m.shape
+    ff = m.copy()
+    pad = np.zeros((h + 2, w + 2), np.uint8)
+    cv2.floodFill(ff, pad, (0, 0), 255)
+    m = m | cv2.bitwise_not(ff)
+
+    # Мелкие островки — шум кластеризации, а не отдельные детали кузова.
+    num, lbl, stats, _ = cv2.connectedComponentsWithStats((m > 0).astype(np.uint8), 8)
+    if num > 1:
+        keep = np.zeros_like(m)
+        big = stats[1:, cv2.CC_STAT_AREA].max()
+        for i in range(1, num):
+            if stats[i, cv2.CC_STAT_AREA] >= max(big * 0.04, cw * cw * 0.002):
+                keep[lbl == i] = 255
+        m = keep
+    m[car_mask == 0] = 0
+    return m
 
 
 def segment(img: np.ndarray) -> dict[str, np.ndarray]:
@@ -214,9 +308,11 @@ def segment(img: np.ndarray) -> dict[str, np.ndarray]:
     g = glass(img, c)
     w = wheels(img, c)
     p = plate(img, c)
-    # Кузов — силуэт минус всё, что кузовом не является.
-    body = c.copy()
-    for m in (g, w, p):
+    # Кузов — краска, а не «силуэт минус части»: см. комментарий к paint().
+    # Номер и колёса вычитаются дополнительно: номер обязан остаться нетронутым
+    # всегда, а серебристый диск попадает в кластер серебристой краски.
+    body = paint(img, c)
+    for m in (w, p):
         body[m > 0] = 0
-    body = cv2.morphologyEx(body, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+    body = texture_gate(img, body)
     return {'car': c, 'body': body, 'glass': g, 'wheel': w, 'plate': p}
