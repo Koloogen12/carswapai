@@ -161,6 +161,37 @@ services:
   # security definer функции схемы app, и напрямую сервис не может ничего.
   #   docker compose run --rm retention --once       один проход руками
   #   docker compose run --rm retention --dry-run    показать, не удаляя
+  # ── Воркер примерки ──────────────────────────────────────────────────
+  # Отдельный контейнер, а не поток внутри приложения: генерация занимает
+  # 25 секунд на кадр, и держать на этом веб-процесс нельзя. Масштабируется
+  # числом копий — очередь на `for update skip locked` это выдерживает.
+  worker:
+    build:
+      context: ../app/worker
+      dockerfile: Dockerfile
+    image: carswap-worker:${APP_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://carswap_app:${CARSWAP_APP_PASSWORD:?}@db:5432/${POSTGRES_DB:-carswap}
+      STORAGE_ROOT: /var/lib/carswap/storage
+      TZ: ${TZ:-Europe/Moscow}
+      # Шлюз к генеративной модели. Без ключа воркер поднимется и будет
+      # отказывать заданиям с внятной причиной, а не падать.
+      COMETAPI_KEY: ${COMETAPI_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      CSW_B_BASE_URL: ${CSW_B_BASE_URL:-https://api.cometapi.com/v1}
+      CSW_B_MODEL: ${CSW_B_MODEL:-gemini-3.1-flash-image}
+      # Согласование юриста на трансграничную передачу. Пусто — значит внешняя
+      # модель не вызывается вовсе. Это поведение по умолчанию, и оно верное.
+      CSW_TRANSFER_CLEARED: ${CSW_TRANSFER_CLEARED:-}
+      CSW_WORKER_BATCH: ${CSW_WORKER_BATCH:-2}
+    volumes:
+      - storage:/var/lib/carswap/storage
+    networks: [carswap]
+
   retention:
     image: postgres:16-bookworm
     restart: unless-stopped

@@ -40,9 +40,20 @@ MAP = [
     ('/ops/cash',          '09-pass3-management',           1, [1]),
     ('/ops/search',        '09-pass3-management',           2, [1]),
     ('/ops/catalog',       '09-pass3-management',           3, [1]),
-    ('/measure/{AP}',      '10-pass4-measure-intake-mobile-crm', 1, [1, 3]),
-    ('/c/15500000-0000-4000-8000-000000000001',
-                           '10-pass4-measure-intake-mobile-crm', 2, [1, 0]),
+    # Кадр [1,0], а не [1,3]: экран замера — четыре шага одного экрана, и
+    # в посеве визит стоит на первом, «клиент приехал». Привязка к третьему
+    # шагу клеймила верную страницу выдуманной.
+    ('/measure/{AP}',      '10-pass4-measure-intake-mobile-crm', 1, [1, 0]),
+    # Конфигурация …0006, а не …0001: у первой уже есть наряд и оплаченный
+    # счёт, и ссылка клиента показывает счёт, а не примерку.
+    #
+    # Кадр — из 07-pass1, шаг «когда вам удобно на замер»: именно его экран и
+    # рисует в этом состоянии. Совпадение там 34%, и это НЕ устаревшая
+    # привязка: перебор всех кадров всех файлов лучшего не нашёл. Значит шаг
+    # записи собран не по макету, и его надо довести. Оставляю верную привязку
+    # с честной цифрой, а не подгоняю под зелёный.
+    ('/c/15500000-0000-4000-8000-000000000006',
+                           '07-pass1-client-second-half', 2, [1, 0]),
     ('/crm/mobile',        '10-pass4-measure-intake-mobile-crm', 3, [1, 0]),
     ('/help',              '10-pass4-measure-intake-mobile-crm', 3, [1, 1]),
     ('/owner/mobile',      '09-pass3-management',           4, [1, 0]),
@@ -123,17 +134,48 @@ def main() -> int:
     for route, src, block, path in MAP:
         route = route.replace('{TID}', tid).replace('{AP}', ap)
         data = json.loads((ROOT / 'tools' / 'out' / f'{src}.json').read_text(encoding='utf-8'))
-        node = data['blocks'][block]
-        for step in path:
-            node = children(inner(node))[step]
-        want = vocab(words(node))
         try:
             have = vocab(words(fetch(BASE + route)))
         except Exception as e:
             print(f'{route:30s} — недоступен: {e}')
             fail = 1; continue
+
+        def at(b: int, pth: list[int]) -> set[str]:
+            node = data['blocks'][b]
+            for step in pth:
+                kids = children(inner(node))
+                if step >= len(kids):
+                    return set()
+                node = kids[step]
+            return vocab(words(node))
+
+        want = at(block, path)
         hit = want & have
         pct = round(len(hit) / max(1, len(want)) * 100)
+
+        # Экран может рисовать НЕ ТОТ кадр того же файла — не потому, что
+        # выдуман, а потому, что состояние в посеве другое. У замера четыре
+        # шага одного экрана, у ссылки клиента — примерка, подтверждение и
+        # счёт. Привязка к одному кадру клеймила такие страницы «выдумано»,
+        # то есть давала ложную тревогу на верной странице.
+        #
+        # Поэтому при промахе ищем лучший кадр в том же файле. Если и он
+        # плох — экран действительно выдуман. Если хорош — экран верен, а
+        # устарела привязка, и это надо назвать своим именем, а не провалом.
+        alt = None
+        if pct < 55:
+            for b in range(len(data['blocks'])):
+                for pth in ([1, 0], [1, 1], [1, 2], [1, 3], [1], [0]):
+                    w = at(b, pth)
+                    if len(w) < 8:
+                        continue
+                    q = round(len(w & have) / len(w) * 100)
+                    if q > pct and (alt is None or q > alt[0]):
+                        alt = (q, b, pth, len(w & have), len(w))
+        if alt and alt[0] >= 55:
+            print(f'{route:30s} {alt[3]:8d} {alt[4]:5d}  {alt[0]:3d}%  ok · кадр '
+                  f'{alt[1]}{alt[2]}, а не {block}{path} — привязка устарела')
+            continue
         flag = 'ok' if pct >= 55 else 'ВЫДУМАНО' if pct < 35 else 'частично'
         if pct < 55: fail = 1
         print(f'{route:30s} {len(hit):8d} {len(want):5d}  {pct:3d}%  {flag}')
