@@ -41,6 +41,11 @@ services:
     environment:
       DATABASE_URL: postgresql://carswap_owner:${OWNER_PASSWORD}@db:5432/yoomp
       SEED_DEMO: ${SEED_DEMO:-no}
+      # Посев идёт от суперпользователя, а не от владельца схемы: у таблиц
+      # включён force row level security, и владелец ему подчиняется наравне
+      # со всеми. Фикстура заводит данные сразу многих арендаторов, претензии
+      # ни одного из них у неё нет и быть не может.
+      SEED_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/yoomp
     # command СПИСКОМ из одного элемента, а не строкой.
     #
     # Строку compose разбивает по пробелам и передаёт в bash -lc как отдельные
@@ -59,7 +64,7 @@ services:
         # демонстрационные точки в базе недопустимы: их невозможно отличить от
         # настоящих, когда пойдут настоящие. Сам seed.sql идемпотентен.
         if [ "$${SEED_DEMO:-no}" = "yes" ]; then
-          psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -f /db/seed.sql
+          psql "$$SEED_URL" -v ON_ERROR_STOP=1 -f /db/seed.sql
           echo "посев применён"
         else
           echo "посев пропущен (SEED_DEMO=$${SEED_DEMO:-no})"
