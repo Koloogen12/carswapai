@@ -11,7 +11,6 @@
  */
 import { useState, useTransition } from 'react';
 import { actionRequestCode, actionVerifyCode } from './actions';
-import { BRAND } from '@/lib/domain';
 
 export default function LoginPage() {
   // Пустое поле, а не демонстрационный номер значением: раньше введённый
@@ -51,7 +50,11 @@ export default function LoginPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/icon-192.png" alt="" width={30} height={30}
               style={{ display: "block", width: "30px", height: "30px", borderRadius: "10px", flex: "none" }} />
-            <span style={{ fontSize: "17px", fontWeight: "600", letterSpacing: "-0.02em" }}>{BRAND}</span>
+            {/* Тёмный вариант: карточка входа светлая, лайм на ней даёт контраст
+                около 1.4:1 и читается как бледное пятно. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/wordmark-dark.png" alt="YOOMP" width={53} height={22}
+              style={{ display: "block", height: "22px", width: "auto", flex: "none" }} />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>

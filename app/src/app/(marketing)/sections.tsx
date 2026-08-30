@@ -24,7 +24,12 @@ export function Nav(): ReactElement {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/icon-invert-192.png" alt="" width={30} height={30}
             style={{ display: "block", width: "30px", height: "30px", borderRadius: "10px", flex: "none" }} />
-          <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em", color: "#FFFFFF" }}>YOOMP</span>
+          {/* Фирменное начертание картинкой. Высота подобрана по оптическому размеру
+              соседнего текста, ширина — по пропорции знака 2.41:1, чтобы он не
+              тянулся. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/wordmark-cuts.png" alt="YOOMP" width={53} height={22}
+            style={{ display: "block", height: "22px", width: "auto", flex: "none" }} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "26px" }}>
           <div className="cs-nav-links" style={{ display: "flex", alignItems: "center", gap: "26px" }}>
@@ -879,7 +884,12 @@ export function Footer(): ReactElement {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/brand/icon-192.png" alt="" width={30} height={30}
                   style={{ display: "block", width: "30px", height: "30px", borderRadius: "10px", flex: "none" }} />
-                <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em" }}>YOOMP</span>
+                {/* Фирменное начертание картинкой. Высота подобрана по оптическому размеру
+                    соседнего текста, ширина — по пропорции знака 2.41:1, чтобы он не
+                    тянулся. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/brand/wordmark-dark.png" alt="YOOMP" width={53} height={22}
+                  style={{ display: "block", height: "22px", width: "auto", flex: "none" }} />
               </div>
               <p style={{ margin: "0", maxWidth: "280px", fontSize: "13px", lineHeight: "1.5", color: "#6E6E6E", textWrap: "pretty" }}>Рабочее место точки детейлинга: заявки из всех каналов в одном списке, примерка на машине клиента прямо в диалоге.</p>
             </div>

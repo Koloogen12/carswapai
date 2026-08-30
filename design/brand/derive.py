@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import pathlib
 
-from PIL import Image
+from PIL import Image, ImageFilter
 
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / 'source'
@@ -91,6 +91,63 @@ def icon_tile(src: pathlib.Path) -> Image.Image:
     return trim(out)
 
 
+def wordmark_with_cuts(src: pathlib.Path, close: int = 15,
+                       invert: bool = False) -> Image.Image:
+    """Надпись лаймом, срезы внутри букв — чёрные, поле вокруг прозрачное.
+
+    Отличить фон от среза по цвету нельзя: и то и другое чёрное. По связности
+    тоже нельзя — срез не заперт внутри буквы, он проходит её насквозь и
+    хвостами выходит наружу, то есть соединён с фоном. Первая попытка залить
+    фон от края съела срезы вместе с полем.
+
+    Работает морфологическое замыкание: лаймовая маска расширяется на радиус
+    заведомо больше ширины среза и сжимается обратно. Срез при этом
+    затягивается, и получается СИЛУЭТ букв без прорезей. Дальше просто:
+    внутри силуэта пиксель либо лайм, либо чёрный срез; снаружи — прозрачно.
+
+    Хвосты срезов, торчащие за буквы, при этом теряются. Это осознанно: на
+    кегле шапки они всё равно неразличимы, а тащить их пришлось бы вместе с
+    чёрной подложкой под всей надписью.
+
+    Радиус подобран сравнением, а не на глаз: на 31 замыкание затягивает не
+    только срез, но и просветы МЕЖДУ буквами, и они заливаются чёрным — «OO»
+    слипается в кляксу. На 9 срез почти не закрывается и остаётся дырой. 15
+    затягивает срез и оставляет буквы раздельными.
+    """
+    im = Image.open(src).convert('RGB')
+    w, h = im.size
+    sp = im.load()
+
+    lime = Image.new('L', (w, h), 0)
+    lp = lime.load()
+    for y in range(h):
+        for x in range(w):
+            lp[x, y] = 255 if coverage(sp[x, y]) >= 0.5 else 0
+
+    silhouette = lime.filter(ImageFilter.MaxFilter(close)).filter(ImageFilter.MinFilter(close))
+
+    out = Image.new('RGBA', (w, h))
+    op, sq = out.load(), silhouette.load()
+    for y in range(h):
+        for x in range(w):
+            if not sq[x, y]:
+                op[x, y] = (0, 0, 0, 0)
+                continue
+            t = coverage(sp[x, y])
+            # invert — для СВЕТЛЫХ подложек. Лайм на белой карточке кабинета
+            # даёт контраст около 1.4:1 — имя продукта читается как бледное
+            # пятно. Меняем местами: буквы чёрные, срезы лаймовые. Ровно та же
+            # логика, что у иконки, которая на светлом чёрная с лаймовым знаком.
+            a, b = (LIME, INK) if invert else (INK, LIME)
+            op[x, y] = (
+                int(round(a[0] + t * (b[0] - a[0]))),
+                int(round(a[1] + t * (b[1] - a[1]))),
+                int(round(a[2] + t * (b[2] - a[2]))),
+                255,
+            )
+    return trim(out)
+
+
 def trim(im: Image.Image) -> Image.Image:
     a = im.split()[-1].point(lambda v: 255 if v >= TRIM_ALPHA else 0)
     box = a.getbbox()
@@ -141,6 +198,17 @@ def main() -> int:
     word = lime_on_transparent(SRC / 'YOOMP-wordmark-lime-on-black.png')
     save(word, 'wordmark.png', 720)
     save(word, 'wordmark-small.png', 240)
+
+    # Надпись со срезами — та, что стоит в шапках. Срезы чёрные, как в макете.
+    print('надпись со срезами:')
+    cuts = wordmark_with_cuts(SRC / 'YOOMP-wordmark-lime-on-black.png')
+    save(cuts, 'wordmark-cuts.png', 720)
+    save(cuts, 'wordmark-cuts-240.png', 240)
+
+    print('надпись для светлых подложек:')
+    dark = wordmark_with_cuts(SRC / 'YOOMP-wordmark-lime-on-black.png', invert=True)
+    save(dark, 'wordmark-dark.png', 720)
+    save(dark, 'wordmark-dark-240.png', 240)
 
     print('лок-ап:')
     lock = lime_on_transparent(SRC / 'YOOMP-lockup-lime-on-black.png')

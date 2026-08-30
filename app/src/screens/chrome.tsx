@@ -6,7 +6,6 @@
  * Статические строки заменены пропсами, ни одно значение стиля не тронуто.
  */
 import type { ReactNode } from 'react';
-import { BRAND } from '@/lib/domain';
 
 export function AppBar({ pointName, user, role, spent, cap, active }: {
   pointName: string; user: string; role: string; spent: number; cap: number;
@@ -35,7 +34,12 @@ export function AppBar({ pointName, user, role, spent, cap, active }: {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/icon-192.png" alt="" width={28} height={28}
           style={{ display: "block", width: "28px", height: "28px", borderRadius: "9px", flex: "none" }} />
-        <span style={{ fontSize: "16px", fontWeight: "600", letterSpacing: "-0.02em" }}>{BRAND}</span>
+        {/* Фирменное начертание картинкой. Высота подобрана по оптическому размеру
+            соседнего текста, ширина — по пропорции знака 2.41:1, чтобы он не
+            тянулся. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/wordmark-dark.png" alt="YOOMP" width={51} height={21}
+          style={{ display: "block", height: "21px", width: "auto", flex: "none" }} />
         <span style={{ fontSize: "11.5px", color: "#9A9A9A", background: "#FFFFFF", borderRadius: "999px", padding: "5px 11px", marginLeft: "4px" }}>{pointName}</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
