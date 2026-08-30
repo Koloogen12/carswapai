@@ -30,6 +30,12 @@ su_ -d carswap -c "
   create role app_tenant nologin;
   create role carswap_owner login createrole;
   create role carswap_app login in role app_tenant;
+  -- Воркер: не арендатор, обслуживает очередь всех точек. Обход политик ему
+  -- выдаёт СУПЕРПОЛЬЗОВАТЕЛЬ здесь, а не миграция: владелец схемы такого
+  -- права не имеет, и это правильно — миграции не должны уметь раздавать
+  -- обход политик. Границу роли задают гранты в 025 и проверяет
+  -- tests/worker-role.sql.
+  create role carswap_worker login bypassrls;
   alter database carswap owner to carswap_owner;
   grant all on schema public to carswap_owner;
   create extension if not exists pgcrypto;
@@ -68,5 +74,6 @@ psql -h "$S" -p "$PORT" -U carswap_app -d carswap -v ON_ERROR_STOP=1 \
   -f tests/retention.sql \
   -f tests/client-link.sql \
   -f tests/outbound-channel.sql \
-  -f tests/garage-tryon.sql 2>&1 \
+  -f tests/garage-tryon.sql \
+  -f tests/worker-role.sql 2>&1 \
   | grep -E 'ok  ·|ПРОВАЛ|ERROR'

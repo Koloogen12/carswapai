@@ -46,6 +46,7 @@ services:
       # со всеми. Фикстура заводит данные сразу многих арендаторов, претензии
       # ни одного из них у неё нет и быть не может.
       SEED_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/yoomp
+      WORKER_PASSWORD: ${WORKER_PASSWORD}
     # command СПИСКОМ из одного элемента, а не строкой.
     #
     # Строку compose разбивает по пробелам и передаёт в bash -lc как отдельные
@@ -104,7 +105,11 @@ services:
     env_file:
       - /etc/yoomp/secrets.env
     environment:
-      DATABASE_URL: postgresql://carswap_app:${APP_PASSWORD}@db:5432/yoomp
+      # Своя роль, а не роль приложения. Воркер обслуживает очередь ВСЕХ точек,
+      # претензии арендатора у него нет и быть не может — под ролью приложения
+      # он видел ноль заданий и молча простаивал. Границу задают гранты
+      # (миграция 025): очередь и кадры видит, переписку и клиентов нет.
+      DATABASE_URL: postgresql://carswap_worker:${WORKER_PASSWORD}@db:5432/yoomp
       STORAGE_ROOT: /var/lib/carswap/storage
       PYTHONUNBUFFERED: "1"
       TZ: Europe/Moscow

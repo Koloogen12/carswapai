@@ -266,6 +266,16 @@ values ('b0000000-0000-4000-8000-000000000001','point', 1000000,
 on conflict do nothing;
 
 -- Расход у порога: без него шкала и прогноз показывают ноль.
+--
+-- «on conflict do nothing» здесь НЕ работает и не работало: у строки расхода
+-- нет естественного ключа, id генерируется случайным, конфликтовать не с чем.
+-- Каждый повторный прогон посева дописывал ещё 620 строк. На стенде посев
+-- отработал пять раз за отладку — точка «потратила» 6 820 ₽ при потолке
+-- 3 000 ₽ и встала за жёстким стопом, то есть демо открывалось с серой
+-- кнопкой «Примерить».
+--
+-- Защита — проверкой существования, а не конфликтом: если расход у точки уже
+-- есть, второй раз не начисляем.
 insert into generation_usage (point_id, render_class, category, cost_kopecks, model_used)
 select 'b0000000-0000-4000-8000-000000000001',
        case when g % 4 = 0 then 'B' else 'A' end::render_class,
@@ -273,7 +283,8 @@ select 'b0000000-0000-4000-8000-000000000001',
        case when g % 4 = 0 then 850 else 10 end,
        case when g % 4 = 0 then 'gemini-3.1-flash-image' else null end
   from generate_series(1, 620) g
-on conflict do nothing;
+ where not exists (select 1 from generation_usage
+                    where point_id = 'b0000000-0000-4000-8000-000000000001');
 
 -- Химки держим У ПОРОГА, а Мытищи — здоровыми. Состояние «расход у потолка»
 -- нарисовано в макете и должно быть показуемым, но не на той точке, которую
@@ -283,7 +294,9 @@ on conflict do nothing;
 insert into generation_usage (point_id, render_class, category, cost_kopecks, model_used)
 select 'b0000000-0000-4000-8000-000000000002', 'B'::render_class,
        'film'::item_category, 850, 'gemini-3.1-flash-image'
-  from generate_series(1, 300) g;
+  from generate_series(1, 300) g
+ where not exists (select 1 from generation_usage
+                    where point_id = 'b0000000-0000-4000-8000-000000000002');
 
 -- Гараж привёл клиента сам: конфигурация без треда, запись без менеджера.
 insert into clients (id, point_id, name, phone, vehicle, vehicle_model_id)

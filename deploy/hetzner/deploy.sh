@@ -40,6 +40,7 @@ set_if_absent() { grep -q "^$1=" "$SECRETS" || printf '%s=%s\n' "$1" "$2" >> "$S
 set_if_absent POSTGRES_PASSWORD "$(openssl rand -hex 24)"
 set_if_absent OWNER_PASSWORD    "$(openssl rand -hex 24)"
 set_if_absent APP_PASSWORD      "$(openssl rand -hex 24)"
+set_if_absent WORKER_PASSWORD   "$(openssl rand -hex 24)"
 set_if_absent AUTH_CODE_SALT    "$(openssl rand -hex 32)"
 # Внешние ключи — заглушками, чтобы стек поднялся. Живые значения владелец
 # подставляет отдельно: в репозитории и в этом скрипте их нет и не будет.
