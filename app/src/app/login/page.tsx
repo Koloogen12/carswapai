@@ -48,9 +48,9 @@ export default function LoginPage() {
       <div style={{ width: "100%", maxWidth: "1440px", minHeight: "760px", background: "#EFEFEF", borderRadius: "30px", overflow: "hidden", display: "flex" }}>
         <div style={{ width: "620px", flex: "none", background: "#FFFFFF", padding: "52px 56px", display: "flex", flexDirection: "column", gap: "26px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{ width: "30px", height: "30px", borderRadius: "10px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2.2" strokeLinecap="round"><path d="M12 4v16M4 12h16" /></svg>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/icon-192.png" alt="" width={30} height={30}
+              style={{ display: "block", width: "30px", height: "30px", borderRadius: "10px", flex: "none" }} />
             <span style={{ fontSize: "17px", fontWeight: "600", letterSpacing: "-0.02em" }}>{BRAND}</span>
           </div>
 

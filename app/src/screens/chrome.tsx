@@ -24,9 +24,17 @@ export function AppBar({ pointName, user, role, spent, cap, active }: {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "20px", padding: "0 6px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <div style={{ width: "28px", height: "28px", borderRadius: "9px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="2.2" strokeLinecap="round"><path d="M12 4v16M4 12h16" /></svg>
-        </div>
+        {/* Знак вместо заглушки-плюса. Габарит и скругление из макета не
+            тронуты: 28px, радиус 9. Сам файл уже со скруглением и прозрачным
+            полем, поэтому подложка под ним не нужна.
+
+            Надпись рядом остаётся ТЕКСТОМ, а не картинкой: фирменное
+            начертание — растр из генерации, и на кегле 16 он мылит. README
+            знака говорит то же самое — «перед мелкими кеглями отрисовать
+            вектором». Появится вектор — заменим и надпись. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/icon-192.png" alt="" width={28} height={28}
+          style={{ display: "block", width: "28px", height: "28px", borderRadius: "9px", flex: "none" }} />
         <span style={{ fontSize: "16px", fontWeight: "600", letterSpacing: "-0.02em" }}>{BRAND}</span>
         <span style={{ fontSize: "11.5px", color: "#9A9A9A", background: "#FFFFFF", borderRadius: "999px", padding: "5px 11px", marginLeft: "4px" }}>{pointName}</span>
       </div>

@@ -18,9 +18,12 @@ export function Nav(): ReactElement {
     <>
       <div style={{ position: "fixed", top: "14px", left: "50%", transform: "translateX(-50%)", zIndex: "90", width: "calc(100% - 28px)", maxWidth: "1360px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px", background: "rgba(17,17,17,.76)", backdropFilter: "blur(16px)", borderRadius: "999px", padding: "8px 8px 8px 22px", boxShadow: "0 20px 44px -24px rgba(0,0,0,.6)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "11px", flex: "none" }}>
-          <div style={{ width: "30px", height: "30px", borderRadius: "10px", background: "#DEF23B", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="1.8" strokeLinecap="round" style={{ flex: "none" }}><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="4.2" /></svg>
-          </div>
+          {/* Обратный вариант знака: панель плывёт поверх тёмного кадра, и
+              чёрная плитка в ней просто исчезла бы. Габарит и скругление из
+              макета не тронуты. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/icon-invert-192.png" alt="" width={30} height={30}
+            style={{ display: "block", width: "30px", height: "30px", borderRadius: "10px", flex: "none" }} />
           <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em", color: "#FFFFFF" }}>YOOMP</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "26px" }}>
@@ -873,9 +876,9 @@ export function Footer(): ReactElement {
           <div className="cs-gfoot" style={{ display: "grid", gridTemplateColumns: "minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr)", gap: "32px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "11px" }}>
-                <div style={{ width: "30px", height: "30px", borderRadius: "10px", background: "#111111", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DEF23B" strokeWidth="1.8" strokeLinecap="round" style={{ flex: "none" }}><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="4.2" /></svg>
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/brand/icon-192.png" alt="" width={30} height={30}
+                  style={{ display: "block", width: "30px", height: "30px", borderRadius: "10px", flex: "none" }} />
                 <span style={{ fontSize: "16.5px", fontWeight: "600", letterSpacing: "-0.025em" }}>YOOMP</span>
               </div>
               <p style={{ margin: "0", maxWidth: "280px", fontSize: "13px", lineHeight: "1.5", color: "#6E6E6E", textWrap: "pretty" }}>Рабочее место точки детейлинга: заявки из всех каналов в одном списке, примерка на машине клиента прямо в диалоге.</p>
