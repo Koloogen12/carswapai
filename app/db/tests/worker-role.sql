@@ -56,5 +56,11 @@ select expect_eq($$
    where has_table_privilege('carswap_worker', t, 'insert')
       or has_table_privilege('carswap_worker', t, 'update')
       or has_table_privilege('carswap_worker', t, 'delete')
-$$, 'generation_usage,renders',
-  'Писать воркер может только рендеры и собственный расход');
+$$, 'generation_usage,render_jobs,renders',
+  'Писать воркер может рендеры, свой расход и статус задания');
+
+-- Задания воркер меняет, но не удаляет: история попыток нужна, чтобы понимать,
+-- что именно ломалось, а удалённое задание выглядит как никогда не бывшее.
+select expect_eq($$
+  select has_table_privilege('carswap_worker','render_jobs','delete')::text
+$$, 'false', 'Задания воркер не удаляет');
