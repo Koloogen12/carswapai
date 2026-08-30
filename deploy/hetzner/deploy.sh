@@ -49,7 +49,11 @@ set_if_absent SMS_GATEWAY_KEY   ""
 # Трансграничная передача кадра во внешнюю модель. Выключено по умолчанию:
 # включает владелец, когда юрист подтвердит достаточность обезличивания.
 set_if_absent CSW_TRANSFER_CLEARED "no"
-set_if_absent CSW_B_MODEL       "gemini-3-pro-image-preview"
+# gemini-3.1-flash-image, а не pro: учёт расхода в очереди проставляет 850
+# копеек за кадр, и это цена именно flash. С pro (1130) касса точки считала бы
+# на треть меньше, чем списывает шлюз, — и потолок расхода перестал бы быть
+# потолком. Модель и цена меняются вместе или не меняются вовсе.
+set_if_absent CSW_B_MODEL       "gemini-3.1-flash-image"
 set_if_absent CSW_B_BASE_URL    "https://api.cometapi.com/v1"
 echo "переменных в secrets.env: $(grep -c '=' "$SECRETS")"
 
