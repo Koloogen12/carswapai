@@ -214,13 +214,24 @@ def main() -> int:
     lock = lime_on_transparent(SRC / 'YOOMP-lockup-lime-on-black.png')
     save(lock, 'lockup.png', 960)
 
-    # Карточка для мессенджеров и соцсетей. Фон сплошной: прозрачность там
-    # разворачивается в белое, и лаймовый знак на белом теряет весь контраст.
+    # Карточка ссылки и обложка для соцсетей — из готового баннера, если он
+    # положен в source. Иначе собирается из лок-апа: без баннера ссылка всё
+    # равно не должна уходить без превью.
+    #
+    # Вписываем целиком, а не обрезаем под пропорцию: у баннера сверху знак, а
+    # снизу строка «машина клиента в любом артикуле», и обрезка съедает то или
+    # другое. Поля чёрные — тот же фон, что у самого баннера, стыка не видно.
     print('карточка ссылки:')
+    cover = SRC / 'YOOMP-cover.png'
     og = Image.new('RGBA', (1200, 630), (*INK, 255))
-    mark = lock.copy()
-    mark.thumbnail((820, 300), Image.LANCZOS)
-    og.alpha_composite(mark, ((1200 - mark.width) // 2, (630 - mark.height) // 2))
+    if cover.exists():
+        art = Image.open(cover).convert('RGBA')
+        art.thumbnail((1200, 630), Image.LANCZOS)
+        save(art, 'cover.png')          # родная пропорция: обложка сообщества
+    else:
+        art = lock.copy()
+        art.thumbnail((820, 300), Image.LANCZOS)
+    og.alpha_composite(art, ((1200 - art.width) // 2, (630 - art.height) // 2))
     save(og.convert('RGB').convert('RGBA'), 'og.png')
     return 0
 
