@@ -172,4 +172,25 @@ select expect_eq($$
   select count(*)::text from garage_sessions where phone is not null
 $$, '1', 'Точка получила телефон как лид');
 
+-- ── 8 · готовность примерки видна СВОЕЙ сессии и только ей ────
+--
+-- Прямой запрос к очереди от роли гаража возвращал пустоту — не отказ, а
+-- именно пустоту, — и опрос экрана не мог отличить её от «ещё считается».
+-- Клиент не видел ни результата, ни причины отказа ни разу.
+select expect_eq($$select count(*)::text from render_jobs$$, '0',
+  'Прямой запрос гаража к очереди даёт пустоту — потому и нужна дверь');
+
+select expect_eq($$
+  select (pending > 0)::text from app.garage_tryon_status(
+    (select item_id from app.garage_tryon(
+       app.garage_store_photo('/p.jpg', repeat('b',64), 1600, 1200, '{}'::jsonb),
+       'eeeeeeee-0424-0000-0000-000000000002') limit 1))
+$$, 'true', 'Дверь показывает, что задания ещё считаются');
+
+-- Чужая позиция не открывается подстановкой идентификатора.
+select expect_eq($$
+  select coalesce((select count(*)::text from app.garage_tryon_status(
+    '00000000-0000-4000-8000-0000000000ff')), '0')
+$$, '0', 'Чужую примерку по подставленному идентификатору не опросить');
+
 rollback;

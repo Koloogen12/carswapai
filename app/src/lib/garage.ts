@@ -334,22 +334,30 @@ export async function garageTryOnStatus(slug: string, itemId: string) {
   }
 }
 
+/**
+ * Готовность примерки — через дверь базы, а не прямым запросом.
+ *
+ * Прямой запрос к render_jobs и renders от роли гаража возвращал ПУСТОТУ:
+ * обе таблицы закрыты для неё ограничительной политикой. Для опроса пустота
+ * неотличима от «ещё считается» — он крутился две минуты и молча сдавался.
+ * Клиент не видел ни результата, ни причины отказа, ни разу.
+ */
 async function readTryOnStatus(slug: string, sid: string, itemId: string) {
   return withGarage(slug, async c => {
-    const done = await c.query<{ variant: string; storage_path: string }>(
-      `select variant::text, storage_path from renders
-        where configuration_item_id = $1 and qa_passed and erased_at is null`, [itemId]);
-    const jobs = await c.query<{ status: string; last_error: string | null }>(
-      `select status::text, last_error from render_jobs where configuration_item_id = $1`,
+    const r = await c.query<{ variant: string | null; storage_path: string | null;
+                              pending: number; errors: string[] }>(
+      `select variant, storage_path, pending, errors from app.garage_tryon_status($1)`,
       [itemId]);
+    const done = r.rows.filter(x => x.variant && x.storage_path)
+                       .map(x => ({ variant: x.variant!, storage_path: x.storage_path! }));
+    const pending = Number(r.rows[0]?.pending ?? 0);
     return {
-      ready: done.rows.length === 3,
-      done: done.rows,
-      pending: jobs.rows.filter(r => ['queued', 'running'].includes(r.status)).length,
+      ready: done.length === 3,
+      done,
+      pending,
       // Клиенту — человеческая фраза, а не строка из воркера. Техническая
       // причина остаётся в задании: она нужна тому, кто разбирает сбой.
-      errors: refusalTexts(
-        jobs.rows.filter(r => r.status === 'failed').map(r => r.last_error), 'client'),
+      errors: refusalTexts(r.rows[0]?.errors ?? [], 'client'),
     };
   }, sid);
 }
