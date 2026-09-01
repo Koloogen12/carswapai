@@ -1,6 +1,7 @@
 'use server';
 import { claimsFor } from './session';
 import { withTenant } from './db';
+import { refusalTexts } from './refusal';
 
 
 /**
@@ -69,7 +70,7 @@ export async function tryonExisting(threadId: string): Promise<TryonState[]> {
         pointPriceId: r.point_price_id as string,
         itemId: r.item_id as string,
         done: r.done as TryonState['done'],
-        errors: r.errors as string[],
+        errors: refusalTexts(r.errors as string[], 'staff'),
         pending: Number(r.pending),
       };
       // Позиция без светов, без отказов и без живых заданий — это след

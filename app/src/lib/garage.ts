@@ -21,6 +21,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { cookies } from 'next/headers';
 import { withGarage } from './db';
+import { refusalTexts } from './refusal';
 
 const STORAGE = process.env.STORAGE_ROOT ?? '/var/lib/carswap/storage';
 const MAX_BYTES = Number(process.env.CSW_PHOTO_MAX_BYTES ?? 25 * 1024 * 1024);
@@ -345,8 +346,10 @@ async function readTryOnStatus(slug: string, sid: string, itemId: string) {
       ready: done.rows.length === 3,
       done: done.rows,
       pending: jobs.rows.filter(r => ['queued', 'running'].includes(r.status)).length,
-      errors: jobs.rows.filter(r => r.status === 'failed')
-                       .map(r => r.last_error ?? 'без причины'),
+      // Клиенту — человеческая фраза, а не строка из воркера. Техническая
+      // причина остаётся в задании: она нужна тому, кто разбирает сбой.
+      errors: refusalTexts(
+        jobs.rows.filter(r => r.status === 'failed').map(r => r.last_error), 'client'),
     };
   }, sid);
 }

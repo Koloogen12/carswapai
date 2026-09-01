@@ -114,10 +114,10 @@ def handle(cur, job) -> None:
 
     photo_path = payload.get('photo_path')
     if not photo_path:
-        raise ValueError('в задании нет пути к фотографии')
+        raise ValueError('no_photo: в задании нет пути к фотографии')
     img = load_photo(photo_path)
     if img is None:
-        raise ValueError(f'файл фотографии не найден: {photo_path}')
+        raise ValueError(f'no_photo: файл фотографии не найден: {photo_path}')
 
     engine = GatewayEngine()
 
@@ -127,11 +127,11 @@ def handle(cur, job) -> None:
     if hard_stop(cur, point_id):
         # Не ошибка исполнения, а исчерпанный лимит: сообщение должно быть
         # таким, чтобы точка поняла, что делать, — пополнить, а не чинить.
-        raise RuntimeError('исчерпан месячный потолок расхода точки')
+        raise RuntimeError('budget: исчерпан месячный потолок расхода точки')
 
     car = silhouette.car(img)
     if car is None:
-        raise ValueError('на фотографии не найден автомобиль')
+        raise ValueError('no_car: на фотографии не найден автомобиль')
     plate_mask = plate.detect(img) if plate.available() else None
 
     req = classb.Request(
@@ -144,7 +144,7 @@ def handle(cur, job) -> None:
     res = classb.run(engine, req, car,
                      lawyer_cleared=os.environ.get('CSW_TRANSFER_CLEARED') == 'yes')
     if not res.ok or res.image is None:
-        raise RuntimeError(res.reason or 'генерация не прошла проверку')
+        raise RuntimeError(res.reason or 'qa: генерация не прошла проверку')
 
     path = save_render(point_id, str(job['id']), res.image)
     cur.execute("""

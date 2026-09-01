@@ -82,5 +82,6 @@ def report(original: np.ndarray, result: np.ndarray, mask: np.ndarray,
         # выдача с перекрашенным чужим госномером.
         'passed': bool(ok_out and ok_area and ok_plate is True),
         'reject_reason': (None if ok_plate is not None else
-                          'номер не найден — не можем поручиться, что он не тронут'),
+                          'plate_not_found: номер не найден, не можем поручиться, '
+                          'что он не тронут'),
     }

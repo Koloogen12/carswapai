@@ -134,7 +134,7 @@ def run(engine: Engine, req: Request, car: np.ndarray,
         rep = qa.report(req.image, out, req.mask, req.keep[0] if req.keep else None)
         if not rep['passed']:
             return Result(None, engine.name, engine.cost_kopecks, False,
-                          rep.get('reject_reason') or 'результат не прошёл проверку')
+                          rep.get('reject_reason') or 'qa: результат не прошёл проверку')
         return Result(out, engine.name, engine.cost_kopecks, True)
 
     plate = req.keep[0] if req.keep else None
@@ -167,5 +167,5 @@ def run(engine: Engine, req: Request, car: np.ndarray,
     rep = qa.report(req.image, out, req.mask, plate)
     if not rep['passed']:
         return Result(None, engine.name, engine.cost_kopecks, False,
-                      rep.get('reject_reason') or 'результат не прошёл проверку')
+                      rep.get('reject_reason') or 'qa: результат не прошёл проверку')
     return Result(out, engine.name, engine.cost_kopecks, True)
