@@ -110,4 +110,36 @@ begin
   raise notice 'ok  · Задачи умершего воркера возвращаются в очередь, а не теряются';
 end $$;
 
+-- ── Отказ, который повтором не исправить (миграция 028) ──────
+--
+-- Задержки повторов дают около десяти минут, а экран клиента опрашивает
+-- готовность две. То есть окончательный отказ он не видел НИКОГДА: примерка
+-- просто не появлялась, без результата и без объяснения. Проверяется, что
+-- такой отказ засчитывается с ПЕРВОЙ попытки, а обычный по-прежнему
+-- возвращается в очередь.
+do $$
+declare j uuid; st job_status; att int;
+begin
+  perform app.claim_render_jobs('worker-perm', 1);
+  select id into j from render_jobs where status = 'running' limit 1;
+  if j is null then raise exception 'ПРОВАЛ: нечего проверять — задача не взята'; end if;
+
+  select attempts into att from render_jobs where id = j;
+  st := app.fail_render_job(j, 'RuntimeError: plate_not_found: номера нет', true);
+  if st <> 'failed' then
+    raise exception 'ПРОВАЛ: окончательный отказ ушёл в повтор (статус %), попытка % из 5', st, att;
+  end if;
+  raise notice 'ok  · Отказ, который повтором не исправить, засчитывается сразу';
+
+  perform app.claim_render_jobs('worker-retry', 1);
+  select id into j from render_jobs where status = 'running' limit 1;
+  if j is not null then
+    st := app.fail_render_job(j, 'TimeoutError: шлюз не ответил');
+    if st <> 'queued' then
+      raise exception 'ПРОВАЛ: обрыв связи должен возвращаться в очередь, а не хоронить задание';
+    end if;
+    raise notice 'ok  · Обрыв связи по-прежнему возвращается в очередь';
+  end if;
+end $$;
+
 rollback;

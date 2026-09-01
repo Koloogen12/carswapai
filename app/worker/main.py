@@ -28,6 +28,7 @@ import pathlib
 import signal
 import socket
 import sys
+import re
 import time
 import traceback
 
@@ -176,6 +177,25 @@ def handle(cur, job) -> None:
     cur.execute('select app.finish_render_job(%s, %s)', (job['id'], res.cost_kopecks))
 
 
+# Отказы, которые повтор не исправит.
+#
+# «На кадре не виден госномер» — свойство самого кадра: ни пятая попытка, ни
+# пятидесятая его не изменят. А повтор стоит дорого: задержки 5·3^n секунд дают
+# около десяти минут, и всё это время человек смотрит в пустоту — экран
+# опрашивает готовность две минуты и закрывает опрос.
+#
+# Обрыв связи со шлюзом, таймаут и пятисотка сюда НЕ входят: это состояние
+# мира, а не кадра, и оно меняется само.
+PERMANENT = ('plate_not_found', 'no_car', 'no_photo', 'budget')
+
+
+def permanent(msg: str) -> bool:
+    """Окончателен ли отказ. Читается код в начале причины, а не её текст."""
+    text = re.sub(r'^[A-Za-z]+(Error|Exception):\s*', '', msg)
+    code = text.split(':', 1)[0].strip()
+    return code in PERMANENT
+
+
 def main() -> int:
     signal.signal(signal.SIGTERM, _sigterm)
     signal.signal(signal.SIGINT, _sigterm)
@@ -211,8 +231,8 @@ def main() -> int:
                         # останется висеть в running навсегда. Точку берём из
                         # самого задания — мы его и забрали.
                         as_tenant(cur, str(job['point_id']))
-                        cur.execute('select app.fail_render_job(%s, %s)',
-                                    (job['id'], msg[:500]))
+                        cur.execute('select app.fail_render_job(%s, %s, %s)',
+                                    (job['id'], msg[:500], permanent(msg)))
                     except Exception:
                         traceback.print_exc()
     print('воркер остановлен', flush=True)
