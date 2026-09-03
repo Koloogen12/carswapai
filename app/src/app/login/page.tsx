@@ -23,6 +23,10 @@ export default function LoginPage() {
   // Код в разработке возвращается в ответе и показывается прямо здесь:
   // провайдера SMS в контуре ещё нет, а войти надо. В бою этого поля нет.
   const [devCode, setDevCode] = useState<string | null>(null);
+  // Подсказка от сервера: срок жизни кода или «это стенд, спросите код у того,
+  // кто пригласил». Без неё человек на стенде видел пустое поле и не понимал,
+  // откуда взять код, — SMS-то не пришло.
+  const [hint, setHint] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   const go = () => start(async () => {
@@ -31,6 +35,7 @@ export default function LoginPage() {
       const r = await actionRequestCode(phone);
       if (!r.ok) { setErr(r.error); return; }
       setDevCode(r.devCode ?? null);
+      setHint(r.hint ?? null);
       setSent(true);
       return;
     }
@@ -88,6 +93,9 @@ export default function LoginPage() {
               <div style={{ background: "#F5FBCB", borderRadius: "14px", padding: "11px 13px", fontSize: "12px", lineHeight: "1.45", color: "#2E2E2E" }}>
                 Отправки SMS в контуре ещё нет. Код: <b>{devCode}</b>
               </div>
+            )}
+            {!devCode && sent && hint && (
+              <div style={{ background: "#F5FBCB", borderRadius: "14px", padding: "11px 13px", fontSize: "12px", lineHeight: "1.45", color: "#2E2E2E" }}>{hint}</div>
             )}
             <button onClick={go} disabled={pending || (!sent && !phone.trim()) || (sent && !code.trim())}
               style={{ background: "#111111", borderRadius: "999px", padding: "18px 0", textAlign: "center", border: 0, cursor: "pointer", fontFamily: "inherit", width: "100%" }}>

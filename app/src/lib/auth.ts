@@ -20,9 +20,11 @@ import 'server-only';
 import { createHash, randomInt, randomUUID } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { sys, type Claims } from './db';
+import { BRAND } from './domain';
 
 const COOKIE = 'csw_s';
 const CODE_TTL_HINT = '10 минут';
+const STAND_HINT = 'Это стенд: введите код стенда, его выдаёт тот, кто вас сюда пригласил';
 
 /**
  * Соль берётся из окружения. Без неё хеш кода — это хеш четырёх цифр, то есть
@@ -69,7 +71,31 @@ export async function requestCode(rawPhone: string): Promise<CodeRequest> {
     console.log(`[вход] код для +${phone}: ${code}`);
     return { ok: true, hint: CODE_TTL_HINT, devCode: code };
   }
-  const sent = await sendSms(phone, `Код входа CarSwap: ${code}`);
+
+  // Код стенда. Провайдера SMS нет, а в кабинет на стенде входить надо — для
+  // показа и проверки. Вместо случайного кода выдаётся один и тот же, заданный
+  // в секретах сервера. Путь проверки при этом НЕ меняется: код так же
+  // хешируется, так же живёт ограниченное время, так же гасится после пяти
+  // неверных попыток. Меняется только то, откуда код известен человеку.
+  //
+  // На экран он не выводится никогда: телефоны демо-точки лежат в открытом
+  // репозитории, и показ кода означал бы вход для любого, кто их прочитал.
+  // Код знает тот, кто держит секреты сервера, — и только он.
+  //
+  // На боевом контуре переменной быть не должно; без неё и без провайдера
+  // вход честно падает — а не открывается всем.
+  const stand = process.env.AUTH_STAND_CODE;
+  const gateway = process.env.SMS_GATEWAY_URL && process.env.SMS_GATEWAY_KEY;
+  if (!gateway && stand) {
+    if (stand.length < 8) {
+      console.error('[вход] AUTH_STAND_CODE короче 8 знаков — отказ, подобрать такой можно');
+      return { ok: false, error: 'Вход на стенде настроен неверно' };
+    }
+    await sys('select app.issue_auth_code($1, $2)', [phone, codeHash(phone, stand)]);
+    return { ok: true, hint: STAND_HINT };
+  }
+
+  const sent = await sendSms(phone, `Код входа ${BRAND}: ${code}`);
   if (!sent) return { ok: false, error: 'Не удалось отправить код. Попробуйте ещё раз' };
   return { ok: true, hint: CODE_TTL_HINT };
 }

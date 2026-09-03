@@ -41,9 +41,11 @@ export function Nav(): ReactElement {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <a className="cs-btn-primary" href="#demo-form" style={{ background: "#DEF23B", color: "#111111", borderRadius: "999px", padding: "12px 22px", fontSize: "13.5px", fontWeight: "500" }}>Записаться на демо</a>
-            <div style={{ width: "42px", height: "42px", borderRadius: "999px", background: "rgba(255,255,255,.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+            {/* Иконка была div с курсором-рукой — нарисованной кнопкой: с лендинга
+              в кабинет попасть было нельзя вовсе. */}
+          <a href="/login" aria-label="Войти в кабинет" style={{ width: "42px", height: "42px", borderRadius: "999px", background: "rgba(255,255,255,.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "none" }}><circle cx="12" cy="9" r="3.4" /><path d="M5.5 20a6.5 6.5 0 0113 0" /></svg>
-            </div>
+            </a>
           </div>
         </div>
       </div>

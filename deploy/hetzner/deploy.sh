@@ -42,6 +42,11 @@ set_if_absent OWNER_PASSWORD    "$(openssl rand -hex 24)"
 set_if_absent APP_PASSWORD      "$(openssl rand -hex 24)"
 set_if_absent WORKER_PASSWORD   "$(openssl rand -hex 24)"
 set_if_absent AUTH_CODE_SALT    "$(openssl rand -hex 32)"
+# Код входа на стенде. Провайдера SMS нет, а в кабинет входить надо — для
+# показа и проверки. Выдаётся вместо случайного кода, проверяется тем же
+# путём. На экран не выводится: его знает тот, кто держит этот файл. На
+# боевом контуре этой строки быть НЕ должно — там вход только по SMS.
+set_if_absent AUTH_STAND_CODE   "$(openssl rand -hex 6)"
 # Внешние ключи — заглушками, чтобы стек поднялся. Живые значения владелец
 # подставляет отдельно: в репозитории и в этом скрипте их нет и не будет.
 set_if_absent COMETAPI_KEY      "placeholder-replace-me"
