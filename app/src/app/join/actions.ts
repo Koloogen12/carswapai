@@ -16,13 +16,13 @@ export async function actionJoinStaff(code: string) {
 }
 
 /** Шаг 1 регистрации точки: подтверждаем телефон будущего владельца. */
-export async function actionJoinSendCode(phone: string) {
-  return requestCode(phone);
+export async function actionJoinSendCode(email: string) {
+  return requestCode(email);
 }
 
 /** Шаг 2: код из SMS, точка, владелец и сессия — одной транзакцией. */
 export async function actionJoinPoint(input: {
-  code: string; phone: string; sms: string;
+  code: string; email: string; mailCode: string;
   pointName: string; address: string; ownerName: string;
 }) {
   return redeemNetworkInvite(input);

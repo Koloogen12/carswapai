@@ -19,15 +19,15 @@ insert into points (id, network_id, name, address, public_slug) values
    'JETCAR Химки','Химки, Ленинградское ш., 5','jetcar-khimki')
 on conflict do nothing;
 
-insert into users (id, point_id, network_id, role, name, phone) values
+insert into users (id, point_id, network_id, role, name, phone, email) values
   ('c0000000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001',
-   'a0000000-0000-4000-8000-000000000001','manager','Ирина Ковалёва','+79161112233'),
+   'a0000000-0000-4000-8000-000000000001','manager','Ирина Ковалёва','+79161112233','manager@jetcar-mytishchi.example'),
   ('c0000000-0000-4000-8000-000000000002','b0000000-0000-4000-8000-000000000001',
-   'a0000000-0000-4000-8000-000000000001','master','Сергей Панов','+79161112244'),
+   'a0000000-0000-4000-8000-000000000001','master','Сергей Панов','+79161112244','master@jetcar-mytishchi.example'),
   ('c0000000-0000-4000-8000-000000000003','b0000000-0000-4000-8000-000000000001',
-   'a0000000-0000-4000-8000-000000000001','owner','Артём Лебедев','+79161112255'),
+   'a0000000-0000-4000-8000-000000000001','owner','Артём Лебедев','+79161112255','owner@jetcar-mytishchi.example'),
   ('c0000000-0000-4000-8000-000000000004', null,
-   'a0000000-0000-4000-8000-000000000001','network_admin','Ольга Титова','+79161112266')
+   'a0000000-0000-4000-8000-000000000001','network_admin','Ольга Титова','+79161112266','network@jetcar.example')
 on conflict do nothing;
 
 insert into vehicle_models (id, make, model, generation, body_type, year_from, aliases) values

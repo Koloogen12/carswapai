@@ -16,16 +16,16 @@ insert into networks (id, name, join_code, price_deviation_allowed_pct)
   values (:N,'Сеть входа','AUTH-2026', 10);
 select act_as(:P::uuid, :N::uuid);
 insert into points (id, network_id, name, public_slug) values (:P,:N,'Точка','auth-a');
-insert into users (id, point_id, network_id, role, name, phone) values
-  (:U,:P,:N,'manager','Менеджер','79991110001'),
-  (:U2,:P,:N,'owner','Владелец','79991110002');
+insert into users (id, point_id, network_id, role, name, email) values
+  (:U,:P,:N,'manager','Менеджер','manager@t.example'),
+  (:U2,:P,:N,'owner','Владелец','owner@t.example');
 
 -- ── Неизвестный телефон входа не даёт ────────────────────────
 do $$
 declare sid uuid;
 begin
-  perform app.issue_auth_code('79990000000', 'хеш-чужого');
-  sid := app.redeem_auth_code('79990000000', 'хеш-чужого');
+  perform app.issue_auth_code('nobody@t.example', 'хеш-чужого');
+  sid := app.redeem_auth_code('nobody@t.example', 'хеш-чужого');
   if sid is not null then
     raise exception 'ПРОВАЛ: телефон, которого нет среди сотрудников, получил сессию';
   end if;
@@ -39,8 +39,8 @@ end $$;
 do $$
 declare sid uuid;
 begin
-  perform app.issue_auth_code('79991110001', 'правильный');
-  sid := app.redeem_auth_code('79991110001', 'неправильный');
+  perform app.issue_auth_code('manager@t.example', 'правильный');
+  sid := app.redeem_auth_code('manager@t.example', 'неправильный');
   if sid is not null then
     raise exception 'ПРОВАЛ: неверный код открыл сессию';
   end if;
@@ -52,11 +52,11 @@ do $$
 declare sid uuid;
 begin
   for i in 1..5 loop
-    perform app.redeem_auth_code('79991110001', 'мимо' || i);
+    perform app.redeem_auth_code('manager@t.example', 'мимо' || i);
   end loop;
   -- Даже ПРАВИЛЬНЫЙ код после исчерпания попыток уже не работает: иначе
   -- ограничение считало бы попытки, но ничего не ограничивало.
-  sid := app.redeem_auth_code('79991110001', 'правильный');
+  sid := app.redeem_auth_code('manager@t.example', 'правильный');
   if sid is not null then
     raise exception 'ПРОВАЛ: код пережил перебор — четыре цифры подберут за секунды';
   end if;
@@ -67,8 +67,8 @@ end $$;
 do $$
 declare sid uuid; r record;
 begin
-  perform app.issue_auth_code('79991110001', 'верный-хеш');
-  sid := app.redeem_auth_code('79991110001', 'верный-хеш');
+  perform app.issue_auth_code('manager@t.example', 'верный-хеш');
+  sid := app.redeem_auth_code('manager@t.example', 'верный-хеш');
   if sid is null then
     raise exception 'ПРОВАЛ: верный код сессию не открыл';
   end if;
@@ -88,10 +88,10 @@ end $$;
 do $$
 declare sid uuid;
 begin
-  perform app.issue_auth_code('79991110002', 'одноразовый');
-  sid := app.redeem_auth_code('79991110002', 'одноразовый');
+  perform app.issue_auth_code('owner@t.example', 'одноразовый');
+  sid := app.redeem_auth_code('owner@t.example', 'одноразовый');
   if sid is null then raise exception 'ПРОВАЛ: подготовка не удалась'; end if;
-  sid := app.redeem_auth_code('79991110002', 'одноразовый');
+  sid := app.redeem_auth_code('owner@t.example', 'одноразовый');
   if sid is not null then
     raise exception 'ПРОВАЛ: код сработал второй раз';
   end if;
@@ -104,8 +104,8 @@ end $$;
 do $$
 declare sid uuid; n int;
 begin
-  perform app.issue_auth_code('79991110001', 'ещё-один');
-  sid := app.redeem_auth_code('79991110001', 'ещё-один');
+  perform app.issue_auth_code('manager@t.example', 'ещё-один');
+  sid := app.redeem_auth_code('manager@t.example', 'ещё-один');
   update users set active = false where id = 'cccccccc-cccc-0000-0000-000000000001';
   select count(*) into n from app.session_claims(sid);
   if n <> 0 then
@@ -119,8 +119,8 @@ end $$;
 do $$
 declare sid uuid; n int;
 begin
-  perform app.issue_auth_code('79991110001', 'для-выхода');
-  sid := app.redeem_auth_code('79991110001', 'для-выхода');
+  perform app.issue_auth_code('manager@t.example', 'для-выхода');
+  sid := app.redeem_auth_code('manager@t.example', 'для-выхода');
   perform app.revoke_session(sid);
   select count(*) into n from app.session_claims(sid);
   if n <> 0 then
@@ -129,19 +129,19 @@ begin
   raise notice 'ok  · выход действительно закрывает сессию';
 end $$;
 
--- ── Один телефон в разных написаниях — один человек ──────────
+-- ── Одна почта в разном регистре и с пробелами — один человек ──
 -- В базе номера с плюсом, вводят их с восьмёркой и пробелами, шлюзы шлют
 -- голыми цифрами. Без приведения владелец точки просто не войдёт — и не
 -- узнает почему, потому что ответ при неудаче намеренно одинаковый.
 do $$
 declare sid uuid;
 begin
-  perform app.issue_auth_code('8 (999) 111-00-01', 'разное-написание');
-  sid := app.redeem_auth_code('+7 999 111 00 01', 'разное-написание');
+  perform app.issue_auth_code('  Manager@T.example ', 'разный-регистр');
+  sid := app.redeem_auth_code('manager@t.example', 'разный-регистр');
   if sid is null then
     raise exception 'ПРОВАЛ: «8 999…» и «+7 999…» приняты за разные телефоны';
   end if;
-  raise notice 'ok  · телефон узнаётся в любом написании';
+  raise notice 'ok  · почта узнаётся в любом регистре и с пробелами';
 end $$;
 
 -- ── Приложение не читает коды и сессии напрямую ──────────────
@@ -156,12 +156,12 @@ select expect_denied($$ select 1 from sessions $$,
 -- users закрыта политикой «своя сеть», а у входа претензии нет по построению.
 -- Проверяется от роли приложения БЕЗ претензии — ровно так, как зовёт сервер.
 select set_config('request.jwt.claims', '', false);
-select app.issue_auth_code('79991110002', 'стенд-хеш');
+select app.issue_auth_code('owner@t.example', 'стенд-хеш');
 
 -- Идентификатор сессии берём из ответа функции, а не из таблицы: sessions
 -- закрыта для роли приложения, и стенд выше этого требует. Читать её отсюда
 -- значило бы проверять вход в обход того самого запрета.
-select app.redeem_auth_code('+7 999 111-00-02', 'стенд-хеш') as sid \gset
+select app.redeem_auth_code('Owner@T.Example', 'стенд-хеш') as sid \gset
 -- format() снаружи долларовых кавычек: внутри $$…$$ psql переменные не
 -- подставляет, и :'sid' остался бы двоеточием в тексте запроса.
 select expect_eq(format($$select (%L <> '')::text$$, :'sid'), 'true',

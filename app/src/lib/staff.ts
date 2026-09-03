@@ -26,7 +26,8 @@ import { createHash, randomBytes } from 'node:crypto';
 import { cookies, headers } from 'next/headers';
 import { requireOwner, Forbidden } from './session';
 import { sys, withTenant } from './db';
-import { normalizePhone } from './auth';
+import { normalizePhone } from './adapters/impl/ingest';
+import { normalizeEmail, looksLikeEmail } from './auth';
 
 /**
  * Имя куки сессии. Повторено из auth.ts намеренно и с сожалением: там оно
@@ -53,7 +54,7 @@ export type AddStaffResult =
  * то, что владелец не должен уметь раздать себе подобных.
  */
 export async function addStaff(input: {
-  name: string; role: StaffRole; phone: string;
+  name: string; role: StaffRole; email: string; phone?: string;
 }): Promise<AddStaffResult> {
   let who;
   try {
@@ -64,23 +65,24 @@ export async function addStaff(input: {
   }
 
   const name = input.name.trim();
-  const phone = normalizePhone(input.phone);
+  const email = normalizeEmail(input.email);
+  const phone = input.phone ? normalizePhone(input.phone) : '';
   if (name.length < 2) return { ok: false, error: 'Как зовут сотрудника?' };
   if (input.role !== 'manager' && input.role !== 'master') {
     return { ok: false, error: 'Роль — менеджер или мастер' };
   }
-  if (phone.length !== 11) return { ok: false, error: 'Похоже, в номере опечатка' };
+  if (!looksLikeEmail(email)) return { ok: false, error: 'Похоже, в адресе опечатка' };
+  if (phone && phone.length !== 11) return { ok: false, error: 'Похоже, в номере опечатка' };
 
   const code = inviteCode();
   try {
     await withTenant(who, async c => {
-      // Телефон хранится в том же виде, что и у остальных сотрудников:
-      // с плюсом. Сравнение при входе идёт по нормализованному виду (015),
-      // поэтому написание значения роли не играет.
+      // Почта — учётные данные, телефон — контакт и не обязателен. Сравнение
+      // при входе идёт по нормализованной почте (031).
       const u = await c.query<{ id: string }>(
-        `insert into users (point_id, network_id, role, name, phone)
-         values ($1,$2,$3,$4,$5) returning id`,
-        [who.point_id, who.network_id, input.role, name, '+' + phone]);
+        `insert into users (point_id, network_id, role, name, email, phone)
+         values ($1,$2,$3,$4,$5,$6) returning id`,
+        [who.point_id, who.network_id, input.role, name, email, phone ? '+' + phone : null]);
 
       await c.query(
         `insert into invites (point_id, network_id, code, role, expires_at, user_id)
@@ -228,7 +230,7 @@ export async function redeemStaffInvite(code: string):
  * той же ссылке не оставляет ни точки, ни половины точки.
  */
 export async function redeemNetworkInvite(input: {
-  code: string; phone: string; sms: string;
+  code: string; email: string; mailCode: string;
   pointName: string; address: string; ownerName: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   if (!validCode(input.code)) return { ok: false, error: 'Ссылка не похожа на приглашение' };
@@ -236,22 +238,21 @@ export async function redeemNetworkInvite(input: {
   const owner = input.ownerName.trim();
   if (name.length < 2) return { ok: false, error: 'Как называется точка?' };
   if (owner.length < 2) return { ok: false, error: 'Как вас зовут?' };
-  if (normalizePhone(input.phone).length !== 11) {
-    return { ok: false, error: 'Похоже, в номере опечатка' };
-  }
+  const email = normalizeEmail(input.email);
+  if (!looksLikeEmail(email)) return { ok: false, error: 'Похоже, в адресе опечатка' };
 
   let sid: string | null;
   try {
     const rows = await sys<{ sid: string | null }>(
       `select app.redeem_network_invite($1,$2,$3,$4,$5,$6) as sid`,
-      [input.code, input.phone, authCodeHash(input.phone, input.sms.trim()),
+      [input.code, email, authCodeHash(email, input.mailCode.trim()),
        name, input.address.trim(), owner]);
     sid = rows[0]?.sid ?? null;
   } catch {
     return { ok: false, error: 'Приглашение уже использовано или устарело' };
   }
   // Причину не детализируем ровно по той же причине, что и на входе: разница
-  // между «код не тот» и «кода нет» — это способ перебирать чужие телефоны.
+  // между «код не тот» и «кода нет» — это способ перебирать чужие адреса.
   if (!sid) return { ok: false, error: 'Код не подошёл или устарел' };
   setSession(sid);
   return { ok: true };
@@ -270,7 +271,7 @@ function setSession(sid: string): void {
 }
 
 /**
- * Хеш кода из SMS.
+ * Хеш кода из письма.
  *
  * ПОВТОРЕНО ИЗ auth.ts И ОБЯЗАНО С НИМ СОВПАДАТЬ. Там это приватная функция,
  * а регистрация точки не может пройти через verifyCode(): тот ищет
@@ -278,12 +279,12 @@ function setSession(sid: string): void {
  * никто не зарегистрирует точку, и ошибка будет выглядеть как «код не
  * подошёл».
  */
-function authCodeHash(phone: string, code: string): string {
+function authCodeHash(email: string, code: string): string {
   const salt = process.env.AUTH_CODE_SALT ?? '';
   if (!salt && process.env.NODE_ENV === 'production') {
     throw new Error('AUTH_CODE_SALT не задан: без соли хеш кода бесполезен');
   }
-  return createHash('sha256').update(`${salt}:${normalizePhone(phone)}:${code}`).digest('hex');
+  return createHash('sha256').update(`${salt}:${normalizeEmail(email)}:${code}`).digest('hex');
 }
 
 /**

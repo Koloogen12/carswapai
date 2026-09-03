@@ -11,9 +11,9 @@ import { revalidatePath } from 'next/cache';
 import { addStaff, setStaffActive, type AddStaffResult, type StaffRole } from '@/lib/staff';
 
 export async function actionAddStaff(
-  name: string, role: StaffRole, phone: string,
+  name: string, role: StaffRole, email: string,
 ): Promise<AddStaffResult> {
-  const r = await addStaff({ name, role, phone });
+  const r = await addStaff({ name, role, email });
   if (r.ok) revalidatePath('/staff');
   return r;
 }

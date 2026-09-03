@@ -20,7 +20,7 @@ type Issued = { code: string; link: string; qr: string[] };
 export function InviteForm({ canInvite }: { canInvite: boolean }) {
   const [name, setName] = useState('');
   const [role, setRole] = useState<StaffRole>('manager');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [issued, setIssued] = useState<Issued | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -28,10 +28,10 @@ export function InviteForm({ canInvite }: { canInvite: boolean }) {
 
   const send = () => start(async () => {
     setErr(null); setCopied(false);
-    const r = await actionAddStaff(name, role, phone);
+    const r = await actionAddStaff(name, role, email);
     if (!r.ok) { setErr(r.error); return; }
     setIssued({ code: r.code, link: r.link, qr: r.qr });
-    setName(''); setPhone('');
+    setName(''); setEmail('');
   });
 
   return (
@@ -71,10 +71,10 @@ export function InviteForm({ canInvite }: { canInvite: boolean }) {
             идёт по телефону: без него приглашение открыло бы сессию человеку,
             который потом не сможет войти во второй раз. */}
         <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-          <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>Телефон</span>
+          <span style={{ fontSize: "11.5px", fontWeight: "500", color: "#6E6E6E" }}>E-mail</span>
           <div style={{ background: "#F5F5F5", borderRadius: "14px", padding: "13px 15px" }}>
-            <input value={phone} onChange={e => setPhone(e.target.value)}
-              aria-label="Телефон" placeholder="+7 926 418 55 02" inputMode="tel" disabled={!canInvite}
+            <input value={email} onChange={e => setEmail(e.target.value)}
+              aria-label="E-mail" placeholder="petr@studio.ru" inputMode="email" disabled={!canInvite}
               onKeyDown={e => { if (e.key === 'Enter') send(); }}
               style={{ fontSize: "14px", fontWeight: "500", border: 0, background: "transparent", outline: "none", width: "100%", fontFamily: "inherit" }} />
           </div>
@@ -112,7 +112,7 @@ export function InviteForm({ canInvite }: { canInvite: boolean }) {
         </div>
       )}
 
-      <button type="button" onClick={send} disabled={!canInvite || pending || !name.trim() || !phone.trim()}
+      <button type="button" onClick={send} disabled={!canInvite || pending || !name.trim() || !email.trim()}
         style={{ background: canInvite ? "#111111" : "#E2E2E2", borderRadius: "999px", padding: "15px 0", textAlign: "center", border: 0, width: "100%", fontFamily: "inherit", cursor: canInvite ? "pointer" : "default" }}>
         <span style={{ fontSize: "14px", fontWeight: "500", color: canInvite ? "#FFFFFF" : "#9A9A9A" }}>
           {pending ? 'Секунду…' : canInvite ? 'Отправить приглашение' : 'Приглашает владелец точки'}</span>

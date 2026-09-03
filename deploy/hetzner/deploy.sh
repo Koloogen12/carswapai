@@ -54,7 +54,7 @@ set_if_absent OWNER_PASSWORD    "$(openssl rand -hex 24)"
 set_if_absent APP_PASSWORD      "$(openssl rand -hex 24)"
 set_if_absent WORKER_PASSWORD   "$(openssl rand -hex 24)"
 set_if_absent AUTH_CODE_SALT    "$(openssl rand -hex 32)"
-# Код входа на стенде. Провайдера SMS нет, а в кабинет входить надо — для
+# Код входа на стенде. Почтового провайдера нет, а в кабинет входить надо — для
 # показа и проверки. Выдаётся вместо случайного кода, проверяется тем же
 # путём. На экран не выводится: его знает тот, кто держит этот файл. На
 # боевом контуре этой строки быть НЕ должно — там вход только по SMS.
@@ -62,8 +62,12 @@ set_if_absent AUTH_STAND_CODE   "$(openssl rand -hex 6)"
 # Внешние ключи — заглушками, чтобы стек поднялся. Живые значения владелец
 # подставляет отдельно: в репозитории и в этом скрипте их нет и не будет.
 set_if_absent COMETAPI_KEY      "placeholder-replace-me"
-set_if_absent SMS_GATEWAY_URL   ""
-set_if_absent SMS_GATEWAY_KEY   ""
+# Почта для кода входа — Resend. Пока ключа нет, вход идёт по коду стенда
+# (AUTH_STAND_CODE ниже). Домен в MAIL_FROM обязан быть подтверждён в Resend
+# записями DNS: без этого письма уходят только на адрес владельца аккаунта,
+# а снаружи это выглядит как «код не приходит».
+set_if_absent RESEND_API_KEY    ""
+set_if_absent MAIL_FROM         "YOOMP <login@yoomp.io>"
 # Трансграничная передача кадра во внешнюю модель. Выключено по умолчанию:
 # включает владелец, когда юрист подтвердит достаточность обезличивания.
 set_if_absent CSW_TRANSFER_CLEARED "no"

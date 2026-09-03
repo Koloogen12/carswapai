@@ -25,9 +25,9 @@ values (:N, 'Сеть С', 'STAFF-2026', 10);
 select act_as(:P::uuid, :N::uuid);
 insert into points (id, network_id, name, public_slug)
 values (:P, :N, 'Точка С', 'staff-a');
-insert into users (id, point_id, network_id, role, name, phone) values
-  (:OW, :P, :N, 'owner',   'Владелец С', '+79995550001'),
-  (:MG, :P, :N, 'manager', 'Менеджер С', '+79995550002');
+insert into users (id, point_id, network_id, role, name, phone, email) values
+  (:OW, :P, :N, 'owner',   'Владелец С', '+79995550001', 'owner@s.example'),
+  (:MG, :P, :N, 'manager', 'Менеджер С', '+79995550002', 'manager@s.example');
 
 -- Соседняя точка той же сети. Она здесь не для полноты: политика users_tenant
 -- из 001 пускала в таблицу сотрудников любого человека СЕТИ, и без второй
@@ -162,8 +162,8 @@ update users set active = true where id = :MG;
 do $$
 declare sid uuid; n int;
 begin
-  perform app.issue_auth_code('79995550002', 'хеш-менеджера');
-  sid := app.redeem_auth_code('79995550002', 'хеш-менеджера');
+  perform app.issue_auth_code('manager@s.example', 'хеш-менеджера');
+  sid := app.redeem_auth_code('manager@s.example', 'хеш-менеджера');
   if sid is null then
     raise exception 'ПРОВАЛ: подготовка не удалась — менеджер не вошёл';
   end if;
@@ -198,14 +198,14 @@ insert into invites (network_id, code, role, expires_at) values
   (:N, 'NET-OK',  'owner', now() + interval '7 days'),
   (:N, 'NET-OLD', 'owner', now() - interval '1 day');
 
--- ── Без кода из SMS точка не заводится ───────────────────────
+-- ── Без кода из письма точка не заводится ───────────────────────
 do $$
 declare sid uuid; n int;
 begin
-  sid := app.redeem_network_invite('NET-OK', '79995551111', 'какой-то-хеш',
+  sid := app.redeem_network_invite('NET-OK', 'new-owner@s.example', 'какой-то-хеш',
                                    'Точка без кода', 'Адрес', 'Никто');
   if sid is not null then
-    raise exception 'ПРОВАЛ: точка завелась без подтверждения телефона';
+    raise exception 'ПРОВАЛ: точка завелась без подтверждения почты';
   end if;
   perform act_as('aaaaaaaa-5555-0000-0000-000000000001'::uuid,
                  '11111111-5555-0000-0000-000000000001'::uuid);
@@ -213,15 +213,15 @@ begin
   if n <> 0 then
     raise exception 'ПРОВАЛ: осталась половина точки после неудачи';
   end if;
-  raise notice 'ok  · Без подтверждённого телефона точка не заводится';
+  raise notice 'ok  · Без подтверждённой почты точка не заводится';
 end $$;
 
 -- ── Точка заводится и владелец входит ────────────────────────
 do $$
 declare sid uuid; r record; nm text;
 begin
-  perform app.issue_auth_code('79995551111', 'хеш-новой-точки');
-  sid := app.redeem_network_invite('NET-OK', '8 999 555 11 11', 'хеш-новой-точки',
+  perform app.issue_auth_code('new-owner@s.example', 'хеш-новой-точки');
+  sid := app.redeem_network_invite('NET-OK', 'New-Owner@S.example', 'хеш-новой-точки',
                                    'Пост на Кутузовском', 'Кутузовский, 36', 'Дмитрий К.');
   if sid is null then
     raise exception 'ПРОВАЛ: по живому приглашению сети точка не завелась';
@@ -243,7 +243,7 @@ select act_as(:P::uuid, :N::uuid);
 
 -- ── Одноразовость: второй раз точка НЕ заводится ─────────────
 select expect_fail($$
-  select app.redeem_network_invite('NET-OK', '79995552222', 'второй-заход',
+  select app.redeem_network_invite('NET-OK', 'user2222@s.example', 'второй-заход',
                                    'Вторая по той же ссылке', null, 'Кто-то')
 $$, 'Второй переход по той же ссылке сети точку не заводит');
 
@@ -262,20 +262,20 @@ end $$;
 -- ── Истёкшее приглашение сети ────────────────────────────────
 do $$
 begin
-  perform app.issue_auth_code('79995553333', 'хеш-для-старого');
+  perform app.issue_auth_code('user3333@s.example', 'хеш-для-старого');
 end $$;
 select expect_fail($$
-  select app.redeem_network_invite('NET-OLD', '79995553333', 'хеш-для-старого',
+  select app.redeem_network_invite('NET-OLD', 'user3333@s.example', 'хеш-для-старого',
                                    'Точка по старому коду', null, 'Опоздавший')
 $$, 'Истёкшее приглашение сети точку не заводит');
 
 -- ── Приглашение сотруднику не годится для регистрации точки ──
 do $$
 begin
-  perform app.issue_auth_code('79995554444', 'хеш-подмены');
+  perform app.issue_auth_code('user4444@s.example', 'хеш-подмены');
 end $$;
 select expect_fail($$
-  select app.redeem_network_invite('ST-REVOKED', '79995554444', 'хеш-подмены',
+  select app.redeem_network_invite('ST-REVOKED', 'user4444@s.example', 'хеш-подмены',
                                    'Точка через чужое приглашение', null, 'Ловкач')
 $$, 'Приглашением сотруднику точку не завести');
 

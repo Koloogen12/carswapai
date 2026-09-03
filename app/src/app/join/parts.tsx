@@ -102,9 +102,9 @@ function PointJoin({ code }: { code: string }) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState('');
   const [addr, setAddr] = useState('');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [owner, setOwner] = useState('');
-  const [sms, setSms] = useState('');
+  const [mailCode, setMailCode] = useState('');
   const [devCode, setDevCode] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -114,14 +114,14 @@ function PointJoin({ code }: { code: string }) {
     if (step === 1) {
       if (name.trim().length < 2) { setErr('Как называется точка?'); return; }
       if (owner.trim().length < 2) { setErr('Как вас зовут?'); return; }
-      const r = await actionJoinSendCode(phone);
+      const r = await actionJoinSendCode(email);
       if (!r.ok) { setErr(r.error); return; }
       setDevCode(r.devCode ?? null);
       setStep(2);
       return;
     }
     const r = await actionJoinPoint({
-      code, phone, sms, pointName: name, address: addr, ownerName: owner,
+      code, email, mailCode, pointName: name, address: addr, ownerName: owner,
     });
     if (!r.ok) { setErr(r.error); return; }
     setStep(3);
@@ -140,7 +140,7 @@ function PointJoin({ code }: { code: string }) {
           <Field label="Название точки" value={name} onChange={setName} strong placeholder="Пост на Кутузовском" />
           <Field label="Адрес" value={addr} onChange={setAddr} placeholder="Кутузовский пр-т, 36, стр. 4" />
           <div style={{ display: "flex", gap: "10px" }}>
-            <div style={{ flex: 1 }}><Field label="Ваш телефон" value={phone} onChange={setPhone} placeholder="+7 926 418 55 02" /></div>
+            <div style={{ flex: 1 }}><Field label="Ваша почта" value={email} onChange={setEmail} placeholder="owner@studio.ru" /></div>
             <div style={{ flex: 1 }}><Field label="Ваше имя" value={owner} onChange={setOwner} placeholder="Дмитрий Кораблёв" /></div>
           </div>
         </div>
@@ -153,14 +153,14 @@ function PointJoin({ code }: { code: string }) {
 
       {step === 2 && <>
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          <span style={{ fontSize: "26px", fontWeight: "500", letterSpacing: "-0.03em", lineHeight: "1.15" }}>Код из SMS</span>
+          <span style={{ fontSize: "26px", fontWeight: "500", letterSpacing: "-0.03em", lineHeight: "1.15" }}>Код из письма</span>
           <span style={{ fontSize: "13px", lineHeight: "1.5", color: "#6E6E6E" }}>
-            Отправили на {phone}. Это и есть ваш вход в дальнейшем — пароля в продукте нет.
+            Отправили на {email}. Это и есть ваш вход в дальнейшем — пароля в продукте нет.
           </span>
         </div>
         <div style={{ background: "#F5F5F5", borderRadius: "16px", padding: "17px 20px", boxShadow: "inset 0 0 0 1.5px #111111" }}>
-          <input aria-label="Код из SMS" inputMode="numeric" placeholder="· · · ·"
-            value={sms} onChange={e => setSms(e.target.value)}
+          <input aria-label="Код из письма" inputMode="numeric" placeholder="· · · ·"
+            value={mailCode} onChange={e => setMailCode(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') next(); }}
             style={{ fontSize: "22px", fontWeight: "500", letterSpacing: "0.32em", border: 0, background: "transparent", outline: "none", width: "100%", fontFamily: "inherit" }} />
         </div>
@@ -237,7 +237,7 @@ function NoCode() {
         <Field label="Название точки" value="" onChange={() => {}} disabled placeholder="откроется после кода" />
         <Field label="Адрес" value="" onChange={() => {}} disabled placeholder="откроется после кода" />
         <div style={{ display: "flex", gap: "10px" }}>
-          <div style={{ flex: 1 }}><Field label="Ваш телефон" value="" onChange={() => {}} disabled placeholder="" /></div>
+          <div style={{ flex: 1 }}><Field label="Ваша почта" value="" onChange={() => {}} disabled placeholder="" /></div>
           <div style={{ flex: 1 }}><Field label="Ваше имя" value="" onChange={() => {}} disabled placeholder="" /></div>
         </div>
       </div>

@@ -70,7 +70,7 @@ export default async function StaffPage() {
                   <div style={{ flex: "1", minWidth: 0, display: "flex", flexDirection: "column", gap: "1px" }}>
                     <span style={{ fontSize: "15px", fontWeight: "500" }}>{u.name}{mine ? ' · это вы' : ''}</span>
                     <span style={{ fontSize: "11.5px", ...(mine ? { opacity: ".65" } : { color: "#6E6E6E" }) }}>
-                      {u.phone} · {ROLE_RU[u.role] ?? u.role}
+                      {u.email ?? u.phone ?? '—'} · {ROLE_RU[u.role] ?? u.role}
                       {u.active ? '' : ' · доступ отозван'}
                       {u.active && invited ? ' · ссылка выписана, ещё не открыта' : ''}</span>
                   </div>

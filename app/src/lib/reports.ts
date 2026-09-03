@@ -147,11 +147,11 @@ export async function staffList() {
   const who = await claimsFor();
   return withTenant(who, async c => {
     const { rows } = await c.query(`
-      select id, name, phone, role::text, active, created_at
+      select id, name, email, phone, role::text, active, created_at
         from users where point_id = $1
        order by array_position(array['owner','manager','master'], role::text)`,
       [who.point_id]);
-    return rows as { id: string; name: string; phone: string; role: string;
+    return rows as { id: string; name: string; email: string | null; phone: string | null; role: string;
                      active: boolean; created_at: string }[];
   });
 }
