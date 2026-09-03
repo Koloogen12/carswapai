@@ -21,13 +21,25 @@ say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 # ── 1 · код ───────────────────────────────────────────────────────────────
 say "1 · код"
 install -d -m 755 "$STACK"
-if [ -d "$STACK/.git" ]; then
-  git -C "$STACK" fetch --depth 1 origin "$BRANCH"
+# SKIP_GIT=1 — код уже доставлен rsync-ом с машины разработчика. Так пришлось
+# делать, когда GitHub начал требовать логин на анонимный fetch с этого IP:
+# машина общая, соседи тоже ходят на GitHub, и лимит анонимных запросов у
+# них общий с нами. Падение здесь молча оставляло на сервере старый код, а
+# сборка дальше собирала его как новый.
+if [ "${SKIP_GIT:-0}" = "1" ]; then
+  echo "код доставлен rsync-ом, git не трогаем"
+elif [ -d "$STACK/.git" ]; then
+  if ! GIT_TERMINAL_PROMPT=0 git -C "$STACK" fetch --depth 1 origin "$BRANCH"; then
+    echo "GitHub не отдал код анонимно. Доставьте его rsync-ом и запустите с SKIP_GIT=1:" >&2
+    echo "  rsync -az --delete --exclude=.git --exclude=node_modules --exclude=.next \\" >&2
+    echo "        --exclude='.env*' --exclude=.storage ./ root@167.233.109.195:$STACK/" >&2
+    exit 1
+  fi
   git -C "$STACK" reset --hard "origin/$BRANCH"
 else
   git clone --depth 1 --branch "$BRANCH" "$REPO" "$STACK"
 fi
-git -C "$STACK" log --oneline -1
+[ "${SKIP_GIT:-0}" = "1" ] || git -C "$STACK" log --oneline -1
 
 # ── 2 · секреты ───────────────────────────────────────────────────────────
 # set_if_absent: существующее значение не перезаписывается никогда.
